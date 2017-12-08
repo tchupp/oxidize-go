@@ -6,10 +6,9 @@ import (
 )
 
 func main() {
-	bc := NewBlockchain()
-
-	bc.AddBlock("Send 4 BTC to Theo")
-	bc.AddBlock("Send 18 BTC to Theo")
+	bc := NewBlockchain().
+		AddBlock("Send 4 BTC to Theo").
+		AddBlock("Send 18 BTC to Theo")
 
 	for _, block := range bc.blocks {
 		fmt.Printf("Prev. hash: %x\n", block.PreviousHash)
