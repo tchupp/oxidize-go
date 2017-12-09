@@ -1,5 +1,5 @@
 package actions
 
 type Action interface {
-	Execute()
+	Execute() (bool, error)
 }

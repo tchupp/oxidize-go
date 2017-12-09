@@ -8,7 +8,6 @@ import (
 	"math/big"
 	"encoding/binary"
 	"log"
-	"time"
 )
 
 const (
@@ -37,7 +36,6 @@ func CalculateProofOfWork(block *UncommittedBlock) (int, []byte) {
 		} else {
 			nonce++
 		}
-		time.Sleep(10000)
 	}
 	fmt.Print("\n\n")
 

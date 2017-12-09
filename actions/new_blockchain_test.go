@@ -5,46 +5,67 @@ import (
 	"github.com/boltdb/bolt"
 	"github.com/tclchiam/block_n_go/blockchain"
 	"time"
+	"os"
 )
 
 func TestNewBlockchainAction_Execute(t *testing.T) {
 	const testBlocksBucket = "test_blocks"
 	const testDbFileName = "test_blockchain.db"
 
-	action := NewBlockchainAction{
-		dbFileName:   testDbFileName,
-		blocksBucket: testBlocksBucket,
-	}
-
-	result, err := action.Execute()
-
-	if !result {
-		t.Errorf("NewBlockchainAction failed")
-	}
-
-	db, err := bolt.Open(testDbFileName, 0600, &bolt.Options{Timeout: 1 * time.Second})
-	if err != nil {
-		t.Errorf("Error opening db: %s", err)
-	}
-
-	defer db.Close()
-
-	var genesisBlock blockchain.CommittedBlock
-	err = db.View(func(tx *bolt.Tx) error {
-		b := tx.Bucket([]byte(testBlocksBucket))
-
-		if b == nil {
-			t.Errorf("Block %s is nil, expected to exist", testBlocksBucket)
+	t.Run("Test", func(t *testing.T) {
+		action := NewBlockchainAction{
+			dbFileName:   testDbFileName,
+			blocksBucket: testBlocksBucket,
 		}
 
-		lastHash := b.Get([]byte("l"))
-		blockData := b.Get(lastHash)
-		genesisBlock = *blockchain.DeserializeBlock(blockData)
+		_, err := action.Execute()
+		if err != nil {
+			t.Fatalf("NewBlockchainAction failed: %s", err)
+		}
 
-		return nil
+		db, err := bolt.Open(testDbFileName, 0600, &bolt.Options{Timeout: 1 * time.Second})
+		if err != nil {
+			t.Fatalf("Error opening db: %s", err)
+		}
+
+		defer db.Close()
+
+		err = db.View(func(tx *bolt.Tx) error {
+			bucket := tx.Bucket([]byte(testBlocksBucket))
+			if bucket == nil {
+				t.Fatalf("no block with name '%s' exists", testBlocksBucket)
+			}
+
+			lastHash := bucket.Get([]byte("l"))
+			if lastHash == nil {
+				t.Fatalf("could not find last hash")
+			}
+
+			blockData := bucket.Get(lastHash)
+			if blockData == nil || len(blockData) == 0 {
+				t.Fatalf("block data is empty: '%s'", blockData)
+			}
+
+			genesisBlock, err := blockchain.DeserializeBlock(blockData)
+			if err != nil {
+				t.Fatalf("deserializing block '%s': %s", blockData, err)
+			}
+			if genesisBlock == nil {
+				t.Fatalf("Genesis block is nil")
+			}
+			if len(genesisBlock.PreviousHash) != 0 {
+				t.Fatalf("Genesis block has bad PreviousHash, expected [%s], but was [%s]", []byte{}, genesisBlock.PreviousHash)
+			}
+
+			return nil
+		})
+		if err != nil {
+			t.Fatalf("error: %s", err)
+		}
 	})
 
-	if len(genesisBlock.PreviousHash) != 0 {
-		t.Errorf("Genesis block has bad PreviousHash, expected [%s], but was [%s]", []byte{}, genesisBlock.PreviousHash)
+	err := os.Remove(testDbFileName)
+	if err != nil {
+		t.Fatalf("deleting test db file: %s", err)
 	}
 }

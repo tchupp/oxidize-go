@@ -4,7 +4,6 @@ import (
 	"time"
 	"bytes"
 	"encoding/gob"
-	"log"
 )
 
 type UncommittedBlock struct {
@@ -51,26 +50,26 @@ func (b *UncommittedBlock) commit() *CommittedBlock {
 	}
 }
 
-func (block *CommittedBlock) Serialize() []byte {
+func (block *CommittedBlock) Serialize() ([]byte, error) {
 	var result bytes.Buffer
 	encoder := gob.NewEncoder(&result)
 
 	err := encoder.Encode(block)
 	if err != nil {
-		log.Panic(err)
+		return nil, err
 	}
 
-	return result.Bytes()
+	return result.Bytes(), nil
 }
 
-func DeserializeBlock(d []byte) *CommittedBlock {
+func DeserializeBlock(d []byte) (*CommittedBlock, error) {
 	var block CommittedBlock
 
 	decoder := gob.NewDecoder(bytes.NewReader(d))
 	err := decoder.Decode(&block)
 	if err != nil {
-		log.Panic(err)
+		return nil, err
 	}
 
-	return &block
+	return &block, nil
 }

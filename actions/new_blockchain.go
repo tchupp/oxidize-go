@@ -3,6 +3,7 @@ package actions
 import (
 	"github.com/boltdb/bolt"
 	"github.com/tclchiam/block_n_go/blockchain"
+	"fmt"
 )
 
 type NewBlockchainAction struct {
@@ -13,30 +14,35 @@ type NewBlockchainAction struct {
 func (action *NewBlockchainAction) Execute() (bool, error) {
 	db, err := bolt.Open(action.dbFileName, 0600, nil)
 	if err != nil {
-		return false, err
+		return false, fmt.Errorf("opening db: %s", err)
 	}
 
 	defer db.Close()
 
 	err = db.Update(func(tx *bolt.Tx) error {
-		b := tx.Bucket([]byte(action.blocksBucket))
+		blocksBucketExists := tx.Bucket([]byte(action.blocksBucket)) != nil
 
-		if b == nil {
-			genesis := blockchain.NewGenesisBlock()
+		if blocksBucketExists == false {
+			genesisBlock := blockchain.NewGenesisBlock()
 
-			b, err := tx.CreateBucket([]byte(action.blocksBucket))
+			bucket, err := tx.CreateBucket([]byte(action.blocksBucket))
 			if err != nil {
-				return err
+				return fmt.Errorf("creating block bucket: %s", err)
 			}
 
-			err = b.Put(genesis.Hash, genesis.Serialize())
+			blockData, err := genesisBlock.Serialize()
 			if err != nil {
-				return err
+				return fmt.Errorf("serializing block: %s", err)
 			}
 
-			err = b.Put([]byte("l"), genesis.Hash)
+			err = bucket.Put(genesisBlock.Hash, blockData)
 			if err != nil {
-				return err
+				return fmt.Errorf("writing block: %s", err)
+			}
+
+			err = bucket.Put([]byte("l"), genesisBlock.Hash)
+			if err != nil {
+				return fmt.Errorf("writing last hash: %s", err)
 			}
 		}
 
