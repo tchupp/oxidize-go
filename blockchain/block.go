@@ -2,6 +2,9 @@ package blockchain
 
 import (
 	"time"
+	"bytes"
+	"encoding/gob"
+	"log"
 )
 
 type UncommittedBlock struct {
@@ -46,4 +49,28 @@ func (b *UncommittedBlock) commit() *CommittedBlock {
 		Hash:         hash,
 		Nonce:        nonce,
 	}
+}
+
+func (block *CommittedBlock) Serialize() []byte {
+	var result bytes.Buffer
+	encoder := gob.NewEncoder(&result)
+
+	err := encoder.Encode(block)
+	if err != nil {
+		log.Panic(err)
+	}
+
+	return result.Bytes()
+}
+
+func DeserializeBlock(d []byte) *CommittedBlock {
+	var block CommittedBlock
+
+	decoder := gob.NewDecoder(bytes.NewReader(d))
+	err := decoder.Decode(&block)
+	if err != nil {
+		log.Panic(err)
+	}
+
+	return &block
 }

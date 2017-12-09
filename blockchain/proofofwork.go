@@ -61,9 +61,7 @@ func (block *CommittedBlock) Validate() bool {
 	hash := sha256.Sum256(rawBlockData)
 	hashInt.SetBytes(hash[:])
 
-	isValid := hashInt.Cmp(target) == -1
-
-	return isValid
+	return hashInt.Cmp(target) == -1
 }
 
 func hashBlock(block *UncommittedBlock, nonce int) [32]byte {
