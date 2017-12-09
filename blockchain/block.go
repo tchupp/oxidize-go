@@ -23,12 +23,12 @@ type CommittedBlock struct {
 }
 
 func NewGenesisBlock() *CommittedBlock {
-	return NewBlock("Genesis Block", []byte{})
+	return NewBlock("Genesis Block", []byte{}, 0)
 }
 
-func NewBlock(data string, previousHash []byte) *CommittedBlock {
+func NewBlock(data string, previousHash []byte, index int) *CommittedBlock {
 	uncommittedBlock := UncommittedBlock{
-		Index:        0,
+		Index:        index,
 		PreviousHash: previousHash,
 		Timestamp:    time.Now().Unix(),
 		Data:         []byte(data),

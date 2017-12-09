@@ -9,8 +9,8 @@ import (
 )
 
 func TestNewBlockchainAction_Execute(t *testing.T) {
-	const testBlocksBucket = "test_blocks"
 	const testDbFileName = "test_blockchain.db"
+	const testBlocksBucket = "test_blocks"
 
 	t.Run("Test", func(t *testing.T) {
 		action := NewBlockchainAction{
@@ -36,25 +36,26 @@ func TestNewBlockchainAction_Execute(t *testing.T) {
 				t.Fatalf("no block with name '%s' exists", testBlocksBucket)
 			}
 
-			lastHash := bucket.Get([]byte("l"))
-			if lastHash == nil {
-				t.Fatalf("could not find last hash")
+			latestBlockHash := bucket.Get([]byte("l"))
+			if latestBlockHash == nil {
+				t.Fatalf("could not find latest block hash")
 			}
 
-			blockData := bucket.Get(lastHash)
-			if blockData == nil || len(blockData) == 0 {
-				t.Fatalf("block data is empty: '%s'", blockData)
+			latestBlockData := bucket.Get(latestBlockHash)
+			if latestBlockData == nil || len(latestBlockData) == 0 {
+				t.Fatalf("latest block data is empty: '%s'", latestBlockData)
 			}
 
-			genesisBlock, err := blockchain.DeserializeBlock(blockData)
+			genesisBlock, err := blockchain.DeserializeBlock(latestBlockData)
 			if err != nil {
-				t.Fatalf("deserializing block '%s': %s", blockData, err)
+				t.Fatalf("deserializing block '%s': %s", latestBlockData, err)
 			}
-			if genesisBlock == nil {
-				t.Fatalf("Genesis block is nil")
-			}
+
 			if len(genesisBlock.PreviousHash) != 0 {
 				t.Fatalf("Genesis block has bad PreviousHash, expected [%s], but was [%s]", []byte{}, genesisBlock.PreviousHash)
+			}
+			if genesisBlock.Index != 0 {
+				t.Fatalf("Genesis block has bad Index, expected [%s], but was [%s]", 0, genesisBlock.Index)
 			}
 
 			return nil

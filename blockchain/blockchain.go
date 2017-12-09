@@ -6,7 +6,7 @@ type Blockchain struct {
 
 func (bc *Blockchain) AddBlock(data string) *Blockchain {
 	prevBlock := bc.Blocks[len(bc.Blocks)-1]
-	newBlock := NewBlock(data, prevBlock.Hash)
+	newBlock := NewBlock(data, prevBlock.Hash, prevBlock.Index+1)
 	newBlocks := append(bc.Blocks, newBlock)
 	return &Blockchain{newBlocks}
 }
