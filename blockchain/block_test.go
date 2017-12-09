@@ -11,17 +11,17 @@ func TestNewGenesisBlock(t *testing.T) {
 	genesisBlock := NewGenesisBlock()
 
 	if len(genesisBlock.PreviousHash) != 0 {
-		t.Errorf("Genesis block has bad PreviousHash, expected [%s], but was [%s]", []byte{}, genesisBlock.PreviousHash)
+		t.Fatalf("Genesis block has bad PreviousHash, expected [%s], but was [%s]", []byte{}, genesisBlock.PreviousHash)
 	}
 	if genesisBlock.Index != 0 {
-		t.Errorf("Genesis block has bad Index, expected %d, but was %d", 0, genesisBlock.Index)
+		t.Fatalf("Genesis block has bad Index, expected %d, but was %d", 0, genesisBlock.Index)
 	}
 	if string(genesisBlock.Data) != "Genesis Block" {
-		t.Errorf("Genesis block has bad Data, expected \"%s\", but was \"%s\"", "Genesis Block", genesisBlock.Data)
+		t.Fatalf("Genesis block has bad Data, expected \"%s\", but was \"%s\"", "Genesis Block", genesisBlock.Data)
 	}
 
 	if !hasValidHash(genesisBlock) {
-		t.Errorf("Genesis block is not valid.")
+		t.Fatalf("Genesis block is not valid.")
 	}
 }
 
