@@ -22,13 +22,13 @@ func TestNewBlockAction_Execute(t *testing.T) {
 	defer db.Close()
 
 	t.Run("Test", func(t *testing.T) {
-		newBlockchainAction := NewBlockchainAction{
+		openBlockchainAction := OpenBlockchainAction{
 			bucketName: testBlocksBucketName,
 		}
 
-		_, err := newBlockchainAction.Execute(db)
+		_, err := openBlockchainAction.Execute(db)
 		if err != nil {
-			t.Fatalf("NewBlockchainAction failed: %s", err)
+			t.Fatalf("OpenBlockchainAction failed: %s", err)
 		}
 
 		genesisBlock, err := testGetLatestBlock(db, testBlocksBucketName)
@@ -43,7 +43,7 @@ func TestNewBlockAction_Execute(t *testing.T) {
 			data:       newBlockData,
 		}
 
-		_, err = newBlockAction.Execute(db)
+		bc, err := newBlockAction.Execute(db)
 		if err != nil {
 			t.Fatalf("NewBlockAction failed: %s", err)
 		}
@@ -62,7 +62,9 @@ func TestNewBlockAction_Execute(t *testing.T) {
 		if string(newBlock.Data) != newBlockData {
 			t.Fatalf("New block has bad Index, expected [%s], but was [%s]", newBlockData, newBlock.Data)
 		}
-
+		if bytes.Compare(bc.LatestHash(), newBlock.Hash) != 0 {
+			t.Fatalf("Resulting blockchain's latest hash does not match block's hash: expected '%x', was '%x'", newBlock.Hash, bc.LatestHash())
+		}
 	})
 
 	err = os.Remove(testDbFileName)

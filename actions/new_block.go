@@ -11,10 +11,10 @@ type NewBlockAction struct {
 	bucketName []byte
 }
 
-func (action *NewBlockAction) Execute(db *bolt.DB) (bool, error) {
+func (action *NewBlockAction) Execute(db *bolt.DB) (*blockchain.Blockchain, error) {
 	latestBlock, err := getLatestBlock(db, action.bucketName)
 	if err != nil {
-		return false, fmt.Errorf("reading last hash: %s", err)
+		return nil, fmt.Errorf("reading last hash: %s", err)
 	}
 
 	newBlock := blockchain.NewBlock(action.data, latestBlock.Hash, latestBlock.Index+1)
@@ -33,7 +33,7 @@ func (action *NewBlockAction) Execute(db *bolt.DB) (bool, error) {
 		return nil
 	})
 
-	return true, nil
+	return blockchain.New(newBlock.Hash), nil
 }
 
 func getLatestBlock(db *bolt.DB, bucketNameBytes []byte) (*blockchain.CommittedBlock, error) {

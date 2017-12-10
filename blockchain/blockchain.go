@@ -1,16 +1,18 @@
 package blockchain
 
 type Blockchain struct {
-	Blocks []*CommittedBlock
+	latestHash []byte
 }
 
 func (bc *Blockchain) AddBlock(data string) *Blockchain {
-	prevBlock := bc.Blocks[len(bc.Blocks)-1]
-	newBlock := NewBlock(data, prevBlock.Hash, prevBlock.Index+1)
-	newBlocks := append(bc.Blocks, newBlock)
-	return &Blockchain{newBlocks}
+	return &Blockchain{latestHash: []byte{}}
 }
 
-func NewBlockchain() *Blockchain {
-	return &Blockchain{[]*CommittedBlock{NewGenesisBlock()}}
+func (bc *Blockchain) LatestHash() []byte {
+	return bc.latestHash
 }
+
+func New(latestHash []byte) *Blockchain {
+	return &Blockchain{latestHash: latestHash}
+}
+
