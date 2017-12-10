@@ -7,34 +7,24 @@ import (
 )
 
 type NewBlockchainAction struct {
-	bucketName string
+	bucketName []byte
 }
 
 func (action *NewBlockchainAction) Execute(db *bolt.DB) (bool, error) {
 	err := db.Update(func(tx *bolt.Tx) error {
-		blocksBucketExists := tx.Bucket([]byte(action.bucketName)) != nil
+		blocksBucketExists := tx.Bucket(action.bucketName) != nil
 
 		if blocksBucketExists == false {
 			genesisBlock := blockchain.NewGenesisBlock()
 
-			bucket, err := tx.CreateBucket([]byte(action.bucketName))
+			bucket, err := tx.CreateBucket(action.bucketName)
 			if err != nil {
 				return fmt.Errorf("creating block bucket: %s", err)
 			}
 
-			blockData, err := genesisBlock.Serialize()
+			err = blockchain.WriteBlock(bucket, genesisBlock)
 			if err != nil {
-				return fmt.Errorf("serializing block: %s", err)
-			}
-
-			err = bucket.Put(genesisBlock.Hash, blockData)
-			if err != nil {
-				return fmt.Errorf("writing block: %s", err)
-			}
-
-			err = bucket.Put([]byte("l"), genesisBlock.Hash)
-			if err != nil {
-				return fmt.Errorf("writing last hash: %s", err)
+				return err
 			}
 		}
 

@@ -12,7 +12,7 @@ import (
 
 func TestNewBlockAction_Execute(t *testing.T) {
 	const testDbFileName = "test_blockchain.db"
-	const testBlocksBucketName = "test_blocks"
+	testBlocksBucketName := []byte("test_blocks")
 
 	db, err := bolt.Open(testDbFileName, 0600, &bolt.Options{Timeout: 1 * time.Second})
 	if err != nil {
@@ -31,7 +31,7 @@ func TestNewBlockAction_Execute(t *testing.T) {
 			t.Fatalf("NewBlockchainAction failed: %s", err)
 		}
 
-		genesisBlock, err := testGetLatestBlock(db, []byte(testBlocksBucketName))
+		genesisBlock, err := testGetLatestBlock(db, testBlocksBucketName)
 		if err != nil {
 			t.Fatalf("error: %s", err)
 		}
@@ -48,7 +48,7 @@ func TestNewBlockAction_Execute(t *testing.T) {
 			t.Fatalf("NewBlockAction failed: %s", err)
 		}
 
-		newBlock, err := testGetLatestBlock(db, []byte(testBlocksBucketName))
+		newBlock, err := testGetLatestBlock(db, testBlocksBucketName)
 		if err != nil {
 			t.Fatalf("error: %s", err)
 		}
@@ -71,14 +71,14 @@ func TestNewBlockAction_Execute(t *testing.T) {
 	}
 }
 
-func testGetLatestBlock(db *bolt.DB, bucketNameBytes []byte) (*blockchain.CommittedBlock, error) {
+func testGetLatestBlock(db *bolt.DB, bucketName []byte) (*blockchain.CommittedBlock, error) {
 	var latestBlock *blockchain.CommittedBlock
 	var err error
 
 	err = db.View(func(tx *bolt.Tx) error {
-		bucket := tx.Bucket(bucketNameBytes)
+		bucket := tx.Bucket(bucketName)
 		if bucket == nil {
-			return fmt.Errorf("no block with name %s exists", bucketNameBytes)
+			return fmt.Errorf("no block with name %s exists", bucketName)
 		}
 
 		latestBlockHash := bucket.Get([]byte("l"))

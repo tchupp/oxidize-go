@@ -21,7 +21,7 @@ func TestNewBlockchainAction_Execute(t *testing.T) {
 
 	t.Run("Test", func(t *testing.T) {
 		action := NewBlockchainAction{
-			bucketName: testBlocksBucket,
+			bucketName: []byte(testBlocksBucket),
 		}
 
 		_, err := action.Execute(db)
