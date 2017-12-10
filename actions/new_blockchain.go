@@ -7,25 +7,17 @@ import (
 )
 
 type NewBlockchainAction struct {
-	dbFileName   string
-	blocksBucket string
+	bucketName string
 }
 
-func (action *NewBlockchainAction) Execute() (bool, error) {
-	db, err := bolt.Open(action.dbFileName, 0600, nil)
-	if err != nil {
-		return false, fmt.Errorf("opening db: %s", err)
-	}
-
-	defer db.Close()
-
-	err = db.Update(func(tx *bolt.Tx) error {
-		blocksBucketExists := tx.Bucket([]byte(action.blocksBucket)) != nil
+func (action *NewBlockchainAction) Execute(db *bolt.DB) (bool, error) {
+	err := db.Update(func(tx *bolt.Tx) error {
+		blocksBucketExists := tx.Bucket([]byte(action.bucketName)) != nil
 
 		if blocksBucketExists == false {
 			genesisBlock := blockchain.NewGenesisBlock()
 
-			bucket, err := tx.CreateBucket([]byte(action.blocksBucket))
+			bucket, err := tx.CreateBucket([]byte(action.bucketName))
 			if err != nil {
 				return fmt.Errorf("creating block bucket: %s", err)
 			}

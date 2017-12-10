@@ -1,5 +1,7 @@
 package actions
 
+import "github.com/boltdb/bolt"
+
 type Action interface {
-	Execute() (bool, error)
+	Execute(db *bolt.DB) (bool, error)
 }

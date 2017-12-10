@@ -7,30 +7,24 @@ import (
 )
 
 type NewBlockAction struct {
-	dbFileName string
-	bucketName string
 	data       string
+	bucketName string
 }
 
-func (action *NewBlockAction) Execute() (bool, error) {
-	db, err := bolt.Open(action.dbFileName, 0600, nil)
-	if err != nil {
-		return false, fmt.Errorf("opening db: %s", err)
-	}
+func (action *NewBlockAction) Execute(db *bolt.DB) (bool, error) {
+	bucketNameBytes := []byte(action.bucketName)
 
-	defer db.Close()
-
-	latestBlock, err := getLatestBlock(db, []byte(action.bucketName))
+	latestBlock, err := getLatestBlock(db, bucketNameBytes)
 	if err != nil {
 		return false, fmt.Errorf("reading last hash: %s", err)
 	}
 
-	newBlock := blockchain.NewBlock(action.data, latestBlock.Hash, latestBlock.Index + 1)
+	newBlock := blockchain.NewBlock(action.data, latestBlock.Hash, latestBlock.Index+1)
 
 	err = db.Update(func(tx *bolt.Tx) error {
-		bucket := tx.Bucket([]byte(action.bucketName))
+		bucket := tx.Bucket(bucketNameBytes)
 		if bucket == nil {
-			return fmt.Errorf("no block with name '%s' exists", action.bucketName)
+			return fmt.Errorf("no block with name '%s' exists", bucketNameBytes)
 		}
 
 		blockData, err := newBlock.Serialize()
@@ -54,14 +48,14 @@ func (action *NewBlockAction) Execute() (bool, error) {
 	return true, nil
 }
 
-func getLatestBlock(db *bolt.DB, bucketName []byte) (*blockchain.CommittedBlock, error) {
+func getLatestBlock(db *bolt.DB, bucketNameBytes []byte) (*blockchain.CommittedBlock, error) {
 	var latestBlock *blockchain.CommittedBlock
 	var err error
 
 	err = db.View(func(tx *bolt.Tx) error {
-		bucket := tx.Bucket(bucketName)
+		bucket := tx.Bucket(bucketNameBytes)
 		if bucket == nil {
-			return fmt.Errorf("no block with name %s exists", bucketName)
+			return fmt.Errorf("no block with name %s exists", bucketNameBytes)
 		}
 
 		latestBlockHash := bucket.Get([]byte("l"))

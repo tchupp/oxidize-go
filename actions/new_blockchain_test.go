@@ -12,23 +12,22 @@ func TestNewBlockchainAction_Execute(t *testing.T) {
 	const testDbFileName = "test_blockchain.db"
 	const testBlocksBucket = "test_blocks"
 
+	db, err := bolt.Open(testDbFileName, 0600, &bolt.Options{Timeout: 1 * time.Second})
+	if err != nil {
+		t.Fatalf("Error opening db: %s", err)
+	}
+
+	defer db.Close()
+
 	t.Run("Test", func(t *testing.T) {
 		action := NewBlockchainAction{
-			dbFileName:   testDbFileName,
-			blocksBucket: testBlocksBucket,
+			bucketName: testBlocksBucket,
 		}
 
-		_, err := action.Execute()
+		_, err := action.Execute(db)
 		if err != nil {
 			t.Fatalf("NewBlockchainAction failed: %s", err)
 		}
-
-		db, err := bolt.Open(testDbFileName, 0600, &bolt.Options{Timeout: 1 * time.Second})
-		if err != nil {
-			t.Fatalf("Error opening db: %s", err)
-		}
-
-		defer db.Close()
 
 		err = db.View(func(tx *bolt.Tx) error {
 			bucket := tx.Bucket([]byte(testBlocksBucket))
@@ -65,7 +64,7 @@ func TestNewBlockchainAction_Execute(t *testing.T) {
 		}
 	})
 
-	err := os.Remove(testDbFileName)
+	err = os.Remove(testDbFileName)
 	if err != nil {
 		t.Fatalf("deleting test db file: %s", err)
 	}

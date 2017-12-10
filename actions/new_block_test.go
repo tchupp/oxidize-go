@@ -7,24 +7,31 @@ import (
 	"github.com/boltdb/bolt"
 	"github.com/tclchiam/block_n_go/blockchain"
 	"bytes"
+	"fmt"
 )
 
 func TestNewBlockAction_Execute(t *testing.T) {
 	const testDbFileName = "test_blockchain.db"
-	const testBlocksBucket = "test_blocks"
+	const testBlocksBucketName = "test_blocks"
+
+	db, err := bolt.Open(testDbFileName, 0600, &bolt.Options{Timeout: 1 * time.Second})
+	if err != nil {
+		t.Fatalf("Error opening db: %s", err)
+	}
+
+	defer db.Close()
 
 	t.Run("Test", func(t *testing.T) {
 		newBlockchainAction := NewBlockchainAction{
-			dbFileName:   testDbFileName,
-			blocksBucket: testBlocksBucket,
+			bucketName: testBlocksBucketName,
 		}
 
-		_, err := newBlockchainAction.Execute()
+		_, err := newBlockchainAction.Execute(db)
 		if err != nil {
 			t.Fatalf("NewBlockchainAction failed: %s", err)
 		}
 
-		genesisBlock, err := getLatestBlockTest(t, testDbFileName, testBlocksBucket)
+		genesisBlock, err := testGetLatestBlock(db, []byte(testBlocksBucketName))
 		if err != nil {
 			t.Fatalf("error: %s", err)
 		}
@@ -32,17 +39,16 @@ func TestNewBlockAction_Execute(t *testing.T) {
 		const newBlockData = "Send Theo 3 BTC"
 
 		newBlockAction := NewBlockAction{
-			dbFileName: testDbFileName,
-			bucketName: testBlocksBucket,
+			bucketName: testBlocksBucketName,
 			data:       newBlockData,
 		}
 
-		_, err = newBlockAction.Execute()
+		_, err = newBlockAction.Execute(db)
 		if err != nil {
 			t.Fatalf("NewBlockAction failed: %s", err)
 		}
 
-		newBlock, err := getLatestBlockTest(t, testDbFileName, testBlocksBucket)
+		newBlock, err := testGetLatestBlock(db, []byte(testBlocksBucketName))
 		if err != nil {
 			t.Fatalf("error: %s", err)
 		}
@@ -54,24 +60,44 @@ func TestNewBlockAction_Execute(t *testing.T) {
 			t.Fatalf("New block has bad Index, expected [%s], but was [%s]", 1, newBlock.Index)
 		}
 		if string(newBlock.Data) != newBlockData {
-			t.Fatalf("New block has bad Index, expected [%s], but was [%s]", 1, newBlock.Index)
+			t.Fatalf("New block has bad Index, expected [%s], but was [%s]", newBlockData, newBlock.Data)
 		}
 
 	})
 
-	err := os.Remove(testDbFileName)
+	err = os.Remove(testDbFileName)
 	if err != nil {
 		t.Fatalf("deleting test db file: %s", err)
 	}
 }
 
-func getLatestBlockTest(t *testing.T, dbFileName string, bucketName string) (*blockchain.CommittedBlock, error) {
-	db, err := bolt.Open(dbFileName, 0600, &bolt.Options{Timeout: 1 * time.Second})
-	if err != nil {
-		t.Fatalf("Error opening db: %s", err)
-	}
+func testGetLatestBlock(db *bolt.DB, bucketNameBytes []byte) (*blockchain.CommittedBlock, error) {
+	var latestBlock *blockchain.CommittedBlock
+	var err error
 
-	defer db.Close()
+	err = db.View(func(tx *bolt.Tx) error {
+		bucket := tx.Bucket(bucketNameBytes)
+		if bucket == nil {
+			return fmt.Errorf("no block with name %s exists", bucketNameBytes)
+		}
 
-	return getLatestBlock(db, []byte(bucketName))
+		latestBlockHash := bucket.Get([]byte("l"))
+		if latestBlockHash == nil {
+			return fmt.Errorf("could not find latest block hash")
+		}
+
+		latestBlockData := bucket.Get(latestBlockHash)
+		if latestBlockData == nil || len(latestBlockData) == 0 {
+			return fmt.Errorf("latest block data is empty: '%s'", latestBlockData)
+		}
+
+		latestBlock, err = blockchain.DeserializeBlock(latestBlockData)
+		if err != nil {
+			return fmt.Errorf("deserializing block '%s': %s", latestBlockData, err)
+		}
+
+		return nil
+	})
+
+	return latestBlock, err
 }
