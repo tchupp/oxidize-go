@@ -1,14 +1,14 @@
-package actions
+package blockchain
 
 import (
 	"testing"
-	"github.com/boltdb/bolt"
 	"time"
 	"os"
-	"bytes"
+	"github.com/boltdb/bolt"
+	"github.com/google/go-cmp/cmp"
 )
 
-func TestOpenBlockchainAction_Execute(t *testing.T) {
+func TestOpen(t *testing.T) {
 	const testDbFileName = "test_blockchain.db"
 	var testBlocksBucketName = []byte("test_blocks")
 
@@ -20,16 +20,13 @@ func TestOpenBlockchainAction_Execute(t *testing.T) {
 	defer db.Close()
 
 	t.Run("Test", func(t *testing.T) {
-		action := OpenBlockchainAction{
-			bucketName: []byte(testBlocksBucketName),
-		}
+		head, err := open(db, []byte(testBlocksBucketName))
 
-		bc, err := action.Execute(db)
 		if err != nil {
 			t.Fatalf("OpenBlockchainAction failed: %s", err)
 		}
 
-		genesisBlock, err := testGetLatestBlock(db, testBlocksBucketName)
+		genesisBlock, err := readLatestBlock(db, testBlocksBucketName)
 		if err != nil {
 			t.Fatalf("error: %s", err)
 		}
@@ -40,8 +37,8 @@ func TestOpenBlockchainAction_Execute(t *testing.T) {
 		if genesisBlock.Index != 0 {
 			t.Fatalf("Genesis block has bad Index, expected '%s', but was '%s'", 0, genesisBlock.Index)
 		}
-		if bytes.Compare(bc.LatestHash(), genesisBlock.Hash) != 0 {
-			t.Fatalf("Resulting blockchain's latest hash does not match block's hash: expected '%x', was '%x'", genesisBlock.Hash, bc.LatestHash())
+		if !cmp.Equal(head, genesisBlock) {
+			t.Fatalf("Resulting block does not equal the latest block: %s", cmp.Diff(head, genesisBlock))
 		}
 	})
 

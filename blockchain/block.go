@@ -2,8 +2,6 @@ package blockchain
 
 import (
 	"time"
-	"bytes"
-	"encoding/gob"
 )
 
 type UncommittedBlock struct {
@@ -23,18 +21,30 @@ type CommittedBlock struct {
 }
 
 func NewGenesisBlock() *CommittedBlock {
-	return NewBlock("Genesis Block", []byte{}, 0)
+	return NewBlock("Genesis Block", []byte(nil), 0)
 }
 
 func NewBlock(data string, previousHash []byte, index int) *CommittedBlock {
-	uncommittedBlock := UncommittedBlock{
+	b := UncommittedBlock{
 		Index:        index,
 		PreviousHash: previousHash,
 		Timestamp:    time.Now().Unix(),
 		Data:         []byte(data),
 	}
+	nonce, hash := CalculateProofOfWork(&b)
 
-	return uncommittedBlock.commit()
+	return &CommittedBlock{
+		Index:        b.Index,
+		PreviousHash: b.PreviousHash,
+		Timestamp:    b.Timestamp,
+		Data:         b.Data,
+		Hash:         hash,
+		Nonce:        nonce,
+	}
+}
+
+func (b *CommittedBlock) Next() (*CommittedBlock, error) {
+	return nil, nil
 }
 
 func (b *UncommittedBlock) commit() *CommittedBlock {
@@ -48,28 +58,4 @@ func (b *UncommittedBlock) commit() *CommittedBlock {
 		Hash:         hash,
 		Nonce:        nonce,
 	}
-}
-
-func (block *CommittedBlock) Serialize() ([]byte, error) {
-	var result bytes.Buffer
-	encoder := gob.NewEncoder(&result)
-
-	err := encoder.Encode(block)
-	if err != nil {
-		return nil, err
-	}
-
-	return result.Bytes(), nil
-}
-
-func DeserializeBlock(d []byte) (*CommittedBlock, error) {
-	var block CommittedBlock
-
-	decoder := gob.NewDecoder(bytes.NewReader(d))
-	err := decoder.Decode(&block)
-	if err != nil {
-		return nil, err
-	}
-
-	return &block, nil
 }

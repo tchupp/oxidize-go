@@ -1,17 +1,31 @@
 package main
 
 import (
+	"github.com/tclchiam/block_n_go/blockchain"
+	"log"
 	"fmt"
 	"strconv"
-	"github.com/tclchiam/block_n_go/blockchain"
 )
 
 func main() {
-	bc := blockchain.NewBlockchain().
-		AddBlock("Send 4 BTC to Theo").
-		AddBlock("Send 18 BTC to Theo")
+	bc, err := blockchain.Open("reactions")
+	if err != nil {
+		log.Panic(err)
+	}
 
-	for _, block := range bc.Blocks {
+	bc, err = bc.NewBlock("Send 4 BTC to Theo")
+	if err != nil {
+		log.Panic(err)
+	}
+
+	bc, err = bc.NewBlock("Send 18 BTC to Theo")
+	if err != nil {
+		log.Panic(err)
+	}
+
+	block := bc.Head()
+
+	for block != nil {
 		fmt.Printf("Index: %x\n", block.Index)
 		fmt.Printf("PreviousHash: %x\n", block.PreviousHash)
 		fmt.Printf("Data: %s\n", block.Data)
@@ -19,5 +33,15 @@ func main() {
 		fmt.Printf("Nonce: %d\n", block.Nonce)
 		fmt.Printf("Is valid: %s\n", strconv.FormatBool(block.Validate()))
 		fmt.Println()
+
+		block, err = block.Next()
+		if err != nil {
+			log.Panic(err)
+		}
+	}
+
+	err = bc.Delete()
+	if err != nil {
+		log.Panic(err)
 	}
 }
