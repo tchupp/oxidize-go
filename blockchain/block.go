@@ -42,20 +42,3 @@ func NewBlock(data string, previousHash []byte, index int) *CommittedBlock {
 		Nonce:        nonce,
 	}
 }
-
-func (b *CommittedBlock) Next() (*CommittedBlock, error) {
-	return nil, nil
-}
-
-func (b *UncommittedBlock) commit() *CommittedBlock {
-	nonce, hash := CalculateProofOfWork(b)
-
-	return &CommittedBlock{
-		Index:        b.Index,
-		PreviousHash: b.PreviousHash,
-		Timestamp:    b.Timestamp,
-		Data:         b.Data,
-		Hash:         hash,
-		Nonce:        nonce,
-	}
-}

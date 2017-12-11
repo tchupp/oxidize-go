@@ -25,14 +25,19 @@ func main() {
 
 	block := bc.Head()
 
-	for block != nil {
-		fmt.Printf("Index: %x\n", block.Index)
-		fmt.Printf("PreviousHash: %x\n", block.PreviousHash)
-		fmt.Printf("Data: %s\n", block.Data)
-		fmt.Printf("Hash: %x\n", block.Hash)
-		fmt.Printf("Nonce: %d\n", block.Nonce)
+	for {
+		fmt.Printf("============ Block ============\n")
+		fmt.Printf("Index: %x\n", block.Index())
+		fmt.Printf("Hash: %x\n", block.Hash())
+		fmt.Printf("PreviousHash: %x\n", block.PreviousHash())
+		fmt.Printf("Data: %s\n", block.Data())
+		fmt.Printf("Nonce: %d\n", block.Nonce())
 		fmt.Printf("Is valid: %s\n", strconv.FormatBool(block.Validate()))
 		fmt.Println()
+
+		if len(block.PreviousHash()) == 0 {
+			break
+		}
 
 		block, err = block.Next()
 		if err != nil {

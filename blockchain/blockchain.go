@@ -14,8 +14,12 @@ type Blockchain struct {
 	nodeName string
 }
 
-func (bc *Blockchain) Head() *CommittedBlock {
-	return bc.head
+func (bc *Blockchain) Head() *Iterator {
+	return &Iterator{
+		current:    bc.head,
+		nodeName:   bc.nodeName,
+		bucketName: []byte(blockBucketName),
+	}
 }
 
 func Open(nodeName string) (*Blockchain, error) {

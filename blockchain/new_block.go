@@ -14,9 +14,9 @@ func newBlock(db *bolt.DB, bucketName []byte, data string) (newBlock *CommittedB
 	newBlock = NewBlock(data, latestBlock.Hash, latestBlock.Index+1)
 
 	err = db.Update(func(tx *bolt.Tx) error {
-		bucket := tx.Bucket(bucketName)
-		if bucket == nil {
-			return fmt.Errorf("no block with name '%s' exists", bucketName)
+		bucket, err := bucket(tx, bucketName)
+		if err != nil {
+			return err
 		}
 
 		err = WriteBlock(bucket, newBlock)
