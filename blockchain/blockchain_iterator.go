@@ -2,7 +2,6 @@ package blockchain
 
 import (
 	"github.com/boltdb/bolt"
-	"github.com/tclchiam/block_n_go/tx"
 )
 
 type Iterator struct {
@@ -37,29 +36,13 @@ func (it *Iterator) Next() (*Iterator, error) {
 		return nil, err
 	}
 
-	return &Iterator{current: block, nodeName: it.nodeName, bucketName: it.bucketName}, nil
+	return &Iterator{
+		current:    block,
+		nodeName:   it.nodeName,
+		bucketName: it.bucketName,
+	}, nil
 }
 
-func (it *Iterator) Index() int {
-	return it.current.Index
-}
-
-func (it *Iterator) PreviousHash() []byte {
-	return it.current.PreviousHash
-}
-
-func (it *Iterator) Transactions() []*tx.Transaction {
-	return it.current.Transactions
-}
-
-func (it *Iterator) Hash() []byte {
-	return it.current.Hash
-}
-
-func (it *Iterator) Nonce() int {
-	return it.current.Nonce
-}
-
-func (it *Iterator) Validate() bool {
-	return it.current.Validate()
+func (it *Iterator) HasNext() bool {
+	return !it.current.IsGenesisBlock()
 }

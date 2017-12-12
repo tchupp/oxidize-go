@@ -81,3 +81,12 @@ func bucket(tx *bolt.Tx, bucketName []byte) (*bolt.Bucket, error) {
 	}
 	return bucket, nil
 }
+
+func openDB(nodeName string) (*bolt.DB, error) {
+	dbFile := fmt.Sprintf(dbFile, nodeName)
+	db, err := bolt.Open(dbFile, 0600, nil)
+	if err != nil {
+		return nil, fmt.Errorf("opening db: %s", err)
+	}
+	return db, err
+}

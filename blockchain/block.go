@@ -52,3 +52,14 @@ func (block *Block) HashTransactions() []byte {
 
 	return transactionHash[:]
 }
+
+func (block *Block) IsGenesisBlock() bool {
+	return len(block.PreviousHash) == 0
+}
+
+func (block *Block) ForEachTransaction(consume func(*tx.Transaction)) error {
+	for _, transaction := range block.Transactions {
+		consume(transaction)
+	}
+	return nil
+}

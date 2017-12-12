@@ -2,7 +2,6 @@ package blockchain
 
 import (
 	"fmt"
-	"github.com/boltdb/bolt"
 	"os"
 	"github.com/tclchiam/block_n_go/tx"
 )
@@ -64,11 +63,20 @@ func (bc *Blockchain) Delete() error {
 	return nil
 }
 
-func openDB(nodeName string) (*bolt.DB, error) {
-	dbFile := fmt.Sprintf(dbFile, nodeName)
-	db, err := bolt.Open(dbFile, 0600, nil)
-	if err != nil {
-		return nil, fmt.Errorf("opening db: %s", err)
+func (bc *Blockchain) ForEachBlock(consume func(*Block)) (err error) {
+	block := bc.Head()
+
+	for {
+		consume(block.current)
+
+		if !block.HasNext() {
+			break
+		}
+
+		block, err = block.Next()
+		if err != nil {
+			return err
+		}
 	}
-	return db, err
+	return nil
 }
