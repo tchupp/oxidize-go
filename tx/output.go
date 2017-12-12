@@ -5,6 +5,6 @@ type Output struct {
 	ScriptPubKey string
 }
 
-func (out *Output) CanBeUnlockedWith(unlockingData string) bool {
-	return out.ScriptPubKey == unlockingData
+func (output *Output) CanBeUnlockedWith(unlockingData string) bool {
+	return output.ScriptPubKey == unlockingData
 }
