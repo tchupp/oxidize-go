@@ -5,10 +5,16 @@ import (
 	"crypto/sha256"
 	"math/big"
 	"testing"
+	"github.com/tclchiam/block_n_go/tx"
+	"github.com/google/go-cmp/cmp"
 )
 
 func TestNewGenesisBlock(t *testing.T) {
-	genesisBlock := NewGenesisBlock()
+	const address = "829384"
+	transaction := tx.NewGenesisCoinbaseTx(address)
+	transactions := []*tx.Transaction{transaction}
+
+	genesisBlock := NewGenesisBlock(address)
 
 	if len(genesisBlock.PreviousHash) != 0 {
 		t.Fatalf("Genesis block has bad PreviousHash, expected [%s], but was [%s]", []byte{}, genesisBlock.PreviousHash)
@@ -16,8 +22,8 @@ func TestNewGenesisBlock(t *testing.T) {
 	if genesisBlock.Index != 0 {
 		t.Fatalf("Genesis block has bad Index, expected %d, but was %d", 0, genesisBlock.Index)
 	}
-	if string(genesisBlock.Data) != "Genesis Block" {
-		t.Fatalf("Genesis block has bad Data, expected \"%s\", but was \"%s\"", "Genesis Block", genesisBlock.Data)
+	if !cmp.Equal(genesisBlock.Transactions, transactions) {
+		t.Fatalf("Genesis block has bad Transactions, %s", cmp.Diff(genesisBlock.Transactions, transactions))
 	}
 
 	if !hasValidHash(genesisBlock) {
@@ -40,11 +46,23 @@ func hasValidHash(block *Block) bool {
 func calculateBlockHash(block *Block) [32]byte {
 	rawBlockContents := [][]byte{
 		block.PreviousHash,
-		block.Data,
+		hashTransactions(block),
 		intToHex(block.Timestamp),
 		intToHex(int64(targetBits)),
 		intToHex(int64(block.Nonce)),
 	}
 	rawBlockData := bytes.Join(rawBlockContents, []byte{})
 	return sha256.Sum256(rawBlockData)
+}
+
+func hashTransactions(block *Block) []byte {
+	var transactionHashes [][]byte
+
+	for _, transaction := range block.Transactions {
+		transactionHashes = append(transactionHashes, transaction.ID)
+	}
+
+	transactionHash := sha256.Sum256(bytes.Join(transactionHashes, []byte{}))
+
+	return transactionHash[:]
 }

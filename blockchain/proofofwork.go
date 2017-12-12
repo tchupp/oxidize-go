@@ -25,7 +25,6 @@ func CalculateProofOfWork(block *Block) (int, []byte) {
 	var hash [32]byte
 	nonce := 0
 
-	fmt.Printf("Mining the block containing \"%s\"\n", block.Data)
 	for nonce < maxNonce {
 		hash = hashBlock(block, nonce)
 
@@ -55,7 +54,7 @@ func (block *Block) Validate() bool {
 func hashBlock(block *Block, nonce int) [32]byte {
 	rawBlockContents := [][]byte{
 		block.PreviousHash,
-		block.Data,
+		block.HashTransactions(),
 		intToHex(block.Timestamp),
 		intToHex(int64(targetBits)),
 		intToHex(int64(nonce)),

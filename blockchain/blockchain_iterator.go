@@ -2,6 +2,7 @@ package blockchain
 
 import (
 	"github.com/boltdb/bolt"
+	"github.com/tclchiam/block_n_go/tx"
 )
 
 type Iterator struct {
@@ -47,8 +48,8 @@ func (it *Iterator) PreviousHash() []byte {
 	return it.current.PreviousHash
 }
 
-func (it *Iterator) Data() []byte {
-	return it.current.Data
+func (it *Iterator) Transactions() []*tx.Transaction {
+	return it.current.Transactions
 }
 
 func (it *Iterator) Hash() []byte {

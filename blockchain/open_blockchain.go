@@ -5,12 +5,12 @@ import (
 	"fmt"
 )
 
-func open(db *bolt.DB, bucketName []byte) (headBlock *Block, err error) {
+func open(db *bolt.DB, bucketName []byte, address string) (headBlock *Block, err error) {
 	err = db.Update(func(tx *bolt.Tx) error {
 		bucket := tx.Bucket(bucketName)
 
 		if bucket == nil {
-			genesisBlock := NewGenesisBlock()
+			genesisBlock := NewGenesisBlock(address)
 
 			bucket, err := tx.CreateBucket(bucketName)
 			if err != nil {

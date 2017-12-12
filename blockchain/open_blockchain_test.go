@@ -9,6 +9,7 @@ import (
 )
 
 func TestOpen(t *testing.T) {
+	const address = "491823"
 	const testDbFileName = "test_blockchain.db"
 	var testBlocksBucketName = []byte("test_blocks")
 
@@ -20,7 +21,7 @@ func TestOpen(t *testing.T) {
 	defer db.Close()
 
 	t.Run("Test", func(t *testing.T) {
-		head, err := open(db, []byte(testBlocksBucketName))
+		head, err := open(db, []byte(testBlocksBucketName), address)
 
 		if err != nil {
 			t.Fatalf("OpenBlockchainAction failed: %s", err)

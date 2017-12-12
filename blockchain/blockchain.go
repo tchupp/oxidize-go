@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/boltdb/bolt"
 	"os"
+	"github.com/tclchiam/block_n_go/tx"
 )
 
 const dbFile = "blockchain_%s.db"
@@ -22,14 +23,14 @@ func (bc *Blockchain) Head() *Iterator {
 	}
 }
 
-func Open(nodeName string) (*Blockchain, error) {
+func Open(nodeName string, address string) (*Blockchain, error) {
 	db, err := openDB(nodeName)
 	if err != nil {
 		return nil, err
 	}
 	defer db.Close()
 
-	head, err := open(db, []byte(blockBucketName))
+	head, err := open(db, []byte(blockBucketName), address)
 	if err != nil {
 		return nil, err
 	}
@@ -37,7 +38,7 @@ func Open(nodeName string) (*Blockchain, error) {
 	return &Blockchain{head: head, nodeName: nodeName}, nil
 }
 
-func (bc *Blockchain) NewBlock(data string) (*Blockchain, error) {
+func (bc *Blockchain) NewBlock(transactions []*tx.Transaction) (*Blockchain, error) {
 	nodeName := bc.nodeName
 
 	db, err := openDB(nodeName)
@@ -46,7 +47,7 @@ func (bc *Blockchain) NewBlock(data string) (*Blockchain, error) {
 	}
 	defer db.Close()
 
-	head, err := newBlock(db, []byte(blockBucketName), data)
+	head, err := newBlock(db, []byte(blockBucketName), transactions)
 	if err != nil {
 		return nil, err
 	}
