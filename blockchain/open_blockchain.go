@@ -5,7 +5,7 @@ import (
 	"fmt"
 )
 
-func open(db *bolt.DB, bucketName []byte) (headBlock *CommittedBlock, err error) {
+func open(db *bolt.DB, bucketName []byte) (headBlock *Block, err error) {
 	err = db.Update(func(tx *bolt.Tx) error {
 		bucket := tx.Bucket(bucketName)
 

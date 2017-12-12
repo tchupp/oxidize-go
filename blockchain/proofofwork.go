@@ -16,13 +16,14 @@ const (
 	hashLength = 256
 )
 
-func CalculateProofOfWork(block *UncommittedBlock) (int, []byte) {
+var (
+	target = big.NewInt(1).Lsh(big.NewInt(1), uint(hashLength-targetBits))
+)
+
+func CalculateProofOfWork(block *Block) (int, []byte) {
 	var hashInt big.Int
 	var hash [32]byte
 	nonce := 0
-
-	target := big.NewInt(1)
-	target.Lsh(target, uint(hashLength-targetBits))
 
 	fmt.Printf("Mining the block containing \"%s\"\n", block.Data)
 	for nonce < maxNonce {
@@ -42,27 +43,16 @@ func CalculateProofOfWork(block *UncommittedBlock) (int, []byte) {
 	return nonce, hash[:]
 }
 
-func (block *CommittedBlock) Validate() bool {
+func (block *Block) Validate() bool {
 	var hashInt big.Int
 
-	target := big.NewInt(1)
-	target.Lsh(target, uint(hashLength-targetBits))
-
-	rawBlockContents := [][]byte{
-		block.PreviousHash,
-		block.Data,
-		intToHex(block.Timestamp),
-		intToHex(int64(targetBits)),
-		intToHex(int64(block.Nonce)),
-	}
-	rawBlockData := bytes.Join(rawBlockContents, []byte{})
-	hash := sha256.Sum256(rawBlockData)
+	hash := hashBlock(block, block.Nonce)
 	hashInt.SetBytes(hash[:])
 
 	return hashInt.Cmp(target) == -1
 }
 
-func hashBlock(block *UncommittedBlock, nonce int) [32]byte {
+func hashBlock(block *Block, nonce int) [32]byte {
 	rawBlockContents := [][]byte{
 		block.PreviousHash,
 		block.Data,

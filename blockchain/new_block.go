@@ -5,7 +5,7 @@ import (
 	"fmt"
 )
 
-func newBlock(db *bolt.DB, bucketName []byte, data string) (newBlock *CommittedBlock, err error) {
+func newBlock(db *bolt.DB, bucketName []byte, data string) (newBlock *Block, err error) {
 	latestBlock, err := ReadHeadBlock(db, bucketName)
 	if err != nil {
 		return nil, fmt.Errorf("reading head block: %s", err)

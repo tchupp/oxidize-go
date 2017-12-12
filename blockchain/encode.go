@@ -6,7 +6,7 @@ import (
 	"fmt"
 )
 
-func (block *CommittedBlock) Serialize() ([]byte, error) {
+func (block *Block) Serialize() ([]byte, error) {
 	var result bytes.Buffer
 	encoder := gob.NewEncoder(&result)
 
@@ -18,8 +18,8 @@ func (block *CommittedBlock) Serialize() ([]byte, error) {
 	return result.Bytes(), nil
 }
 
-func DeserializeBlock(data []byte) (*CommittedBlock, error) {
-	var block CommittedBlock
+func DeserializeBlock(data []byte) (*Block, error) {
+	var block Block
 
 	decoder := gob.NewDecoder(bytes.NewReader(data))
 	err := decoder.Decode(&block)

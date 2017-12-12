@@ -10,7 +10,7 @@ const dbFile = "blockchain_%s.db"
 const blockBucketName = "blocks"
 
 type Blockchain struct {
-	head     *CommittedBlock
+	head     *Block
 	nodeName string
 }
 

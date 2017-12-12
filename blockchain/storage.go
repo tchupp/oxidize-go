@@ -9,7 +9,7 @@ var (
 	latestBlockHashKey = []byte("l")
 )
 
-func WriteBlock(bucket *bolt.Bucket, block *CommittedBlock) error {
+func WriteBlock(bucket *bolt.Bucket, block *Block) error {
 	blockData, err := block.Serialize()
 	if err != nil {
 		return err
@@ -28,7 +28,7 @@ func WriteBlock(bucket *bolt.Bucket, block *CommittedBlock) error {
 	return nil
 }
 
-func ReadBlock(bucket *bolt.Bucket, blockHash []byte) (*CommittedBlock, error) {
+func ReadBlock(bucket *bolt.Bucket, blockHash []byte) (*Block, error) {
 	latestBlockData := bucket.Get(blockHash)
 	if latestBlockData == nil || len(latestBlockData) == 0 {
 		return nil, fmt.Errorf("block data is empty: '%s'", latestBlockData)
@@ -51,7 +51,7 @@ func ReadLatestHash(bucket *bolt.Bucket) ([]byte, error) {
 	return latestBlockHash, nil
 }
 
-func ReadHeadBlock(db *bolt.DB, bucketName []byte) (headBlock *CommittedBlock, err error) {
+func ReadHeadBlock(db *bolt.DB, bucketName []byte) (headBlock *Block, err error) {
 	err = db.View(func(tx *bolt.Tx) error {
 		bucket, err := bucket(tx, bucketName)
 		if err != nil {

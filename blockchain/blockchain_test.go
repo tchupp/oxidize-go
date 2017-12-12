@@ -5,7 +5,7 @@ import (
 	"github.com/boltdb/bolt"
 )
 
-func readLatestBlock(db *bolt.DB, bucketName []byte) (latestBlock *CommittedBlock, err error) {
+func readLatestBlock(db *bolt.DB, bucketName []byte) (latestBlock *Block, err error) {
 	err = db.View(func(tx *bolt.Tx) error {
 		bucket := tx.Bucket(bucketName)
 		if bucket == nil {

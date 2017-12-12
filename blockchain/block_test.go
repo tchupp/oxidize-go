@@ -25,7 +25,7 @@ func TestNewGenesisBlock(t *testing.T) {
 	}
 }
 
-func hasValidHash(block *CommittedBlock) bool {
+func hasValidHash(block *Block) bool {
 	hash := calculateBlockHash(block)
 
 	target := big.NewInt(1)
@@ -37,7 +37,7 @@ func hasValidHash(block *CommittedBlock) bool {
 	return hashInt.Cmp(target) == -1
 }
 
-func calculateBlockHash(block *CommittedBlock) [32]byte {
+func calculateBlockHash(block *Block) [32]byte {
 	rawBlockContents := [][]byte{
 		block.PreviousHash,
 		block.Data,

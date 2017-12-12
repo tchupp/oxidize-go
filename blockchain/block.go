@@ -4,14 +4,7 @@ import (
 	"time"
 )
 
-type UncommittedBlock struct {
-	Index        int
-	PreviousHash []byte
-	Timestamp    int64
-	Data         []byte
-}
-
-type CommittedBlock struct {
+type Block struct {
 	Index        int
 	PreviousHash []byte
 	Timestamp    int64
@@ -20,12 +13,12 @@ type CommittedBlock struct {
 	Nonce        int
 }
 
-func NewGenesisBlock() *CommittedBlock {
+func NewGenesisBlock() *Block {
 	return NewBlock("Genesis Block", []byte(nil), 0)
 }
 
-func NewBlock(data string, previousHash []byte, index int) *CommittedBlock {
-	b := UncommittedBlock{
+func NewBlock(data string, previousHash []byte, index int) *Block {
+	b := Block{
 		Index:        index,
 		PreviousHash: previousHash,
 		Timestamp:    time.Now().Unix(),
@@ -33,7 +26,7 @@ func NewBlock(data string, previousHash []byte, index int) *CommittedBlock {
 	}
 	nonce, hash := CalculateProofOfWork(&b)
 
-	return &CommittedBlock{
+	return &Block{
 		Index:        b.Index,
 		PreviousHash: b.PreviousHash,
 		Timestamp:    b.Timestamp,

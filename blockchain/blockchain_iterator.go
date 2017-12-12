@@ -5,7 +5,7 @@ import (
 )
 
 type Iterator struct {
-	current    *CommittedBlock
+	current    *Block
 	nodeName   string
 	bucketName []byte
 }
@@ -17,7 +17,7 @@ func (it *Iterator) Next() (*Iterator, error) {
 	}
 	defer db.Close()
 
-	var block *CommittedBlock
+	var block *Block
 
 	err = db.View(func(tx *bolt.Tx) error {
 		bucket, err := bucket(tx, it.bucketName)
