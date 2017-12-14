@@ -24,9 +24,9 @@ func newCoinbaseTxInput(data string) Input {
 type Inputs <-chan Input
 
 func (tx *Transaction) Inputs() Inputs {
-	c := make(chan Input, len(tx.inputs))
+	c := make(chan Input, len(tx.TxInputs))
 	go func() {
-		for _, input := range tx.inputs {
+		for _, input := range tx.TxInputs {
 			c <- input
 		}
 		close(c)

@@ -3,7 +3,9 @@ package blockchain
 import (
 	"fmt"
 	"os"
+
 	"github.com/tclchiam/block_n_go/tx"
+	"github.com/tclchiam/block_n_go/tx/txset"
 )
 
 const dbFile = "blockchain_%s.db"
@@ -79,4 +81,16 @@ func (bc *Blockchain) ForEachBlock(consume func(*Block)) (err error) {
 		}
 	}
 	return nil
+}
+
+func (bc *Blockchain) FindUnspentTransactions(address string) (unspentOutput []tx.Output, err error) {
+	spentTransactions := txset.New()
+
+	err = bc.ForEachBlock(func(block *Block) {
+		block.ForEachTransaction(func(transaction *tx.Transaction) {
+			unspentOutput = append(unspentOutput, transaction.FindUnspentOutput(spentTransactions, address)...)
+			spentTransactions = transaction.FindSpentOutput(spentTransactions, address)
+		})
+	})
+	return
 }

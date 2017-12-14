@@ -37,16 +37,17 @@ func (tx *Transaction) String() string {
 
 	lines = append(lines, fmt.Sprintf("--- Transaction %x:", tx.ID))
 
-	for id, input := range tx.inputs {
+	for id, input := range tx.TxInputs {
 		lines = append(lines, input.string(id)...)
 	}
 
-	for id, output := range tx.outputs {
+	for id, output := range tx.TxOutputs {
 		lines = append(lines, output.string(id)...)
 	}
 
 	return strings.Join(lines, "\n")
 }
+
 func (input *Input) string(id int) []string {
 	var lines []string
 	lines = append(lines, fmt.Sprintf("     Input %d:", id))
@@ -61,7 +62,7 @@ func (input *Input) string(id int) []string {
 func (output *Output) string(id int) []string {
 	var lines []string
 
-	lines = append(lines, fmt.Sprintf("     Output %d:", id))
+	lines = append(lines, fmt.Sprintf("     Output %d:", output.Id))
 	lines = append(lines, fmt.Sprintf("       Value:  %d", output.Value))
 	//lines = append(lines, fmt.Sprintf("       Script: %x", output.PubKeyHash))
 	lines = append(lines, fmt.Sprintf("       Script: %x", output.ScriptPubKey))

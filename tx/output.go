@@ -13,9 +13,9 @@ func (output *Output) CanBeUnlockedWith(unlockingData string) bool {
 type Outputs <-chan Output
 
 func (tx *Transaction) Outputs() Outputs {
-	c := make(chan Output, len(tx.outputs))
+	c := make(chan Output, len(tx.TxOutputs))
 	go func() {
-		for _, output := range tx.outputs {
+		for _, output := range tx.TxOutputs {
 			c <- output
 		}
 		close(c)

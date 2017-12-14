@@ -9,7 +9,7 @@ import (
 )
 
 func main() {
-	const address = "123456"
+	const address = "Theo"
 
 	bc, err := blockchain.Open("reactions", address)
 	if err != nil {
@@ -32,33 +32,38 @@ func main() {
 		log.Panic(err)
 	}
 
-	block := bc.Head()
-
-	for {
-		fmt.Printf("============ Block ============\n")
-		fmt.Printf("Index: %x\n", block.Index())
-		fmt.Printf("Hash: %x\n", block.Hash())
-		fmt.Printf("PreviousHash: %x\n", block.PreviousHash())
-		fmt.Printf("Transactions:\n")
-		for _, transaction := range block.Transactions() {
-			fmt.Println(transaction.String())
-		}
-		fmt.Printf("Nonce: %d\n", block.Nonce())
-		fmt.Printf("Is valid: %s\n", strconv.FormatBool(block.Validate()))
-		fmt.Println()
-
-		if len(block.PreviousHash()) == 0 {
-			break
-		}
-
-		block, err = block.Next()
-		if err != nil {
-			log.Panic(err)
-		}
+	err = bc.ForEachBlock(printBlock)
+	if err != nil {
+		log.Panic(err)
 	}
+
+	unspentOutputs, err := bc.FindUnspentTransactions(address)
+	if err != nil {
+		log.Panic(err)
+	}
+
+	balance := 0
+	for _, output := range unspentOutputs {
+		balance += output.Value
+	}
+	fmt.Printf("Balance of '%s': %d\n", address, balance)
 
 	err = bc.Delete()
 	if err != nil {
 		log.Panic(err)
 	}
+}
+
+func printBlock(block *blockchain.Block) {
+	fmt.Printf("============ Block ============\n")
+	fmt.Printf("Index: %x\n", block.Index)
+	fmt.Printf("Hash: %x\n", block.Hash)
+	fmt.Printf("PreviousHash: %x\n", block.PreviousHash)
+	fmt.Printf("Nonce: %d\n", block.Nonce)
+	fmt.Printf("Is valid: %s\n", strconv.FormatBool(block.Validate()))
+	fmt.Printf("Transactions:\n")
+	block.ForEachTransaction(func(transaction *tx.Transaction) {
+		fmt.Println(transaction.String())
+	})
+	fmt.Println()
 }

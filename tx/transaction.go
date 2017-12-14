@@ -11,13 +11,13 @@ const subsidy = 10
 const genesisCoinbaseData = "The Times 03/Jan/2009 Chancellor on brink of second bailout for banks"
 
 type Transaction struct {
-	ID      []byte
-	inputs  []Input
-	outputs []Output
+	ID        []byte
+	TxInputs  []Input
+	TxOutputs []Output
 }
 
 func (tx *Transaction) IsCoinbase() bool {
-	return len(tx.inputs) == 1 && !tx.inputs[0].isReferencingOutput()
+	return len(tx.TxInputs) == 1 && !tx.TxInputs[0].isReferencingOutput()
 }
 
 func NewGenesisCoinbaseTx(to string) *Transaction {
