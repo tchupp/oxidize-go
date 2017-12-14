@@ -37,11 +37,11 @@ func (tx *Transaction) String() string {
 
 	lines = append(lines, fmt.Sprintf("--- Transaction %x:", tx.ID))
 
-	for id, input := range tx.Inputs {
+	for id, input := range tx.inputs {
 		lines = append(lines, input.string(id)...)
 	}
 
-	for id, output := range tx.Outputs {
+	for id, output := range tx.outputs {
 		lines = append(lines, output.string(id)...)
 	}
 

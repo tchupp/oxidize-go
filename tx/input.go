@@ -20,3 +20,50 @@ func (input *Input) isReferencingOutput() bool {
 func newCoinbaseTxInput(data string) Input {
 	return Input{OutputTransactionId: []byte(nil), OutputId: -1, ScriptSig: data}
 }
+
+type Inputs <-chan Input
+
+func (tx *Transaction) Inputs() Inputs {
+	c := make(chan Input, len(tx.inputs))
+	go func() {
+		for _, input := range tx.inputs {
+			c <- input
+		}
+		close(c)
+	}()
+	return Inputs(c)
+}
+
+func (inputs Inputs) Filter(predicate func(input Input) bool) Inputs {
+	c := make(chan Input)
+
+	go func() {
+		for input := range inputs {
+			if predicate(input) {
+				c <- input
+			}
+		}
+		close(c)
+	}()
+	return Inputs(c)
+}
+
+func (inputs Inputs) Reduce(res interface{}, apply func(res interface{}, input Input) interface{}) interface{} {
+	c := make(chan interface{})
+
+	go func() {
+		for input := range inputs {
+			res = apply(res, input)
+		}
+		c <- res
+	}()
+	return <-c
+}
+
+func (inputs Inputs) ToSlice() []Input {
+	slice := make([]Input, 0)
+	for i := range inputs {
+		slice = append(slice, i)
+	}
+	return slice
+}
