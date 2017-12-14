@@ -11,9 +11,9 @@ import (
 )
 
 func TestNewBlock(t *testing.T) {
-	const address = "837261"
+	const address = "Theo"
 	const testDbFileName = "test_blockchain.db"
-	const newBlockData = "Send Theo 3 BTC"
+	const newBlockData = "Send 3 BTC"
 
 	testBlocksBucketName := []byte("test_blocks")
 

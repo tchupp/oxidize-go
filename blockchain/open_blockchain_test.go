@@ -9,7 +9,7 @@ import (
 )
 
 func TestOpen(t *testing.T) {
-	const address = "491823"
+	const address = "Theo"
 	const testDbFileName = "test_blockchain.db"
 	var testBlocksBucketName = []byte("test_blocks")
 

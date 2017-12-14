@@ -10,7 +10,7 @@ import (
 )
 
 func TestNewGenesisBlock(t *testing.T) {
-	const address = "829384"
+	const address = "Theo"
 	transaction := tx.NewGenesisCoinbaseTx(address)
 	transactions := []*tx.Transaction{transaction}
 
