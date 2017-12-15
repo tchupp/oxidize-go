@@ -37,6 +37,21 @@ func (outputs Outputs) Filter(predicate func(output Output) bool) Outputs {
 	return Outputs(outChannel)
 }
 
+func (outputs Outputs) Plus(plus Outputs) Outputs {
+	outChannel := make(chan Output)
+
+	go func() {
+		for output := range outputs {
+			outChannel <- output
+		}
+		for output := range plus {
+			outChannel <- output
+		}
+		close(outChannel)
+	}()
+	return Outputs(outChannel)
+}
+
 func (outputs Outputs) ToSlice() []Output {
 	slice := make([]Output, 0)
 	for o := range outputs {

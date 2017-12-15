@@ -37,13 +37,13 @@ func main() {
 		log.Panic(err)
 	}
 
-	unspentOutputs, err := bc.FindUnspentTransactions(address)
+	unspentOutputs, err := bc.FindUnspentTransactionOutputs(address)
 	if err != nil {
 		log.Panic(err)
 	}
 
 	balance := 0
-	for _, output := range unspentOutputs {
+	for output := range unspentOutputs {
 		balance += output.Value
 	}
 	fmt.Printf("Balance of '%s': %d\n", address, balance)

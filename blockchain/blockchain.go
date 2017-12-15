@@ -5,7 +5,6 @@ import (
 	"os"
 
 	"github.com/tclchiam/block_n_go/tx"
-	"github.com/tclchiam/block_n_go/tx/txset"
 )
 
 const dbFile = "blockchain_%s.db"
@@ -14,14 +13,6 @@ const blockBucketName = "blocks"
 type Blockchain struct {
 	head     *Block
 	nodeName string
-}
-
-func (bc *Blockchain) Head() *Iterator {
-	return &Iterator{
-		current:    bc.head,
-		nodeName:   bc.nodeName,
-		bucketName: []byte(blockBucketName),
-	}
 }
 
 func Open(nodeName string, address string) (*Blockchain, error) {
@@ -63,34 +54,4 @@ func (bc *Blockchain) Delete() error {
 		return fmt.Errorf("deleting blockchain file: %s", err)
 	}
 	return nil
-}
-
-func (bc *Blockchain) ForEachBlock(consume func(*Block)) (err error) {
-	block := bc.Head()
-
-	for {
-		consume(block.current)
-
-		if !block.HasNext() {
-			break
-		}
-
-		block, err = block.Next()
-		if err != nil {
-			return err
-		}
-	}
-	return nil
-}
-
-func (bc *Blockchain) FindUnspentTransactions(address string) (unspentOutput []tx.Output, err error) {
-	spentTransactions := txset.New()
-
-	err = bc.ForEachBlock(func(block *Block) {
-		block.ForEachTransaction(func(transaction *tx.Transaction) {
-			unspentOutput = append(unspentOutput, transaction.FindUnspentOutput(spentTransactions, address)...)
-			spentTransactions = transaction.FindSpentOutput(spentTransactions, address)
-		})
-	})
-	return
 }

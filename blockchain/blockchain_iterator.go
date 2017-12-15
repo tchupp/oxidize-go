@@ -46,3 +46,29 @@ func (it *Iterator) Next() (*Iterator, error) {
 func (it *Iterator) HasNext() bool {
 	return !it.current.IsGenesisBlock()
 }
+
+func (bc *Blockchain) Head() *Iterator {
+	return &Iterator{
+		current:    bc.head,
+		nodeName:   bc.nodeName,
+		bucketName: []byte(blockBucketName),
+	}
+}
+
+func (bc *Blockchain) ForEachBlock(consume func(*Block)) (err error) {
+	block := bc.Head()
+
+	for {
+		consume(block.current)
+
+		if !block.HasNext() {
+			break
+		}
+
+		block, err = block.Next()
+		if err != nil {
+			return err
+		}
+	}
+	return nil
+}

@@ -37,13 +37,12 @@ func NewCoinbaseTx(to string, data string) *Transaction {
 	return &tx
 }
 
-func (tx *Transaction) FindUnspentOutput(spent *txset.TransactionSet, address string) []Output {
+func (tx *Transaction) FindUnspentOutput(spent *txset.TransactionSet, address string) Outputs {
 	transactionId := hex.EncodeToString(tx.ID)
 
 	return tx.Outputs().
 		Filter(func(output Output) bool { return !spent.Contains(transactionId, output.Id) }).
-		Filter(func(output Output) bool { return output.CanBeUnlockedWith(address) }).
-		ToSlice()
+		Filter(func(output Output) bool { return output.CanBeUnlockedWith(address) })
 }
 
 func (tx *Transaction) FindSpentOutput(spent *txset.TransactionSet, address string) *txset.TransactionSet {
