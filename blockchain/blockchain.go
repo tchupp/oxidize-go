@@ -8,7 +8,6 @@ import (
 )
 
 const dbFile = "blockchain_%s.db"
-const blockBucketName = "blocks"
 
 type Blockchain struct {
 	head     *Block
@@ -30,7 +29,7 @@ func Open(nodeName string, address string) (*Blockchain, error) {
 	return &Blockchain{head: head, nodeName: nodeName}, nil
 }
 
-func (bc *Blockchain) NewBlock(transactions []*tx.Transaction) (*Blockchain, error) {
+func (bc *Blockchain) MineBlock(transactions []*tx.Transaction) (*Blockchain, error) {
 	nodeName := bc.nodeName
 
 	db, err := openDB(nodeName)

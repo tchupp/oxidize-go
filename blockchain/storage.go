@@ -9,6 +9,8 @@ var (
 	latestBlockHashKey = []byte("l")
 )
 
+const blockBucketName = "blocks"
+
 func WriteBlock(bucket *bolt.Bucket, block *Block) error {
 	blockData, err := block.Serialize()
 	if err != nil {

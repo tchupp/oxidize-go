@@ -19,7 +19,7 @@ func main() {
 	transaction := tx.NewCoinbaseTx(address, "Send 4 BTC to Theo")
 	transactions := []*tx.Transaction{transaction}
 
-	bc, err = bc.NewBlock(transactions)
+	bc, err = bc.MineBlock(transactions)
 	if err != nil {
 		log.Panic(err)
 	}
@@ -27,7 +27,7 @@ func main() {
 	transaction = tx.NewCoinbaseTx(address, "Send 18 BTC to Theo")
 	transactions = []*tx.Transaction{transaction}
 
-	bc, err = bc.NewBlock(transactions)
+	bc, err = bc.MineBlock(transactions)
 	if err != nil {
 		log.Panic(err)
 	}
