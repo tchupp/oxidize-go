@@ -29,6 +29,15 @@ func Open(nodeName string, address string) (*Blockchain, error) {
 	return &Blockchain{head: head, nodeName: nodeName}, nil
 }
 
+func (bc *Blockchain) Send(sender, receiver string, expense int) (*Blockchain, error) {
+	transaction, err := bc.buildExpenseTransaction(sender, receiver, expense)
+	if err != nil {
+		return nil, err
+	}
+
+	return bc.MineBlock([]*tx.Transaction{transaction})
+}
+
 func (bc *Blockchain) MineBlock(transactions []*tx.Transaction) (*Blockchain, error) {
 	nodeName := bc.nodeName
 

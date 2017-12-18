@@ -9,14 +9,15 @@ import (
 )
 
 func main() {
-	const address = "Theo"
+	const owner = "Theo"
+	const receiver = "Marika"
 
-	bc, err := blockchain.Open("reactions", address)
+	bc, err := blockchain.Open("reactions", owner)
 	if err != nil {
 		log.Panic(err)
 	}
 
-	transaction := tx.NewCoinbaseTx(address, "Send 4 BTC to Theo")
+	transaction := tx.NewCoinbaseTx(owner, "")
 	transactions := []*tx.Transaction{transaction}
 
 	bc, err = bc.MineBlock(transactions)
@@ -24,10 +25,7 @@ func main() {
 		log.Panic(err)
 	}
 
-	transaction = tx.NewCoinbaseTx(address, "Send 18 BTC to Theo")
-	transactions = []*tx.Transaction{transaction}
-
-	bc, err = bc.MineBlock(transactions)
+	bc, err = bc.Send(owner, receiver, 3)
 	if err != nil {
 		log.Panic(err)
 	}
@@ -37,11 +35,17 @@ func main() {
 		log.Panic(err)
 	}
 
-	balance, err := bc.ReadBalance(address)
+	balance, err := bc.ReadBalance(owner)
 	if err != nil {
 		log.Panic(err)
 	}
-	fmt.Printf("Balance of '%s': %d\n", address, balance)
+	fmt.Printf("Balance of '%s': %d\n\n", owner, balance)
+
+	balance, err = bc.ReadBalance(receiver)
+	if err != nil {
+		log.Panic(err)
+	}
+	fmt.Printf("Balance of '%s': %d\n\n", receiver, balance)
 
 	err = bc.Delete()
 	if err != nil {

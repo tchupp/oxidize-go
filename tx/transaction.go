@@ -1,10 +1,8 @@
 package tx
 
 import (
-	"encoding/hex"
 	"fmt"
-
-	"github.com/tclchiam/block_n_go/tx/txset"
+	"encoding/hex"
 )
 
 const subsidy = 10
@@ -12,8 +10,8 @@ const genesisCoinbaseData = "The Times 03/Jan/2009 Chancellor on brink of second
 
 type Transaction struct {
 	ID        []byte
-	TxInputs  []Input
-	TxOutputs []Output
+	TxInputs  []*Input
+	TxOutputs []*Output
 }
 
 func (tx *Transaction) IsCoinbase() bool {
@@ -30,32 +28,54 @@ func NewCoinbaseTx(to string, data string) *Transaction {
 	}
 
 	input := newCoinbaseTxInput(data)
-	output := Output{0, subsidy, to}
-	tx := Transaction{nil, []Input{input}, []Output{output}}
+	output := NewOutput(subsidy, to)
+	tx := Transaction{nil, []*Input{input}, []*Output{output}}
 	tx.ID = tx.Hash()
 
 	return &tx
 }
 
-func (tx *Transaction) FindUnspentOutput(spent *txset.TransactionSet, address string) Outputs {
-	transactionId := hex.EncodeToString(tx.ID)
+func NewTx(inputs Inputs, outputs Outputs) *Transaction {
+	collectOutputs := func(res interface{}, output *Output) interface{} {
+		output.Id = len(res.([]*Output))
+		return append(res.([]*Output), output)
+	}
 
-	return tx.Outputs().
-		Filter(func(output Output) bool { return !spent.Contains(transactionId, output.Id) }).
-		Filter(func(output Output) bool { return output.CanBeUnlockedWith(address) })
+	tx := Transaction{
+		TxInputs:  inputs.ToSlice(),
+		TxOutputs: outputs.Reduce(make([]*Output, 0), collectOutputs).([]*Output),
+	}
+	tx.ID = tx.Hash()
+
+	return &tx
 }
 
-func (tx *Transaction) FindSpentOutput(spent *txset.TransactionSet, address string) *txset.TransactionSet {
+func (tx *Transaction) FindOutputsForAddress(address string) *TransactionSet {
+	transactionId := hex.EncodeToString(tx.ID)
+
+	addToTxSet := func(res interface{}, output *Output) interface{} {
+		return res.(*TransactionSet).Add(transactionId, output)
+	}
+
+	return tx.Outputs().
+		Filter(func(output *Output) bool { return output.CanBeUnlockedWith(address)}).
+		Reduce(NewTransactionSet(), addToTxSet).(*TransactionSet)
+}
+
+func (tx *Transaction) FindSpentOutputs(address string) map[string][]int {
+	spent := make(map[string][]int)
 	if tx.IsCoinbase() {
 		return spent
 	}
 
-	addToTxSet := func(res interface{}, input Input) interface{} {
+	addToTxSet := func(res interface{}, input *Input) interface{} {
 		transactionId := hex.EncodeToString(input.OutputTransactionId)
-		return res.(*txset.TransactionSet).Add(transactionId, input.OutputId)
+		res.(map[string][]int)[transactionId] = append(res.(map[string][]int)[transactionId], input.OutputId)
+
+		return res
 	}
 
 	return tx.Inputs().
-		Filter(func(input Input) bool { return input.CanUnlockOutputWith(address) }).
-		Reduce(spent, addToTxSet).(*txset.TransactionSet)
+		Filter(func(input *Input) bool { return input.CanUnlockOutputWith(address) }).
+		Reduce(spent, addToTxSet).(map[string][]int)
 }

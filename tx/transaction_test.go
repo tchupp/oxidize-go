@@ -2,7 +2,6 @@ package tx
 
 import (
 	"testing"
-	"github.com/tclchiam/block_n_go/tx/txset"
 )
 
 func TestTransaction_FindUnspentOutput(t *testing.T) {
@@ -10,12 +9,28 @@ func TestTransaction_FindUnspentOutput(t *testing.T) {
 
 	t.Run("One", func(t *testing.T) {
 		transaction := NewCoinbaseTx(to, "")
-		spentTransactions := txset.New()
 
-		unspentOutput := transaction.FindUnspentOutput(spentTransactions, to)
+		unspentOutputs := transaction.FindOutputsForAddress(to)
+		count := unspentOutputs.Reduce(0, func(res interface{}, transactionId string, output *Output) interface{} {
+			return res.(int) + 1
+		})
 
-		if len(unspentOutput) != 1 {
-			t.Fatalf("Expected %d unspet output, was: %d", 1, len(unspentOutput))
+		if count != 1 {
+			t.Fatalf("Expected %d unspent output, was: %d", 1, count)
+		}
+	})
+}
+
+func TestTransaction_FindSpentOutput(t *testing.T) {
+	const to = "Theo"
+
+	t.Run("One", func(t *testing.T) {
+		transaction := NewCoinbaseTx(to, "")
+
+		spentOutputs := transaction.FindSpentOutputs(to)
+
+		if len(spentOutputs) != 0 {
+			t.Fatalf("Expected %d spent output, was: %d", 0, len(spentOutputs))
 		}
 	})
 }

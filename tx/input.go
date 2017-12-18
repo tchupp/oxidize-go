@@ -6,6 +6,14 @@ type Input struct {
 	ScriptSig           string
 }
 
+func NewInput(outputTransactionId []byte, outputId int, data string) *Input {
+	return &Input{
+		OutputTransactionId: outputTransactionId,
+		OutputId:            outputId,
+		ScriptSig:           data,
+	}
+}
+
 func (input *Input) CanUnlockOutputWith(unlockingData string) bool {
 	return input.ScriptSig == unlockingData
 }
@@ -17,14 +25,14 @@ func (input *Input) isReferencingOutput() bool {
 	return referencesTransaction && referencesTransactionOutput
 }
 
-func newCoinbaseTxInput(data string) Input {
-	return Input{OutputTransactionId: []byte(nil), OutputId: -1, ScriptSig: data}
+func newCoinbaseTxInput(data string) *Input {
+	return &Input{OutputTransactionId: []byte(nil), OutputId: -1, ScriptSig: data}
 }
 
-type Inputs <-chan Input
+type Inputs <-chan *Input
 
 func (tx *Transaction) Inputs() Inputs {
-	c := make(chan Input, len(tx.TxInputs))
+	c := make(chan *Input, len(tx.TxInputs))
 	go func() {
 		for _, input := range tx.TxInputs {
 			c <- input
@@ -34,8 +42,19 @@ func (tx *Transaction) Inputs() Inputs {
 	return Inputs(c)
 }
 
-func (inputs Inputs) Filter(predicate func(input Input) bool) Inputs {
-	c := make(chan Input)
+func NewInputs(inputs []*Input) Inputs {
+	c := make(chan *Input, len(inputs))
+	go func() {
+		for _, input := range inputs {
+			c <- input
+		}
+		close(c)
+	}()
+	return Inputs(c)
+}
+
+func (inputs Inputs) Filter(predicate func(input *Input) bool) Inputs {
+	c := make(chan *Input)
 
 	go func() {
 		for input := range inputs {
@@ -48,7 +67,7 @@ func (inputs Inputs) Filter(predicate func(input Input) bool) Inputs {
 	return Inputs(c)
 }
 
-func (inputs Inputs) Reduce(res interface{}, apply func(res interface{}, input Input) interface{}) interface{} {
+func (inputs Inputs) Reduce(res interface{}, apply func(res interface{}, input *Input) interface{}) interface{} {
 	c := make(chan interface{})
 
 	go func() {
@@ -60,8 +79,21 @@ func (inputs Inputs) Reduce(res interface{}, apply func(res interface{}, input I
 	return <-c
 }
 
-func (inputs Inputs) ToSlice() []Input {
-	slice := make([]Input, 0)
+func (inputs Inputs) Add(input *Input) Inputs {
+	c := make(chan *Input)
+
+	go func() {
+		for i := range inputs {
+			c <- i
+		}
+		c <- input
+		close(c)
+	}()
+	return Inputs(c)
+}
+
+func (inputs Inputs) ToSlice() []*Input {
+	slice := make([]*Input, 0)
 	for i := range inputs {
 		slice = append(slice, i)
 	}
