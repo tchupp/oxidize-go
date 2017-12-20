@@ -1,46 +1,17 @@
 package blockchain
 
-import (
-	"github.com/boltdb/bolt"
-)
-
 type Iterator struct {
 	current    *Block
-	nodeName   string
-	bucketName []byte
+	repository Repository
 }
 
 func (it *Iterator) Next() (*Iterator, error) {
-	db, err := openDB(it.nodeName)
-	if err != nil {
-		return nil, err
-	}
-	defer db.Close()
-
-	var block *Block
-
-	err = db.View(func(tx *bolt.Tx) error {
-		bucket, err := bucket(tx, it.bucketName)
-		if err != nil {
-			return err
-		}
-
-		block, err = ReadBlock(bucket, it.current.PreviousHash)
-		if err != nil {
-			return err
-		}
-
-		return nil
-	})
+	block, err := it.repository.Block(it.current.PreviousHash)
 	if err != nil {
 		return nil, err
 	}
 
-	return &Iterator{
-		current:    block,
-		nodeName:   it.nodeName,
-		bucketName: it.bucketName,
-	}, nil
+	return &Iterator{current: block, repository: it.repository}, nil
 }
 
 func (it *Iterator) HasNext() bool {
@@ -50,8 +21,7 @@ func (it *Iterator) HasNext() bool {
 func (bc *Blockchain) Head() *Iterator {
 	return &Iterator{
 		current:    bc.head,
-		nodeName:   bc.nodeName,
-		bucketName: []byte(blockBucketName),
+		repository: bc.repository,
 	}
 }
 

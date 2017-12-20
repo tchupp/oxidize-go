@@ -6,21 +6,21 @@ import (
 	"log"
 	"strconv"
 	"github.com/tclchiam/block_n_go/tx"
+	"github.com/tclchiam/block_n_go/bolt_impl"
 )
 
 func main() {
 	const owner = "Theo"
 	const receiver = "Marika"
+	const blockchainName = "reactions"
 
-	bc, err := blockchain.Open("reactions", owner)
+	repository, err := bolt_impl.NewRepository(blockchainName)
 	if err != nil {
 		log.Panic(err)
 	}
+	defer repository.Close()
 
-	transaction := tx.NewCoinbaseTx(owner, "")
-	transactions := []*tx.Transaction{transaction}
-
-	bc, err = bc.MineBlock(transactions)
+	bc, err := blockchain.Open(repository, owner)
 	if err != nil {
 		log.Panic(err)
 	}
@@ -47,7 +47,7 @@ func main() {
 	}
 	fmt.Printf("Balance of '%s': %d\n\n", receiver, balance)
 
-	err = bc.Delete()
+	err = bolt_impl.DeleteBlockchain(blockchainName)
 	if err != nil {
 		log.Panic(err)
 	}
