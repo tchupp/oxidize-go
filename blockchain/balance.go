@@ -5,7 +5,7 @@ import (
 	"github.com/imdario/mergo"
 )
 
-func (bc *Blockchain) ReadBalance(address string) (int, error) {
+func (bc *Blockchain) ReadBalance(address string) (uint, error) {
 	unspentOutputs, err := bc.findUnspentOutputs(address)
 	if err != nil {
 		return -1, err
@@ -16,7 +16,7 @@ func (bc *Blockchain) ReadBalance(address string) (int, error) {
 }
 
 func (bc *Blockchain) findUnspentOutputs(address string) (*tx.TransactionSet, error) {
-	spentOutputs := make(map[string][]int)
+	spentOutputs := make(map[string][]uint)
 	outputsForAddress := tx.NewTransactionSet()
 
 	isUnspent := func(transactionId string, output *tx.Output) bool {
@@ -41,10 +41,10 @@ func (bc *Blockchain) findUnspentOutputs(address string) (*tx.TransactionSet, er
 	return unspentOutputs, err
 }
 
-func calculateBalance(unspentOutputs *tx.TransactionSet) int {
+func calculateBalance(unspentOutputs *tx.TransactionSet) uint {
 	sumBalance := func(res interface{}, _ string, output *tx.Output) interface{} {
-		return res.(int) + output.Value
+		return res.(uint) + output.Value
 	}
 
-	return unspentOutputs.Reduce(0, sumBalance).(int)
+	return unspentOutputs.Reduce(uint(0), sumBalance).(uint)
 }

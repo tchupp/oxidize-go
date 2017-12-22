@@ -1,21 +1,36 @@
 package tx
 
+import (
+	"bytes"
+	"github.com/tclchiam/block_n_go/wallet"
+	"crypto/rand"
+)
+
 type Input struct {
 	OutputTransactionId []byte
 	OutputId            int
-	ScriptSig           string
+	Signature           []byte
+	PublicKey           []byte
 }
 
-func NewInput(outputTransactionId []byte, outputId int, data string) *Input {
+func NewInput(outputTransactionId []byte, outputId int, senderPublicKey []byte) *Input {
 	return &Input{
 		OutputTransactionId: outputTransactionId,
 		OutputId:            outputId,
-		ScriptSig:           data,
+		Signature:           nil,
+		PublicKey:           senderPublicKey,
 	}
 }
 
-func (input *Input) CanUnlockOutputWith(unlockingData string) bool {
-	return input.ScriptSig == unlockingData
+func (input *Input) SpentBy(address string) bool {
+	publicKeyHash, err := wallet.AddressToPublicKeyHash(address)
+	if err != nil {
+		return false
+	}
+
+	lockingHash := wallet.HashPubKey(input.PublicKey)
+
+	return bytes.Compare(lockingHash, publicKeyHash) == 0
 }
 
 func (input *Input) isReferencingOutput() bool {
@@ -25,8 +40,10 @@ func (input *Input) isReferencingOutput() bool {
 	return referencesTransaction && referencesTransactionOutput
 }
 
-func newCoinbaseTxInput(data string) *Input {
-	return &Input{OutputTransactionId: []byte(nil), OutputId: -1, ScriptSig: data}
+func newCoinbaseTxInput() *Input {
+	randData := make([]byte, 20)
+	rand.Read(randData)
+	return NewInput([]byte(nil), -1, randData)
 }
 
 type Inputs <-chan *Input

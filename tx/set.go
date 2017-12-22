@@ -16,7 +16,7 @@ func NewTransactionSet() *TransactionSet {
 func (set *TransactionSet) Contains(transactionId string, output *Output) bool {
 	if spentOutputIds, ok := set.transactionsToOutputs[transactionId]; ok {
 		for _, spentOutput := range spentOutputIds {
-			if *spentOutput == *output {
+			if spentOutput.IsEqual(output) {
 				return true
 			}
 		}

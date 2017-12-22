@@ -7,14 +7,15 @@ import (
 	"github.com/tclchiam/block_n_go/bolt_impl"
 	"github.com/tclchiam/block_n_go/blockchain"
 	"github.com/tclchiam/block_n_go/wallet"
+	"fmt"
 )
 
 func TestBlockchain_Workflow(t *testing.T) {
-	owner := wallet.NewWallet().GetAddress()
-	actor1 := wallet.NewWallet().GetAddress()
-	actor2 := wallet.NewWallet().GetAddress()
-	actor3 := wallet.NewWallet().GetAddress()
-	actor4 := wallet.NewWallet().GetAddress()
+	owner := wallet.NewWallet()
+	actor1 := wallet.NewWallet()
+	actor2 := wallet.NewWallet()
+	actor3 := wallet.NewWallet()
+	actor4 := wallet.NewWallet()
 
 	t.Run("Sending: expense < balance", func(t *testing.T) {
 		const name = "test1"
@@ -24,7 +25,7 @@ func TestBlockchain_Workflow(t *testing.T) {
 			t.Fatalf("failed to create blockchain repository: %s", err)
 		}
 
-		bc, err := blockchain.Open(repository, owner)
+		bc, err := blockchain.Open(repository, owner.GetAddress())
 		if err != nil {
 			t.Fatalf("failed to open test blockchain: %s", err)
 		}
@@ -47,7 +48,7 @@ func TestBlockchain_Workflow(t *testing.T) {
 			t.Fatalf("failed to create blockchain repository: %s", err)
 		}
 
-		bc, err := blockchain.Open(repository, owner)
+		bc, err := blockchain.Open(repository, owner.GetAddress())
 		if err != nil {
 			t.Fatalf("failed to open test blockchain: %s", err)
 		}
@@ -70,7 +71,7 @@ func TestBlockchain_Workflow(t *testing.T) {
 			t.Fatalf("failed to create blockchain repository: %s", err)
 		}
 
-		bc, err := blockchain.Open(repository, owner)
+		bc, err := blockchain.Open(repository, owner.GetAddress())
 		if err != nil {
 			t.Fatalf("failed to open test blockchain: %s", err)
 		}
@@ -81,7 +82,7 @@ func TestBlockchain_Workflow(t *testing.T) {
 			t.Fatalf("expected error")
 		}
 
-		expectedMessage := "account 'Theo' does not have enough to send '13', due to balance '10'"
+		expectedMessage := fmt.Sprintf("account '%x' does not have enough to send '13', due to balance '10'", owner.GetAddress())
 		if !strings.Contains(err.Error(), expectedMessage) {
 			t.Fatalf("Expected string to contain: \"%s\", was '%s'", expectedMessage, err.Error())
 		}
@@ -98,7 +99,7 @@ func TestBlockchain_Workflow(t *testing.T) {
 			t.Fatalf("failed to create blockchain repository: %s", err)
 		}
 
-		bc, err := blockchain.Open(repository, owner)
+		bc, err := blockchain.Open(repository, owner.GetAddress())
 		if err != nil {
 			t.Fatalf("failed to open test blockchain: %s", err)
 		}
@@ -150,13 +151,14 @@ func TestBlockchain_Workflow(t *testing.T) {
 	})
 }
 
-func verifyBalance(t *testing.T, bc *blockchain.Blockchain, address string, expectedBalance int) {
+func verifyBalance(t *testing.T, bc *blockchain.Blockchain, wallet *wallet.Wallet, expectedBalance int) {
+	address := wallet.GetAddress()
 	balance, err := bc.ReadBalance(address)
 
 	if err != nil {
-		t.Fatalf("reading balance for '%s' %s", address, err)
+		t.Fatalf("reading balance for '%x' %s", address, err)
 	}
-	if balance != expectedBalance {
-		t.Fatalf("expected balance for '%s' to be [%d], was: [%d]", address, expectedBalance, balance)
+	if balance != uint(expectedBalance) {
+		t.Fatalf("expected balance for '%x' to be [%d], was: [%d]", address, expectedBalance, balance)
 	}
 }

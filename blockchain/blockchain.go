@@ -2,6 +2,7 @@ package blockchain
 
 import (
 	"github.com/tclchiam/block_n_go/tx"
+	"github.com/tclchiam/block_n_go/wallet"
 )
 
 type Blockchain struct {
@@ -22,7 +23,7 @@ func Open(repository Repository, ownerAddress string) (*Blockchain, error) {
 	return &Blockchain{head: head, repository: repository}, nil
 }
 
-func (bc *Blockchain) Send(sender, receiver string, expense int) (*Blockchain, error) {
+func (bc *Blockchain) Send(sender, receiver *wallet.Wallet, expense uint) (*Blockchain, error) {
 	transaction, err := bc.buildExpenseTransaction(sender, receiver, expense)
 	if err != nil {
 		return bc, err

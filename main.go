@@ -11,11 +11,11 @@ import (
 )
 
 func main() {
-	owner := wallet.NewWallet().GetAddress()
-	receiver := wallet.NewWallet().GetAddress()
+	owner := wallet.NewWallet()
+	receiver := wallet.NewWallet()
 	const blockchainName = "reactions"
 
-	fmt.Printf("Owner: '%s', receiver: '%s'\n", owner, receiver)
+	fmt.Printf("Owner: '%s', receiver: '%s'\n", owner.GetAddress(), receiver.GetAddress())
 
 	repository, err := bolt_impl.NewRepository(blockchainName)
 	if err != nil {
@@ -24,12 +24,16 @@ func main() {
 	defer repository.Close()
 	defer bolt_impl.DeleteBlockchain(blockchainName)
 
-	bc, err := blockchain.Open(repository, owner)
+	bc, err := blockchain.Open(repository, owner.GetAddress())
 	if err != nil {
 		log.Panic(err)
 	}
 
 	bc, err = bc.Send(owner, receiver, 3)
+	if err != nil {
+		log.Panic(err)
+	}
+	bc, err = bc.Send(receiver, owner, 2)
 	if err != nil {
 		log.Panic(err)
 	}
@@ -39,17 +43,17 @@ func main() {
 		log.Panic(err)
 	}
 
-	balance, err := bc.ReadBalance(owner)
+	balance, err := bc.ReadBalance(owner.GetAddress())
 	if err != nil {
 		log.Panic(err)
 	}
-	fmt.Printf("Balance of '%s': %d\n\n", owner, balance)
+	fmt.Printf("Balance of '%s': %d\n\n", owner.GetAddress(), balance)
 
-	balance, err = bc.ReadBalance(receiver)
+	balance, err = bc.ReadBalance(receiver.GetAddress())
 	if err != nil {
 		log.Panic(err)
 	}
-	fmt.Printf("Balance of '%s': %d\n\n", receiver, balance)
+	fmt.Printf("Balance of '%s': %d\n\n", receiver.GetAddress(), balance)
 }
 
 func printBlock(block *blockchain.Block) {

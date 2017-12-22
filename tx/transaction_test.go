@@ -8,7 +8,7 @@ func TestTransaction_FindUnspentOutput(t *testing.T) {
 	const to = "Theo"
 
 	t.Run("One", func(t *testing.T) {
-		transaction := NewCoinbaseTx(to, "")
+		transaction := NewCoinbaseTx(to)
 
 		unspentOutputs := transaction.FindOutputsForAddress(to)
 		count := unspentOutputs.Reduce(0, func(res interface{}, transactionId string, output *Output) interface{} {
@@ -25,7 +25,7 @@ func TestTransaction_FindSpentOutput(t *testing.T) {
 	const to = "Theo"
 
 	t.Run("One", func(t *testing.T) {
-		transaction := NewCoinbaseTx(to, "")
+		transaction := NewCoinbaseTx(to)
 
 		spentOutputs := transaction.FindSpentOutputs(to)
 
