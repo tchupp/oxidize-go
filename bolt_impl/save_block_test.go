@@ -9,12 +9,12 @@ import (
 	"fmt"
 	"github.com/tclchiam/block_n_go/blockchain"
 	"crypto/rand"
+	"github.com/tclchiam/block_n_go/wallet"
 )
 
 func TestBlockchainRepository_SaveBlock(t *testing.T) {
-	const address = "Theo"
+	address := wallet.NewWallet().GetAddress()
 	const testBlockchainName = "test"
-	const newBlockData = "Send 3 BTC"
 
 	repository, err := NewRepository(testBlockchainName)
 	if err != nil {
@@ -22,7 +22,7 @@ func TestBlockchainRepository_SaveBlock(t *testing.T) {
 	}
 	defer closeAndDeleteDB(repository, t)
 
-	transaction := tx.NewCoinbaseTx(address, newBlockData)
+	transaction := tx.NewCoinbaseTx(address)
 	transactions := []*tx.Transaction{transaction}
 
 	previousIndex := 5

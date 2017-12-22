@@ -9,10 +9,10 @@ type Blockchain struct {
 	repository Repository
 }
 
-func Open(repository Repository, address string) (*Blockchain, error) {
+func Open(repository Repository, ownerAddress string) (*Blockchain, error) {
 	head, err := repository.Head()
 	if err == LatestHashNotFoundError {
-		head = NewGenesisBlock(address)
+		head = NewGenesisBlock(ownerAddress)
 		err = repository.SaveBlock(head)
 	}
 	if err != nil {

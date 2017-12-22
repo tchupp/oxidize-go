@@ -7,10 +7,11 @@ import (
 	"testing"
 	"github.com/tclchiam/block_n_go/tx"
 	"github.com/google/go-cmp/cmp"
+	"github.com/tclchiam/block_n_go/wallet"
 )
 
 func TestNewGenesisBlock(t *testing.T) {
-	const address = "Theo"
+	address := wallet.NewWallet().GetAddress()
 	transaction := tx.NewGenesisCoinbaseTx(address)
 	transactions := []*tx.Transaction{transaction}
 

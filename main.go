@@ -7,18 +7,22 @@ import (
 	"strconv"
 	"github.com/tclchiam/block_n_go/tx"
 	"github.com/tclchiam/block_n_go/bolt_impl"
+	"github.com/tclchiam/block_n_go/wallet"
 )
 
 func main() {
-	const owner = "Theo"
-	const receiver = "Marika"
+	owner := wallet.NewWallet().GetAddress()
+	receiver := wallet.NewWallet().GetAddress()
 	const blockchainName = "reactions"
+
+	fmt.Printf("Owner: '%s', receiver: '%s'\n", owner, receiver)
 
 	repository, err := bolt_impl.NewRepository(blockchainName)
 	if err != nil {
 		log.Panic(err)
 	}
 	defer repository.Close()
+	defer bolt_impl.DeleteBlockchain(blockchainName)
 
 	bc, err := blockchain.Open(repository, owner)
 	if err != nil {
@@ -46,11 +50,6 @@ func main() {
 		log.Panic(err)
 	}
 	fmt.Printf("Balance of '%s': %d\n\n", receiver, balance)
-
-	err = bolt_impl.DeleteBlockchain(blockchainName)
-	if err != nil {
-		log.Panic(err)
-	}
 }
 
 func printBlock(block *blockchain.Block) {

@@ -6,14 +6,15 @@ import (
 
 	"github.com/tclchiam/block_n_go/bolt_impl"
 	"github.com/tclchiam/block_n_go/blockchain"
+	"github.com/tclchiam/block_n_go/wallet"
 )
 
 func TestBlockchain_Workflow(t *testing.T) {
-	const owner = "Theo"
-	const actor1 = "Marika"
-	const actor2 = "Ivan"
-	const actor3 = "Nick"
-	const actor4 = "George"
+	owner := wallet.NewWallet().GetAddress()
+	actor1 := wallet.NewWallet().GetAddress()
+	actor2 := wallet.NewWallet().GetAddress()
+	actor3 := wallet.NewWallet().GetAddress()
+	actor4 := wallet.NewWallet().GetAddress()
 
 	t.Run("Sending: expense < balance", func(t *testing.T) {
 		const name = "test1"
