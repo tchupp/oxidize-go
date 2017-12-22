@@ -47,16 +47,16 @@ func (w *Wallet) GetAddress() string {
 	return base58.Encode(rawAddress)
 }
 
-func AddressToPublicKeyHash(address string) []byte {
+func AddressToPublicKeyHash(address string) ([]byte, error) {
 	rawAddress, err := base58.Decode(address)
 	if err != nil {
-		log.Panic(err)
+		return nil, err
 	}
-	return rawAddress[1: len(rawAddress)-addressChecksumLength]
+	return rawAddress[1: len(rawAddress)-addressChecksumLength], nil
 }
 
-func HashPubKey(pubKey []byte) []byte {
-	publicSHA256 := sha256.Sum256(pubKey)
+func HashPubKey(publicKey []byte) []byte {
+	publicSHA256 := sha256.Sum256(publicKey)
 
 	hashImpl := ripemd160.New()
 	_, err := hashImpl.Write(publicSHA256[:])

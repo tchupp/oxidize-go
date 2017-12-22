@@ -31,7 +31,10 @@ func TestAddressToPublicKeyHash(t *testing.T) {
 	walletPublicKeyHash := HashPubKey(wallet.PublicKey)
 
 	address := wallet.GetAddress()
-	addressPublicKeyHash := AddressToPublicKeyHash(address)
+	addressPublicKeyHash, err := AddressToPublicKeyHash(address)
+	if err != nil {
+		t.Errorf("error converting address to public key hash: %s", err)
+	}
 
 	if bytes.Compare(walletPublicKeyHash, addressPublicKeyHash) != 0 {
 		t.Errorf("public key hash from wallet '%x' did not match decoded public key hash from address '%x'", walletPublicKeyHash, addressPublicKeyHash)
