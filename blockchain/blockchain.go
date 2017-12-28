@@ -23,12 +23,12 @@ func Open(repository Repository, ownerAddress string) (*Blockchain, error) {
 	return &Blockchain{head: head, repository: repository}, nil
 }
 
-func (bc *Blockchain) Send(sender, receiver *wallet.Wallet, expense uint) (*Blockchain, error) {
+func (bc *Blockchain) Send(sender, receiver, miner *wallet.Wallet, expense uint) (*Blockchain, error) {
 	expenseTransaction, err := bc.buildExpenseTransaction(sender, receiver, expense)
 	if err != nil {
 		return bc, err
 	}
-	rewardTransaction := tx.NewCoinbaseTx(sender.GetAddress())
+	rewardTransaction := tx.NewCoinbaseTx(miner.GetAddress())
 
 	return bc.mineBlock([]*tx.Transaction{expenseTransaction, rewardTransaction})
 }

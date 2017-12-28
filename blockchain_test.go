@@ -31,7 +31,7 @@ func TestBlockchain_Workflow(t *testing.T) {
 		}
 		defer bolt_impl.DeleteBlockchain(name)
 
-		bc, err = bc.Send(owner, actor1, 3)
+		bc, err = bc.Send(owner, actor1, owner, 3)
 		if err != nil {
 			t.Fatalf("error sending: %s", err)
 		}
@@ -54,7 +54,7 @@ func TestBlockchain_Workflow(t *testing.T) {
 		}
 		defer bolt_impl.DeleteBlockchain(name)
 
-		bc, err = bc.Send(owner, actor1, 10)
+		bc, err = bc.Send(owner, actor1, owner, 10)
 		if err != nil {
 			t.Fatalf("error sending: %s", err)
 		}
@@ -77,7 +77,7 @@ func TestBlockchain_Workflow(t *testing.T) {
 		}
 		defer bolt_impl.DeleteBlockchain(name)
 
-		bc, err = bc.Send(owner, actor1, 13)
+		bc, err = bc.Send(owner, actor1, owner, 13)
 		if err == nil {
 			t.Fatalf("expected error")
 		}
@@ -105,7 +105,7 @@ func TestBlockchain_Workflow(t *testing.T) {
 		}
 		defer bolt_impl.DeleteBlockchain(name)
 
-		bc, err = bc.Send(owner, actor1, 1)
+		bc, err = bc.Send(owner, actor1, owner, 1)
 		if err != nil {
 			t.Fatalf("error sending: %s", err)
 		}
@@ -116,7 +116,7 @@ func TestBlockchain_Workflow(t *testing.T) {
 		verifyBalance(t, bc, actor3, 0)
 		verifyBalance(t, bc, actor4, 0)
 
-		bc, err = bc.Send(owner, actor2, 1)
+		bc, err = bc.Send(owner, actor2, owner, 1)
 		if err != nil {
 			t.Fatalf("error sending: %s", err)
 		}
@@ -127,7 +127,7 @@ func TestBlockchain_Workflow(t *testing.T) {
 		verifyBalance(t, bc, actor3, 0)
 		verifyBalance(t, bc, actor4, 0)
 
-		bc, err = bc.Send(owner, actor3, 1)
+		bc, err = bc.Send(owner, actor3, owner, 1)
 		if err != nil {
 			t.Fatalf("error sending: %s", err)
 		}
@@ -138,7 +138,7 @@ func TestBlockchain_Workflow(t *testing.T) {
 		verifyBalance(t, bc, actor3, 1)
 		verifyBalance(t, bc, actor4, 0)
 
-		bc, err = bc.Send(owner, actor4, 1)
+		bc, err = bc.Send(owner, actor4, owner, 1)
 		if err != nil {
 			t.Fatalf("error sending: %s", err)
 		}

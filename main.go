@@ -29,11 +29,11 @@ func main() {
 		log.Panic(err)
 	}
 
-	bc, err = bc.Send(owner, receiver, 3)
+	bc, err = bc.Send(owner, receiver, owner, 3)
 	if err != nil {
 		log.Panic(err)
 	}
-	bc, err = bc.Send(receiver, owner, 2)
+	bc, err = bc.Send(receiver, owner, owner, 2)
 	if err != nil {
 		log.Panic(err)
 	}
