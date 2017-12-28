@@ -5,16 +5,11 @@ import (
 	"crypto/sha256"
 	"math/big"
 	"testing"
-	"github.com/tclchiam/block_n_go/tx"
-	"github.com/google/go-cmp/cmp"
 	"github.com/tclchiam/block_n_go/wallet"
 )
 
 func TestNewGenesisBlock(t *testing.T) {
 	address := wallet.NewWallet().GetAddress()
-	transaction := tx.NewGenesisCoinbaseTx(address)
-	transactions := []*tx.Transaction{transaction}
-
 	genesisBlock := NewGenesisBlock(address)
 
 	if len(genesisBlock.PreviousHash) != 0 {
@@ -23,8 +18,8 @@ func TestNewGenesisBlock(t *testing.T) {
 	if genesisBlock.Index != 0 {
 		t.Fatalf("Genesis block has bad Index, expected %d, but was %d", 0, genesisBlock.Index)
 	}
-	if !cmp.Equal(genesisBlock.Transactions, transactions) {
-		t.Fatalf("Genesis block has bad Transactions, %s", cmp.Diff(genesisBlock.Transactions, transactions))
+	if len(genesisBlock.Transactions) != 1 {
+		t.Fatalf("Genesis block has bad Transactions, %s", genesisBlock.Transactions)
 	}
 
 	if !hasValidHash(genesisBlock) {
