@@ -36,7 +36,7 @@ func TestBlockchain_Workflow(t *testing.T) {
 			t.Fatalf("error sending: %s", err)
 		}
 
-		verifyBalance(t, bc, owner, 7)
+		verifyBalance(t, bc, owner, 17)
 		verifyBalance(t, bc, actor1, 3)
 	})
 
@@ -59,7 +59,7 @@ func TestBlockchain_Workflow(t *testing.T) {
 			t.Fatalf("error sending: %s", err)
 		}
 
-		verifyBalance(t, bc, owner, 0)
+		verifyBalance(t, bc, owner, 10)
 		verifyBalance(t, bc, actor1, 10)
 	})
 
@@ -110,7 +110,7 @@ func TestBlockchain_Workflow(t *testing.T) {
 			t.Fatalf("error sending: %s", err)
 		}
 
-		verifyBalance(t, bc, owner, 9)
+		verifyBalance(t, bc, owner, 19)
 		verifyBalance(t, bc, actor1, 1)
 		verifyBalance(t, bc, actor2, 0)
 		verifyBalance(t, bc, actor3, 0)
@@ -121,7 +121,7 @@ func TestBlockchain_Workflow(t *testing.T) {
 			t.Fatalf("error sending: %s", err)
 		}
 
-		verifyBalance(t, bc, owner, 8)
+		verifyBalance(t, bc, owner, 28)
 		verifyBalance(t, bc, actor1, 1)
 		verifyBalance(t, bc, actor1, 1)
 		verifyBalance(t, bc, actor3, 0)
@@ -132,7 +132,7 @@ func TestBlockchain_Workflow(t *testing.T) {
 			t.Fatalf("error sending: %s", err)
 		}
 
-		verifyBalance(t, bc, owner, 7)
+		verifyBalance(t, bc, owner, 37)
 		verifyBalance(t, bc, actor1, 1)
 		verifyBalance(t, bc, actor1, 1)
 		verifyBalance(t, bc, actor3, 1)
@@ -143,7 +143,7 @@ func TestBlockchain_Workflow(t *testing.T) {
 			t.Fatalf("error sending: %s", err)
 		}
 
-		verifyBalance(t, bc, owner, 6)
+		verifyBalance(t, bc, owner, 46)
 		verifyBalance(t, bc, actor1, 1)
 		verifyBalance(t, bc, actor1, 1)
 		verifyBalance(t, bc, actor3, 1)
