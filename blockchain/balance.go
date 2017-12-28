@@ -8,7 +8,7 @@ import (
 func (bc *Blockchain) ReadBalance(address string) (uint, error) {
 	unspentOutputs, err := bc.findUnspentOutputs(address)
 	if err != nil {
-		return -1, err
+		return 0, err
 	}
 
 	balance := calculateBalance(unspentOutputs)
