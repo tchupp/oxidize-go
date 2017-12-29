@@ -3,11 +3,11 @@ package blockchain
 import (
 	"bytes"
 	"crypto/sha256"
-	"fmt"
 	"math"
 	"math/big"
 	"encoding/binary"
 	"log"
+	"runtime"
 )
 
 const (
@@ -20,26 +20,28 @@ var (
 	target = big.NewInt(1).Lsh(big.NewInt(1), uint(hashLength-targetBits))
 )
 
-func CalculateProofOfWork(block *Block) (int, []byte) {
-	var hashInt big.Int
-	var hash [32]byte
-	nonce := 0
+func CalculateProofOfWork(block *Block) (*blockSolution) {
+	workerCount := runtime.NumCPU()
 
-	for nonce < maxNonce {
-		hash = hashBlock(block, nonce)
+	solutions := make(chan *blockSolution)
+	nonces := make(chan int, workerCount)
+	defer close(nonces)
 
-		fmt.Printf("\r%x", hash)
-		hashInt.SetBytes(hash[:])
+	for worker := 0; worker < workerCount; worker++ {
+		go miner(block, nonces, solutions)
+	}
 
-		if hashInt.Cmp(target) == -1 {
-			break
-		} else {
-			nonce++
+	for nonce := 0; nonce < maxNonce; nonce++ {
+		select {
+		case solution := <-solutions:
+			return solution
+		default:
+			nonces <- nonce
 		}
 	}
-	fmt.Print("\n\n")
 
-	return nonce, hash[:]
+	log.Panic(MaxNonceOverflowError)
+	return nil
 }
 
 func (block *Block) Validate() bool {
@@ -59,7 +61,7 @@ func hashBlock(block *Block, nonce int) [32]byte {
 		intToHex(int64(targetBits)),
 		intToHex(int64(nonce)),
 	}
-	rawBlockData := bytes.Join(rawBlockContents, []byte{})
+	rawBlockData := bytes.Join(rawBlockContents, []byte(nil))
 	return sha256.Sum256(rawBlockData)
 }
 

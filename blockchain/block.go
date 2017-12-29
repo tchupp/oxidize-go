@@ -29,15 +29,15 @@ func NewBlock(transactions []*tx.Transaction, previousHash []byte, index int) *B
 		Timestamp:    time.Now().Unix(),
 		Transactions: transactions,
 	}
-	nonce, hash := CalculateProofOfWork(&b)
+	solution := CalculateProofOfWork(&b)
 
 	return &Block{
 		Index:        b.Index,
 		PreviousHash: b.PreviousHash,
 		Timestamp:    b.Timestamp,
 		Transactions: b.Transactions,
-		Hash:         hash,
-		Nonce:        nonce,
+		Hash:         solution.hash,
+		Nonce:        solution.nonce,
 	}
 }
 
