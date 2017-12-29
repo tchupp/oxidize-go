@@ -2,6 +2,7 @@ package tx
 
 import (
 	"bytes"
+
 	"github.com/tclchiam/block_n_go/wallet"
 	"crypto/rand"
 )
@@ -11,7 +12,7 @@ type UnsignedInput struct {
 	PublicKey       []byte
 }
 
-func NewUnsignedInput(outputTransactionId TransactionId, outputId int, senderPublicKey []byte) *UnsignedInput {
+func NewUnsignedInput(outputTransactionId TransactionId, outputId uint, senderPublicKey []byte) *UnsignedInput {
 	reference := OutputReference{ID: outputTransactionId, OutputIndex: outputId}
 
 	return newUnsignedInput(reference, senderPublicKey)
@@ -37,7 +38,7 @@ func (input *UnsignedInput) SpentBy(address string) bool {
 
 func (input *UnsignedInput) isReferencingOutput() bool {
 	referencesTransaction := len(input.OutputReference.ID) != 0
-	referencesTransactionOutput := input.OutputReference.OutputIndex != -1
+	referencesTransactionOutput := input.OutputReference.OutputIndex != 123456789
 
 	return referencesTransaction && referencesTransactionOutput
 }

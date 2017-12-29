@@ -29,7 +29,7 @@ func (bc *Blockchain) buildExpenseTransaction(sender, receiver *wallet.Wallet, e
 	}
 
 	buildInputs := func(res interface{}, transaction *tx.Transaction, output *tx.Output) interface{} {
-		input := tx.NewUnsignedInput(transaction.ID, int(output.Id), sender.PublicKey)
+		input := tx.NewUnsignedInput(transaction.ID, output.Id, sender.PublicKey)
 		return res.(tx.UnsignedInputs).Add(input)
 	}
 

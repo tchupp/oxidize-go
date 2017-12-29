@@ -12,9 +12,9 @@ func TestTransaction_FindUnspentOutput(t *testing.T) {
 	t.Run("One", func(t *testing.T) {
 		transaction := NewCoinbaseTx(address)
 
-		unspentOutputs := transaction.FindOutputsForAddress(address)
-		if unspentOutputs.Len() != 1 {
-			t.Fatalf("Expected %d unspent output, was: %d", 1, unspentOutputs.Len())
+		outputs := transaction.FindOutputsForAddress(address)
+		if outputs.Len() != 1 {
+			t.Fatalf("Expected %d unspent output, was: %d", 1, outputs.Len())
 		}
 	})
 }

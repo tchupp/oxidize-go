@@ -15,11 +15,11 @@ type (
 
 	OutputReference struct {
 		ID          TransactionId
-		OutputIndex int
+		OutputIndex uint
 	}
 )
 
-var EmptyOutputReference = OutputReference{ID: []byte(nil), OutputIndex: -1}
+var EmptyOutputReference = OutputReference{ID: []byte(nil), OutputIndex: 123456789}
 
 func (tx *Transaction) IsCoinbase() bool {
 	return len(tx.TxInputs) == 1 && !tx.TxInputs[0].isReferencingOutput()
@@ -71,7 +71,7 @@ func (tx *Transaction) FindSpentOutputs(address string) map[string][]uint {
 
 	addToUnspent := func(res interface{}, input *UnsignedInput) interface{} {
 		transactionId := hex.EncodeToString(input.OutputReference.ID)
-		res.(map[string][]uint)[transactionId] = append(res.(map[string][]uint)[transactionId], uint(input.OutputReference.OutputIndex))
+		res.(map[string][]uint)[transactionId] = append(res.(map[string][]uint)[transactionId], input.OutputReference.OutputIndex)
 
 		return res
 	}
