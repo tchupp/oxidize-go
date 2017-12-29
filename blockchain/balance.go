@@ -19,8 +19,8 @@ func (bc *Blockchain) findUnspentOutputs(address string) (*tx.TransactionOutputS
 	spentOutputs := make(map[string][]uint)
 	outputsForAddress := tx.NewTransactionSet()
 
-	isUnspent := func(transactionId string, output *tx.Output) bool {
-		if outputs, ok := spentOutputs[transactionId]; ok {
+	isUnspent := func(transaction *tx.Transaction, output *tx.Output) bool {
+		if outputs, ok := spentOutputs[transaction.ID.String()]; ok {
 			for _, outputId := range outputs {
 				if outputId == output.Id {
 					return false
@@ -42,7 +42,7 @@ func (bc *Blockchain) findUnspentOutputs(address string) (*tx.TransactionOutputS
 }
 
 func calculateBalance(unspentOutputs *tx.TransactionOutputSet) uint {
-	sumBalance := func(res interface{}, _ string, output *tx.Output) interface{} {
+	sumBalance := func(res interface{}, _ *tx.Transaction, output *tx.Output) interface{} {
 		return res.(uint) + output.Value
 	}
 

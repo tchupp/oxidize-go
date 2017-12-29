@@ -13,12 +13,8 @@ func TestTransaction_FindUnspentOutput(t *testing.T) {
 		transaction := NewCoinbaseTx(address)
 
 		unspentOutputs := transaction.FindOutputsForAddress(address)
-		count := unspentOutputs.Reduce(0, func(res interface{}, transactionId string, output *Output) interface{} {
-			return res.(int) + 1
-		})
-
-		if count != 1 {
-			t.Fatalf("Expected %d unspent output, was: %d", 1, count)
+		if unspentOutputs.Len() != 1 {
+			t.Fatalf("Expected %d unspent output, was: %d", 1, unspentOutputs.Len())
 		}
 	})
 }

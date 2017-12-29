@@ -11,7 +11,7 @@ type UnsignedInput struct {
 	PublicKey       []byte
 }
 
-func NewUnsignedInput(outputTransactionId []byte, outputId int, senderPublicKey []byte) *UnsignedInput {
+func NewUnsignedInput(outputTransactionId TransactionId, outputId int, senderPublicKey []byte) *UnsignedInput {
 	reference := OutputReference{ID: outputTransactionId, OutputIndex: outputId}
 
 	return newUnsignedInput(reference, senderPublicKey)

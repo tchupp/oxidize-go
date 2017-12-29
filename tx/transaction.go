@@ -7,8 +7,9 @@ import (
 const subsidy = 10
 
 type (
+	TransactionId []byte
 	Transaction struct {
-		ID        []byte
+		ID        TransactionId
 		TxInputs  []*UnsignedInput
 		TxOutputs []*Output
 	}
@@ -20,6 +21,10 @@ type (
 )
 
 var EmptyOutputReference = OutputReference{ID: []byte(nil), OutputIndex: -1}
+
+func (txId TransactionId) String() string {
+	return hex.EncodeToString(txId)
+}
 
 func (tx *Transaction) IsCoinbase() bool {
 	return len(tx.TxInputs) == 1 && !tx.TxInputs[0].isReferencingOutput()
@@ -54,10 +59,8 @@ func NewTx(inputs UnsignedInputs, outputs Outputs) *Transaction {
 }
 
 func (tx *Transaction) FindOutputsForAddress(address string) *TransactionOutputSet {
-	transactionId := hex.EncodeToString(tx.ID)
-
 	addToTxSet := func(res interface{}, output *Output) interface{} {
-		return res.(*TransactionOutputSet).Add(transactionId, output)
+		return res.(*TransactionOutputSet).Add(tx, output)
 	}
 
 	return tx.Outputs().

@@ -2,9 +2,6 @@ package blockchain
 
 import (
 	"fmt"
-	"encoding/hex"
-	"log"
-
 	"github.com/tclchiam/block_n_go/tx"
 	"github.com/tclchiam/block_n_go/wallet"
 )
@@ -23,7 +20,7 @@ func (bc *Blockchain) buildExpenseTransaction(sender, receiver *wallet.Wallet, e
 	}
 
 	liquidBalance := uint(0)
-	takeMinimumToMeetExpense := func(_ string, output *tx.Output) bool {
+	takeMinimumToMeetExpense := func(_ *tx.Transaction, output *tx.Output) bool {
 		take := liquidBalance < expense
 		if take {
 			liquidBalance += output.Value
@@ -31,13 +28,8 @@ func (bc *Blockchain) buildExpenseTransaction(sender, receiver *wallet.Wallet, e
 		return take
 	}
 
-	buildInputs := func(res interface{}, transactionId string, output *tx.Output) interface{} {
-		b, err := hex.DecodeString(transactionId)
-		if err != nil {
-			log.Panic(err)
-		}
-
-		input := tx.NewUnsignedInput(b, int(output.Id), sender.PublicKey)
+	buildInputs := func(res interface{}, transaction *tx.Transaction, output *tx.Output) interface{} {
+		input := tx.NewUnsignedInput(transaction.ID, int(output.Id), sender.PublicKey)
 		return res.(tx.UnsignedInputs).Add(input)
 	}
 
