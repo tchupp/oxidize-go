@@ -7,16 +7,20 @@ import (
 )
 
 type UnsignedInput struct {
-	OutputTransactionId []byte
-	OutputId            int
-	PublicKey           []byte
+	OutputReference OutputReference
+	PublicKey       []byte
 }
 
 func NewUnsignedInput(outputTransactionId []byte, outputId int, senderPublicKey []byte) *UnsignedInput {
+	reference := OutputReference{ID: outputTransactionId, OutputIndex: outputId}
+
+	return newUnsignedInput(reference, senderPublicKey)
+}
+
+func newUnsignedInput(reference OutputReference, senderPublicKey []byte) *UnsignedInput {
 	return &UnsignedInput{
-		OutputTransactionId: outputTransactionId,
-		OutputId:            outputId,
-		PublicKey:           senderPublicKey,
+		OutputReference: reference,
+		PublicKey:       senderPublicKey,
 	}
 }
 
@@ -32,8 +36,8 @@ func (input *UnsignedInput) SpentBy(address string) bool {
 }
 
 func (input *UnsignedInput) isReferencingOutput() bool {
-	referencesTransaction := len(input.OutputTransactionId) != 0
-	referencesTransactionOutput := input.OutputId != -1
+	referencesTransaction := len(input.OutputReference.ID) != 0
+	referencesTransactionOutput := input.OutputReference.OutputIndex != -1
 
 	return referencesTransaction && referencesTransactionOutput
 }
@@ -41,7 +45,7 @@ func (input *UnsignedInput) isReferencingOutput() bool {
 func newCoinbaseTxInput() *UnsignedInput {
 	randData := make([]byte, 20)
 	rand.Read(randData)
-	return NewUnsignedInput([]byte(nil), -1, randData)
+	return newUnsignedInput(EmptyOutputReference, randData)
 }
 
 type UnsignedInputs <-chan *UnsignedInput

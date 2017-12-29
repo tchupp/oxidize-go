@@ -6,22 +6,10 @@ import (
 	"log"
 	"fmt"
 	"strings"
-	"crypto/sha256"
 	"strconv"
 )
 
-func (tx *Transaction) Hash() []byte {
-	var hash [32]byte
-
-	txCopy := *tx
-	txCopy.ID = []byte{}
-
-	hash = sha256.Sum256(txCopy.Serialize())
-
-	return hash[:]
-}
-
-func (tx *Transaction) Serialize() []byte {
+func serialize(tx *Transaction) []byte {
 	var encoded bytes.Buffer
 
 	enc := gob.NewEncoder(&encoded)

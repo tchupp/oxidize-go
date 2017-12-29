@@ -12,7 +12,14 @@ type (
 		TxInputs  []*UnsignedInput
 		TxOutputs []*Output
 	}
+
+	OutputReference struct {
+		ID          []byte
+		OutputIndex int
+	}
 )
+
+var EmptyOutputReference = OutputReference{ID: []byte(nil), OutputIndex: -1}
 
 func (tx *Transaction) IsCoinbase() bool {
 	return len(tx.TxInputs) == 1 && !tx.TxInputs[0].isReferencingOutput()
@@ -26,7 +33,7 @@ func NewCoinbaseTx(minerAddress string) *Transaction {
 	input := newCoinbaseTxInput()
 	output := NewOutput(subsidy, minerAddress)
 	tx := Transaction{nil, []*UnsignedInput{input}, []*Output{output}}
-	tx.ID = tx.Hash()
+	tx.ID = Hash(&tx)
 
 	return &tx
 }
@@ -41,7 +48,7 @@ func NewTx(inputs UnsignedInputs, outputs Outputs) *Transaction {
 		TxInputs:  inputs.ToSlice(),
 		TxOutputs: outputs.Reduce(make([]*Output, 0), collectOutputs).([]*Output),
 	}
-	tx.ID = tx.Hash()
+	tx.ID = Hash(&tx)
 
 	return &tx
 }
@@ -65,8 +72,8 @@ func (tx *Transaction) FindSpentOutputs(address string) map[string][]uint {
 	}
 
 	addToTxSet := func(res interface{}, input *UnsignedInput) interface{} {
-		transactionId := hex.EncodeToString(input.OutputTransactionId)
-		res.(map[string][]uint)[transactionId] = append(res.(map[string][]uint)[transactionId], uint(input.OutputId))
+		transactionId := hex.EncodeToString(input.OutputReference.ID)
+		res.(map[string][]uint)[transactionId] = append(res.(map[string][]uint)[transactionId], uint(input.OutputReference.OutputIndex))
 
 		return res
 	}
