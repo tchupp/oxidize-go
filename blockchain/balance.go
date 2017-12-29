@@ -15,7 +15,7 @@ func (bc *Blockchain) ReadBalance(address string) (uint, error) {
 	return balance, nil
 }
 
-func (bc *Blockchain) findUnspentOutputs(address string) (*tx.TransactionSet, error) {
+func (bc *Blockchain) findUnspentOutputs(address string) (*tx.TransactionOutputSet, error) {
 	spentOutputs := make(map[string][]uint)
 	outputsForAddress := tx.NewTransactionSet()
 
@@ -41,7 +41,7 @@ func (bc *Blockchain) findUnspentOutputs(address string) (*tx.TransactionSet, er
 	return unspentOutputs, err
 }
 
-func calculateBalance(unspentOutputs *tx.TransactionSet) uint {
+func calculateBalance(unspentOutputs *tx.TransactionOutputSet) uint {
 	sumBalance := func(res interface{}, _ string, output *tx.Output) interface{} {
 		return res.(uint) + output.Value
 	}

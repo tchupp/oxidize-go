@@ -5,15 +5,15 @@ import (
 	"strings"
 )
 
-type TransactionSet struct {
+type TransactionOutputSet struct {
 	transactionsToOutputs map[string][]*Output
 }
 
-func NewTransactionSet() *TransactionSet {
-	return &TransactionSet{make(map[string][]*Output, 0)}
+func NewTransactionSet() *TransactionOutputSet {
+	return &TransactionOutputSet{make(map[string][]*Output, 0)}
 }
 
-func (set *TransactionSet) Contains(transactionId string, output *Output) bool {
+func (set *TransactionOutputSet) Contains(transactionId string, output *Output) bool {
 	if spentOutputIds, ok := set.transactionsToOutputs[transactionId]; ok {
 		for _, spentOutput := range spentOutputIds {
 			if spentOutput.IsEqual(output) {
@@ -24,26 +24,26 @@ func (set *TransactionSet) Contains(transactionId string, output *Output) bool {
 	return false
 }
 
-func (set *TransactionSet) Add(transactionId string, output *Output) *TransactionSet {
+func (set *TransactionOutputSet) Add(transactionId string, output *Output) *TransactionOutputSet {
 	outputs := set.transactionsToOutputs[transactionId]
 
 	newTransactionsToOutputs := copyTransactionOutputs(set)
 	newTransactionsToOutputs[transactionId] = append(outputs, output)
 
-	return &TransactionSet{
+	return &TransactionOutputSet{
 		transactionsToOutputs: newTransactionsToOutputs,
 	}
 }
 
-func (set *TransactionSet) Plus(other *TransactionSet) *TransactionSet {
+func (set *TransactionOutputSet) Plus(other *TransactionOutputSet) *TransactionOutputSet {
 	addToTxSet := func(res interface{}, transactionId string, output *Output) interface{} {
-		return res.(*TransactionSet).Add(transactionId, output)
+		return res.(*TransactionOutputSet).Add(transactionId, output)
 	}
 
-	return other.Reduce(set, addToTxSet).(*TransactionSet)
+	return other.Reduce(set, addToTxSet).(*TransactionOutputSet)
 }
 
-func copyTransactionOutputs(set *TransactionSet) map[string][]*Output {
+func copyTransactionOutputs(set *TransactionOutputSet) map[string][]*Output {
 	newTransactionsToOutputIds := make(map[string][]*Output, 0)
 	for k, v := range set.transactionsToOutputs {
 		newTransactionsToOutputIds[k] = v
@@ -51,7 +51,7 @@ func copyTransactionOutputs(set *TransactionSet) map[string][]*Output {
 	return newTransactionsToOutputIds
 }
 
-func (set *TransactionSet) Reduce(res interface{}, apply func(res interface{}, transactionId string, output *Output) interface{}) interface{} {
+func (set *TransactionOutputSet) Reduce(res interface{}, apply func(res interface{}, transactionId string, output *Output) interface{}) interface{} {
 	c := make(chan interface{})
 
 	go func() {
@@ -65,8 +65,8 @@ func (set *TransactionSet) Reduce(res interface{}, apply func(res interface{}, t
 	return <-c
 }
 
-func (set *TransactionSet) Filter(predicate func(transactionId string, output *Output) bool) *TransactionSet {
-	c := make(chan *TransactionSet)
+func (set *TransactionOutputSet) Filter(predicate func(transactionId string, output *Output) bool) *TransactionOutputSet {
+	c := make(chan *TransactionOutputSet)
 
 	go func() {
 		newTransactionsToOutputIds := make(map[string][]*Output, 0)
@@ -79,12 +79,12 @@ func (set *TransactionSet) Filter(predicate func(transactionId string, output *O
 				}
 			}
 		}
-		c <- &TransactionSet{newTransactionsToOutputIds}
+		c <- &TransactionOutputSet{newTransactionsToOutputIds}
 	}()
 	return <-c
 }
 
-func (set *TransactionSet) String() string {
+func (set *TransactionOutputSet) String() string {
 	var lines []string
 
 	for transactionId, outputs := range set.transactionsToOutputs {

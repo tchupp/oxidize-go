@@ -6,11 +6,13 @@ import (
 
 const subsidy = 10
 
-type Transaction struct {
-	ID        []byte
-	TxInputs  []*Input
-	TxOutputs []*Output
-}
+type (
+	Transaction struct {
+		ID        []byte
+		TxInputs  []*Input
+		TxOutputs []*Output
+	}
+)
 
 func (tx *Transaction) IsCoinbase() bool {
 	return len(tx.TxInputs) == 1 && !tx.TxInputs[0].isReferencingOutput()
@@ -44,16 +46,16 @@ func NewTx(inputs Inputs, outputs Outputs) *Transaction {
 	return &tx
 }
 
-func (tx *Transaction) FindOutputsForAddress(address string) *TransactionSet {
+func (tx *Transaction) FindOutputsForAddress(address string) *TransactionOutputSet {
 	transactionId := hex.EncodeToString(tx.ID)
 
 	addToTxSet := func(res interface{}, output *Output) interface{} {
-		return res.(*TransactionSet).Add(transactionId, output)
+		return res.(*TransactionOutputSet).Add(transactionId, output)
 	}
 
 	return tx.Outputs().
 		Filter(func(output *Output) bool { return output.IsLockedWithKey(address) }).
-		Reduce(NewTransactionSet(), addToTxSet).(*TransactionSet)
+		Reduce(NewTransactionSet(), addToTxSet).(*TransactionOutputSet)
 }
 
 func (tx *Transaction) FindSpentOutputs(address string) map[string][]uint {
