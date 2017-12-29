@@ -1,9 +1,5 @@
 package tx
 
-import (
-	"encoding/hex"
-)
-
 const subsidy = 10
 
 type (
@@ -70,7 +66,7 @@ func (tx *Transaction) FindSpentOutputs(address string) map[string][]uint {
 	}
 
 	addToUnspent := func(res interface{}, input *UnsignedInput) interface{} {
-		transactionId := hex.EncodeToString(input.OutputReference.ID)
+		transactionId := input.OutputReference.ID.String()
 		res.(map[string][]uint)[transactionId] = append(res.(map[string][]uint)[transactionId], input.OutputReference.OutputIndex)
 
 		return res
