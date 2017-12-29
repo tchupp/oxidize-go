@@ -7,7 +7,6 @@ import (
 const subsidy = 10
 
 type (
-	TransactionId []byte
 	Transaction struct {
 		ID        TransactionId
 		TxInputs  []*UnsignedInput
@@ -15,16 +14,12 @@ type (
 	}
 
 	OutputReference struct {
-		ID          []byte
+		ID          TransactionId
 		OutputIndex int
 	}
 )
 
 var EmptyOutputReference = OutputReference{ID: []byte(nil), OutputIndex: -1}
-
-func (txId TransactionId) String() string {
-	return hex.EncodeToString(txId)
-}
 
 func (tx *Transaction) IsCoinbase() bool {
 	return len(tx.TxInputs) == 1 && !tx.TxInputs[0].isReferencingOutput()
@@ -35,12 +30,10 @@ func NewGenesisCoinbaseTx(ownerAddress string) *Transaction {
 }
 
 func NewCoinbaseTx(minerAddress string) *Transaction {
-	input := newCoinbaseTxInput()
-	output := NewOutput(subsidy, minerAddress)
-	tx := Transaction{nil, []*UnsignedInput{input}, []*Output{output}}
-	tx.ID = Hash(&tx)
+	inputs := []*UnsignedInput{newCoinbaseTxInput()}
+	outputs := []*Output{NewOutput(subsidy, minerAddress)}
 
-	return &tx
+	return newTx(inputs, outputs)
 }
 
 func NewTx(inputs UnsignedInputs, outputs Outputs) *Transaction {
@@ -49,13 +42,15 @@ func NewTx(inputs UnsignedInputs, outputs Outputs) *Transaction {
 		return append(res.([]*Output), output)
 	}
 
-	tx := Transaction{
-		TxInputs:  inputs.ToSlice(),
-		TxOutputs: outputs.Reduce(make([]*Output, 0), collectOutputs).([]*Output),
-	}
-	tx.ID = Hash(&tx)
+	return newTx(inputs.ToSlice(), outputs.Reduce(make([]*Output, 0), collectOutputs).([]*Output))
+}
 
-	return &tx
+func newTx(inputs []*UnsignedInput, outputs []*Output) *Transaction {
+	return &Transaction{
+		ID:        calculateTransactionId(inputs, outputs),
+		TxInputs:  inputs,
+		TxOutputs: outputs,
+	}
 }
 
 func (tx *Transaction) FindOutputsForAddress(address string) *TransactionOutputSet {
@@ -74,7 +69,7 @@ func (tx *Transaction) FindSpentOutputs(address string) map[string][]uint {
 		return spent
 	}
 
-	addToTxSet := func(res interface{}, input *UnsignedInput) interface{} {
+	addToUnspent := func(res interface{}, input *UnsignedInput) interface{} {
 		transactionId := hex.EncodeToString(input.OutputReference.ID)
 		res.(map[string][]uint)[transactionId] = append(res.(map[string][]uint)[transactionId], uint(input.OutputReference.OutputIndex))
 
@@ -83,5 +78,5 @@ func (tx *Transaction) FindSpentOutputs(address string) map[string][]uint {
 
 	return tx.Inputs().
 		Filter(func(input *UnsignedInput) bool { return input.SpentBy(address) }).
-		Reduce(spent, addToTxSet).(map[string][]uint)
+		Reduce(spent, addToUnspent).(map[string][]uint)
 }
