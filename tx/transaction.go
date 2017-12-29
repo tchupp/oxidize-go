@@ -9,7 +9,7 @@ const subsidy = 10
 type (
 	Transaction struct {
 		ID        []byte
-		TxInputs  []*Input
+		TxInputs  []*UnsignedInput
 		TxOutputs []*Output
 	}
 )
@@ -25,13 +25,13 @@ func NewGenesisCoinbaseTx(ownerAddress string) *Transaction {
 func NewCoinbaseTx(minerAddress string) *Transaction {
 	input := newCoinbaseTxInput()
 	output := NewOutput(subsidy, minerAddress)
-	tx := Transaction{nil, []*Input{input}, []*Output{output}}
+	tx := Transaction{nil, []*UnsignedInput{input}, []*Output{output}}
 	tx.ID = tx.Hash()
 
 	return &tx
 }
 
-func NewTx(inputs Inputs, outputs Outputs) *Transaction {
+func NewTx(inputs UnsignedInputs, outputs Outputs) *Transaction {
 	collectOutputs := func(res interface{}, output *Output) interface{} {
 		output.Id = uint(len(res.([]*Output)))
 		return append(res.([]*Output), output)
@@ -64,7 +64,7 @@ func (tx *Transaction) FindSpentOutputs(address string) map[string][]uint {
 		return spent
 	}
 
-	addToTxSet := func(res interface{}, input *Input) interface{} {
+	addToTxSet := func(res interface{}, input *UnsignedInput) interface{} {
 		transactionId := hex.EncodeToString(input.OutputTransactionId)
 		res.(map[string][]uint)[transactionId] = append(res.(map[string][]uint)[transactionId], uint(input.OutputId))
 
@@ -72,6 +72,6 @@ func (tx *Transaction) FindSpentOutputs(address string) map[string][]uint {
 	}
 
 	return tx.Inputs().
-		Filter(func(input *Input) bool { return input.SpentBy(address) }).
+		Filter(func(input *UnsignedInput) bool { return input.SpentBy(address) }).
 		Reduce(spent, addToTxSet).(map[string][]uint)
 }

@@ -37,13 +37,13 @@ func (bc *Blockchain) buildExpenseTransaction(sender, receiver *wallet.Wallet, e
 			log.Panic(err)
 		}
 
-		input := tx.NewInput(b, int(output.Id), sender.PublicKey)
-		return res.(tx.Inputs).Add(input)
+		input := tx.NewUnsignedInput(b, int(output.Id), sender.PublicKey)
+		return res.(tx.UnsignedInputs).Add(input)
 	}
 
 	inputs := unspentOutputs.
 		Filter(takeMinimumToMeetExpense).
-		Reduce(tx.NewInputs(nil), buildInputs).(tx.Inputs)
+		Reduce(tx.NewInputs(nil), buildInputs).(tx.UnsignedInputs)
 
 	receiverAddress := receiver.GetAddress()
 	outputs := tx.EmptyOutputs().

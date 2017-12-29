@@ -6,23 +6,21 @@ import (
 	"crypto/rand"
 )
 
-type Input struct {
+type UnsignedInput struct {
 	OutputTransactionId []byte
 	OutputId            int
-	Signature           []byte
 	PublicKey           []byte
 }
 
-func NewInput(outputTransactionId []byte, outputId int, senderPublicKey []byte) *Input {
-	return &Input{
+func NewUnsignedInput(outputTransactionId []byte, outputId int, senderPublicKey []byte) *UnsignedInput {
+	return &UnsignedInput{
 		OutputTransactionId: outputTransactionId,
 		OutputId:            outputId,
-		Signature:           nil,
 		PublicKey:           senderPublicKey,
 	}
 }
 
-func (input *Input) SpentBy(address string) bool {
+func (input *UnsignedInput) SpentBy(address string) bool {
 	publicKeyHash, err := wallet.AddressToPublicKeyHash(address)
 	if err != nil {
 		return false
@@ -33,45 +31,45 @@ func (input *Input) SpentBy(address string) bool {
 	return bytes.Compare(lockingHash, publicKeyHash) == 0
 }
 
-func (input *Input) isReferencingOutput() bool {
+func (input *UnsignedInput) isReferencingOutput() bool {
 	referencesTransaction := len(input.OutputTransactionId) != 0
 	referencesTransactionOutput := input.OutputId != -1
 
 	return referencesTransaction && referencesTransactionOutput
 }
 
-func newCoinbaseTxInput() *Input {
+func newCoinbaseTxInput() *UnsignedInput {
 	randData := make([]byte, 20)
 	rand.Read(randData)
-	return NewInput([]byte(nil), -1, randData)
+	return NewUnsignedInput([]byte(nil), -1, randData)
 }
 
-type Inputs <-chan *Input
+type UnsignedInputs <-chan *UnsignedInput
 
-func (tx *Transaction) Inputs() Inputs {
-	c := make(chan *Input, len(tx.TxInputs))
+func (tx *Transaction) Inputs() UnsignedInputs {
+	c := make(chan *UnsignedInput, len(tx.TxInputs))
 	go func() {
 		for _, input := range tx.TxInputs {
 			c <- input
 		}
 		close(c)
 	}()
-	return Inputs(c)
+	return UnsignedInputs(c)
 }
 
-func NewInputs(inputs []*Input) Inputs {
-	c := make(chan *Input, len(inputs))
+func NewInputs(inputs []*UnsignedInput) UnsignedInputs {
+	c := make(chan *UnsignedInput, len(inputs))
 	go func() {
 		for _, input := range inputs {
 			c <- input
 		}
 		close(c)
 	}()
-	return Inputs(c)
+	return UnsignedInputs(c)
 }
 
-func (inputs Inputs) Filter(predicate func(input *Input) bool) Inputs {
-	c := make(chan *Input)
+func (inputs UnsignedInputs) Filter(predicate func(input *UnsignedInput) bool) UnsignedInputs {
+	c := make(chan *UnsignedInput)
 
 	go func() {
 		for input := range inputs {
@@ -81,10 +79,10 @@ func (inputs Inputs) Filter(predicate func(input *Input) bool) Inputs {
 		}
 		close(c)
 	}()
-	return Inputs(c)
+	return UnsignedInputs(c)
 }
 
-func (inputs Inputs) Reduce(res interface{}, apply func(res interface{}, input *Input) interface{}) interface{} {
+func (inputs UnsignedInputs) Reduce(res interface{}, apply func(res interface{}, input *UnsignedInput) interface{}) interface{} {
 	c := make(chan interface{})
 
 	go func() {
@@ -96,8 +94,8 @@ func (inputs Inputs) Reduce(res interface{}, apply func(res interface{}, input *
 	return <-c
 }
 
-func (inputs Inputs) Add(input *Input) Inputs {
-	c := make(chan *Input)
+func (inputs UnsignedInputs) Add(input *UnsignedInput) UnsignedInputs {
+	c := make(chan *UnsignedInput)
 
 	go func() {
 		for i := range inputs {
@@ -106,11 +104,11 @@ func (inputs Inputs) Add(input *Input) Inputs {
 		c <- input
 		close(c)
 	}()
-	return Inputs(c)
+	return UnsignedInputs(c)
 }
 
-func (inputs Inputs) ToSlice() []*Input {
-	slice := make([]*Input, 0)
+func (inputs UnsignedInputs) ToSlice() []*UnsignedInput {
+	slice := make([]*UnsignedInput, 0)
 	for i := range inputs {
 		slice = append(slice, i)
 	}
