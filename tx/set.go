@@ -1,10 +1,5 @@
 package tx
 
-import (
-	"fmt"
-	"strings"
-)
-
 type TransactionOutputSet struct {
 	transactionsToOutputs map[*Transaction][]*Output
 }
@@ -67,19 +62,6 @@ func (set *TransactionOutputSet) Filter(predicate func(transaction *Transaction,
 		c <- &TransactionOutputSet{newTransactionsToOutputIds}
 	}()
 	return <-c
-}
-
-func (set *TransactionOutputSet) String() string {
-	var lines []string
-
-	for transactionId, outputs := range set.transactionsToOutputs {
-		lines = append(lines, fmt.Sprintf("Transaction %x:", transactionId))
-		for _, output := range outputs {
-			lines = append(lines, output.string()...)
-		}
-	}
-
-	return strings.Join(lines, "")
 }
 
 func copyTransactionOutputs(set *TransactionOutputSet) map[*Transaction][]*Output {
