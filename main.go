@@ -15,7 +15,7 @@ func main() {
 	receiver := wallet.NewWallet()
 	const blockchainName = "reactions"
 
-	fmt.Printf("Owner: '%s', receiver: '%s'\n", owner.GetAddress(), receiver.GetAddress())
+	fmt.Printf("Owner: '%s', receiver: '%s'\n\n", owner.GetAddress(), receiver.GetAddress())
 
 	repository, err := bolt_impl.NewRepository(blockchainName)
 	if err != nil {
@@ -29,11 +29,11 @@ func main() {
 		log.Panic(err)
 	}
 
-	bc, err = bc.Send(owner, receiver, owner, 3)
+	bc, err = bc.Send(owner, receiver, owner, 7)
 	if err != nil {
 		log.Panic(err)
 	}
-	bc, err = bc.Send(receiver, owner, owner, 2)
+	bc, err = bc.Send(receiver, owner, owner, 4)
 	if err != nil {
 		log.Panic(err)
 	}

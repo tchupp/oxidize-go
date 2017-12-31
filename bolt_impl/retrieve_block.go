@@ -56,7 +56,7 @@ func readBlock(bucket *bolt.Bucket, blockHash []byte) (*blockchain.Block, error)
 		return nil, blockchain.BlockDataEmptyError
 	}
 
-	block, err := blockchain.DeserializeBlock(latestBlockData)
+	block, err := DeserializeBlock(latestBlockData)
 	if err != nil {
 		return nil, err
 	}

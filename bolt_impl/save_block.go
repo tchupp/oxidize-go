@@ -25,7 +25,7 @@ func (repo *BlockchainRepository) SaveBlock(block *blockchain.Block) error {
 }
 
 func writeBlock(bucket *bolt.Bucket, block *blockchain.Block) error {
-	blockData, err := block.Serialize()
+	blockData, err := SerializeBlock(block)
 	if err != nil {
 		return err
 	}

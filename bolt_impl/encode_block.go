@@ -1,12 +1,14 @@
-package blockchain
+package bolt_impl
 
 import (
 	"bytes"
 	"encoding/gob"
 	"fmt"
+
+	"github.com/tclchiam/block_n_go/blockchain"
 )
 
-func (block *Block) Serialize() ([]byte, error) {
+func SerializeBlock(block *blockchain.Block) ([]byte, error) {
 	var result bytes.Buffer
 	encoder := gob.NewEncoder(&result)
 
@@ -18,8 +20,8 @@ func (block *Block) Serialize() ([]byte, error) {
 	return result.Bytes(), nil
 }
 
-func DeserializeBlock(data []byte) (*Block, error) {
-	var block Block
+func DeserializeBlock(data []byte) (*blockchain.Block, error) {
+	var block blockchain.Block
 
 	decoder := gob.NewDecoder(bytes.NewReader(data))
 	err := decoder.Decode(&block)

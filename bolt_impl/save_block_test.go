@@ -73,7 +73,7 @@ func readLatestBlock(db *bolt.DB, bucketName []byte) (latestBlock *blockchain.Bl
 			return fmt.Errorf("latest block data is empty: '%s'", latestBlockData)
 		}
 
-		latestBlock, err = blockchain.DeserializeBlock(latestBlockData)
+		latestBlock, err = DeserializeBlock(latestBlockData)
 		if err != nil {
 			return err
 		}
