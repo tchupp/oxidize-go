@@ -14,7 +14,7 @@ func (repo *BlockchainRepository) Head() (head *blockchain.Block, err error) {
 
 		latestBlockHash := readLatestHash(bucket)
 		if latestBlockHash == nil {
-			return blockchain.LatestHashNotFoundError
+			return blockchain.HeadBlockNotFoundError
 		}
 
 		head, err = readBlock(bucket, latestBlockHash)

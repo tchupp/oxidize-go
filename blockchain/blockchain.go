@@ -6,13 +6,12 @@ import (
 )
 
 type Blockchain struct {
-	head       *Block
 	repository Repository
 }
 
 func Open(repository Repository, ownerAddress string) (*Blockchain, error) {
 	head, err := repository.Head()
-	if err == LatestHashNotFoundError {
+	if err == HeadBlockNotFoundError {
 		head = NewGenesisBlock(ownerAddress)
 		err = repository.SaveBlock(head)
 	}
@@ -20,7 +19,7 @@ func Open(repository Repository, ownerAddress string) (*Blockchain, error) {
 		return nil, err
 	}
 
-	return &Blockchain{head: head, repository: repository}, nil
+	return &Blockchain{repository: repository}, nil
 }
 
 func (bc *Blockchain) Send(sender, receiver, miner *wallet.Wallet, expense uint) (*Blockchain, error) {
@@ -44,5 +43,5 @@ func (bc *Blockchain) mineBlock(transactions []*tx.Transaction) (*Blockchain, er
 		return nil, err
 	}
 
-	return &Blockchain{head: newHead, repository: bc.repository}, nil
+	return &Blockchain{repository: bc.repository}, nil
 }

@@ -18,15 +18,23 @@ func (it *Iterator) HasNext() bool {
 	return !it.current.IsGenesisBlock()
 }
 
-func (bc *Blockchain) Head() *Iterator {
-	return &Iterator{
-		current:    bc.head,
-		repository: bc.repository,
+func (bc *Blockchain) Head() (*Iterator, error) {
+	head, err := bc.repository.Head()
+	if err != nil {
+		return nil, err
 	}
+
+	return &Iterator{
+		current:    head,
+		repository: bc.repository,
+	}, nil
 }
 
 func (bc *Blockchain) ForEachBlock(consume func(*Block)) (err error) {
-	block := bc.Head()
+	block, err := bc.Head()
+	if err != nil {
+		return err
+	}
 
 	for {
 		consume(block.current)

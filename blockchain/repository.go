@@ -1,7 +1,7 @@
 package blockchain
 
 type Repository interface {
-	Head() (*Block, error)
+	Head() (head *Block, err error)
 
 	Block([]byte) (*Block, error)
 
