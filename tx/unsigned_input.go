@@ -4,7 +4,6 @@ import (
 	"bytes"
 
 	"github.com/tclchiam/block_n_go/wallet"
-	"crypto/rand"
 )
 
 type UnsignedInput struct {
@@ -34,19 +33,6 @@ func (input *UnsignedInput) SpentBy(address string) bool {
 	lockingHash := wallet.HashPubKey(input.PublicKey)
 
 	return bytes.Compare(lockingHash, publicKeyHash) == 0
-}
-
-func (input *UnsignedInput) isReferencingOutput() bool {
-	referencesTransaction := len(input.OutputReference.ID) != 0
-	referencesTransactionOutput := input.OutputReference.OutputIndex != 123456789
-
-	return referencesTransaction && referencesTransactionOutput
-}
-
-func newCoinbaseTxInput() *UnsignedInput {
-	randData := make([]byte, 20)
-	rand.Read(randData)
-	return newUnsignedInput(EmptyOutputReference, randData)
 }
 
 type UnsignedInputs <-chan *UnsignedInput

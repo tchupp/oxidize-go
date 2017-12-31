@@ -1,14 +1,16 @@
 package tx
 
 import (
-	"crypto/sha256"
 	"bytes"
+	"crypto/sha256"
+	"crypto/rand"
 	"encoding/gob"
-	"log"
 	"encoding/hex"
 )
 
 type TransactionId []byte
+
+const secretLength = 32
 
 func (txId TransactionId) String() string {
 	return hex.EncodeToString(txId)
@@ -23,19 +25,21 @@ func calculateTransactionId(inputs []*UnsignedInput, outputs []*Output) Transact
 }
 
 func serialize(inputs []*UnsignedInput, outputs []*Output) []byte {
-	var encoded bytes.Buffer
-
-	enc := gob.NewEncoder(&encoded)
-
 	data := struct {
 		Inputs  []*UnsignedInput
 		Outputs []*Output
-	}{Inputs: inputs, Outputs: outputs}
+		Secret  []byte
+	}{Inputs: inputs, Outputs: outputs, Secret: generateSecret()}
 
-	err := enc.Encode(data)
-	if err != nil {
-		log.Panic(err)
-	}
+	var encoded bytes.Buffer
+	encoder := gob.NewEncoder(&encoded)
+	encoder.Encode(data)
 
 	return encoded.Bytes()
+}
+
+func generateSecret() []byte {
+	secret := make([]byte, secretLength)
+	rand.Read(secret)
+	return secret
 }

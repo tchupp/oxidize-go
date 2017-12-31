@@ -15,10 +15,8 @@ type (
 	}
 )
 
-var EmptyOutputReference = OutputReference{ID: []byte(nil), OutputIndex: 123456789}
-
 func (tx *Transaction) IsCoinbase() bool {
-	return len(tx.TxInputs) == 1 && !tx.TxInputs[0].isReferencingOutput()
+	return len(tx.TxInputs) == 0
 }
 
 func NewGenesisCoinbaseTx(ownerAddress string) *Transaction {
@@ -26,7 +24,7 @@ func NewGenesisCoinbaseTx(ownerAddress string) *Transaction {
 }
 
 func NewCoinbaseTx(minerAddress string) *Transaction {
-	inputs := []*UnsignedInput{newCoinbaseTxInput()}
+	var inputs []*UnsignedInput
 	outputs := []*Output{NewOutput(subsidy, minerAddress)}
 
 	return newTx(inputs, outputs)
