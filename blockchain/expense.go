@@ -37,9 +37,8 @@ func (bc *Blockchain) buildExpenseTransaction(sender, receiver *wallet.Wallet, e
 		Filter(takeMinimumToMeetExpense).
 		Reduce(tx.NewInputs(nil), buildInputs).(tx.UnsignedInputs)
 
-	receiverAddress := receiver.GetAddress()
 	outputs := tx.EmptyOutputs().
-		Add(tx.NewOutput(expense, receiverAddress))
+		Add(tx.NewOutput(expense, receiver.GetAddress()))
 
 	if liquidBalance-expense > 0 {
 		outputs = outputs.Add(tx.NewOutput(liquidBalance-expense, senderAddress))

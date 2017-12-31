@@ -19,6 +19,13 @@ func (bc *Blockchain) findUnspentOutputs(address string) (*tx.TransactionOutputS
 	spentOutputs := make(map[string][]uint)
 	outputsForAddress := tx.NewTransactionSet()
 
+	err := bc.ForEachBlock(func(block *Block) {
+		block.ForEachTransaction(func(transaction *tx.Transaction) {
+			mergo.Map(&spentOutputs, transaction.FindSpentOutputs(address))
+			outputsForAddress = outputsForAddress.Plus(transaction.FindOutputsForAddress(address))
+		})
+	})
+
 	isUnspent := func(transaction *tx.Transaction, output *tx.Output) bool {
 		if outputs, ok := spentOutputs[transaction.ID.String()]; ok {
 			for _, outputId := range outputs {
@@ -30,15 +37,7 @@ func (bc *Blockchain) findUnspentOutputs(address string) (*tx.TransactionOutputS
 		return true
 	}
 
-	err := bc.ForEachBlock(func(block *Block) {
-		block.ForEachTransaction(func(transaction *tx.Transaction) {
-			mergo.Map(&spentOutputs, transaction.FindSpentOutputs(address))
-			outputsForAddress = outputsForAddress.Plus(transaction.FindOutputsForAddress(address))
-		})
-	})
-
-	unspentOutputs := outputsForAddress.Filter(isUnspent)
-	return unspentOutputs, err
+	return outputsForAddress.Filter(isUnspent), err
 }
 
 func calculateBalance(unspentOutputs *tx.TransactionOutputSet) uint {
