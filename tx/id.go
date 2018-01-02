@@ -8,20 +8,16 @@ import (
 	"encoding/hex"
 )
 
-type TransactionId []byte
+type TransactionId [sha256.Size]byte
 
 const secretLength = 32
 
 func (txId TransactionId) String() string {
-	return hex.EncodeToString(txId)
+	return hex.EncodeToString(txId[:])
 }
 
 func calculateTransactionId(inputs []*UnsignedInput, outputs []*Output) TransactionId {
-	var hash [32]byte
-
-	hash = sha256.Sum256(serialize(inputs, outputs))
-
-	return hash[:]
+	return sha256.Sum256(serialize(inputs, outputs))
 }
 
 func serialize(inputs []*UnsignedInput, outputs []*Output) []byte {

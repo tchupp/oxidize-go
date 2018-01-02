@@ -44,5 +44,5 @@ func (bc *Blockchain) buildExpenseTransaction(sender, receiver *wallet.Wallet, e
 		outputs = outputs.Add(tx.NewOutput(liquidBalance-expense, senderAddress))
 	}
 
-	return tx.NewTx(inputs, outputs), nil
+	return tx.NewTx(&inputs, &outputs), nil
 }

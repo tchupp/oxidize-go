@@ -30,7 +30,7 @@ func NewCoinbaseTx(minerAddress string) *Transaction {
 	return newTx(inputs, outputs)
 }
 
-func NewTx(inputs UnsignedInputs, outputs Outputs) *Transaction {
+func NewTx(inputs *UnsignedInputs, outputs *Outputs) *Transaction {
 	collectOutputs := func(res interface{}, output *Output) interface{} {
 		output.Id = uint(len(res.([]*Output)))
 		return append(res.([]*Output), output)

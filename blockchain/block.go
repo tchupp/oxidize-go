@@ -45,7 +45,7 @@ func (block *Block) HashTransactions() []byte {
 	var transactionHashes [][]byte
 
 	for _, transaction := range block.Transactions {
-		transactionHashes = append(transactionHashes, transaction.ID)
+		transactionHashes = append(transactionHashes, transaction.ID[:])
 	}
 
 	transactionHash := sha256.Sum256(bytes.Join(transactionHashes, []byte{}))
