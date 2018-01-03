@@ -5,7 +5,7 @@ import (
 	"testing"
 )
 
-// TestHashFuncs_Single ensures the hash functions which perform hash(b) work as expected
+// TestHashFuncs_Single ensures the hash function works as expected
 func TestHashFuncs_Single(t *testing.T) {
 	tests := []struct {
 		out string

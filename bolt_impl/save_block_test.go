@@ -23,13 +23,22 @@ func TestBlockchainRepository_SaveBlock(t *testing.T) {
 	}
 	defer closeAndDeleteDB(repository, t)
 
-	transaction := tx.NewCoinbaseTx(address)
-	transactions := []*tx.Transaction{transaction}
+	transactions := []*tx.Transaction{tx.NewCoinbaseTx(address)}
 
-	previousIndex := 5
-	previousHash := chainhash.Hash{}
+	const previousIndex = 5
+	previousHash, _ := chainhash.NewHashFromStr("0000f65fe866ab6f810b13a5d864f96cb16ad22e2e931b861f80d870f2e32df7")
+	hash, _ := chainhash.NewHashFromStr("00007eaa535b8894e8815f57d317c3bb14ab598417fe4ddd8d37d65c189f85fe")
 
-	err = repository.SaveBlock(blockchain.NewBlock(transactions, previousHash, previousIndex+1))
+	blockToSave := &blockchain.Block{
+		Index:        previousIndex + 1,
+		PreviousHash: *previousHash,
+		Timestamp:    18920304,
+		Transactions: transactions,
+		Hash:         *hash,
+		Nonce:        38385,
+	}
+
+	err = repository.SaveBlock(blockToSave)
 	if err != nil {
 		t.Fatalf("SaveBlock failed: %s", err)
 	}
@@ -48,8 +57,8 @@ func TestBlockchainRepository_SaveBlock(t *testing.T) {
 	if !cmp.Equal(newBlock.Transactions, transactions) {
 		t.Fatalf("New block has bad Transactions, %s", cmp.Diff(newBlock.Transactions, transactions))
 	}
-	if !cmp.Equal(newBlock, newBlock) {
-		t.Fatalf("Resulting block does not equal the latest block: %s", cmp.Diff(newBlock, newBlock))
+	if !cmp.Equal(blockToSave, newBlock) {
+		t.Fatalf("Resulting block does not equal the latest block: %s", cmp.Diff(blockToSave, newBlock))
 	}
 }
 

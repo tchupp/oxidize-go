@@ -2,12 +2,13 @@ package main
 
 import (
 	"strings"
+	"fmt"
 	"testing"
 
 	"github.com/tclchiam/block_n_go/bolt_impl"
 	"github.com/tclchiam/block_n_go/blockchain"
 	"github.com/tclchiam/block_n_go/wallet"
-	"fmt"
+	"github.com/tclchiam/block_n_go/proofofwork"
 )
 
 func TestBlockchain_Workflow(t *testing.T) {
@@ -20,18 +21,10 @@ func TestBlockchain_Workflow(t *testing.T) {
 	t.Run("Sending: expense < balance", func(t *testing.T) {
 		const name = "test1"
 
-		repository, err := bolt_impl.NewRepository(name)
-		if err != nil {
-			t.Fatalf("failed to create blockchain repository: %s", err)
-		}
-
-		bc, err := blockchain.Open(repository, owner.GetAddress())
-		if err != nil {
-			t.Fatalf("failed to open test blockchain: %s", err)
-		}
+		bc := setupBlockchain(t, name, owner)
 		defer bolt_impl.DeleteBlockchain(name)
 
-		err = bc.Send(owner, actor1, owner, 3)
+		err := bc.Send(owner, actor1, owner, 3)
 		if err != nil {
 			t.Fatalf("error sending: %s", err)
 		}
@@ -43,18 +36,10 @@ func TestBlockchain_Workflow(t *testing.T) {
 	t.Run("Sending: expense == balance", func(t *testing.T) {
 		const name = "test2"
 
-		repository, err := bolt_impl.NewRepository(name)
-		if err != nil {
-			t.Fatalf("failed to create blockchain repository: %s", err)
-		}
-
-		bc, err := blockchain.Open(repository, owner.GetAddress())
-		if err != nil {
-			t.Fatalf("failed to open test blockchain: %s", err)
-		}
+		bc := setupBlockchain(t, name, owner)
 		defer bolt_impl.DeleteBlockchain(name)
 
-		err = bc.Send(owner, actor1, owner, 10)
+		err := bc.Send(owner, actor1, owner, 10)
 		if err != nil {
 			t.Fatalf("error sending: %s", err)
 		}
@@ -66,18 +51,10 @@ func TestBlockchain_Workflow(t *testing.T) {
 	t.Run("Sending: expense > balance", func(t *testing.T) {
 		const name = "test3"
 
-		repository, err := bolt_impl.NewRepository(name)
-		if err != nil {
-			t.Fatalf("failed to create blockchain repository: %s", err)
-		}
-
-		bc, err := blockchain.Open(repository, owner.GetAddress())
-		if err != nil {
-			t.Fatalf("failed to open test blockchain: %s", err)
-		}
+		bc := setupBlockchain(t, name, owner)
 		defer bolt_impl.DeleteBlockchain(name)
 
-		err = bc.Send(owner, actor1, owner, 13)
+		err := bc.Send(owner, actor1, owner, 13)
 		if err == nil {
 			t.Fatalf("expected error")
 		}
@@ -94,18 +71,10 @@ func TestBlockchain_Workflow(t *testing.T) {
 	t.Run("Sending: many", func(t *testing.T) {
 		const name = "test4"
 
-		repository, err := bolt_impl.NewRepository(name)
-		if err != nil {
-			t.Fatalf("failed to create blockchain repository: %s", err)
-		}
-
-		bc, err := blockchain.Open(repository, owner.GetAddress())
-		if err != nil {
-			t.Fatalf("failed to open test blockchain: %s", err)
-		}
+		bc := setupBlockchain(t, name, owner)
 		defer bolt_impl.DeleteBlockchain(name)
 
-		err = bc.Send(owner, actor1, owner, 1)
+		err := bc.Send(owner, actor1, owner, 1)
 		if err != nil {
 			t.Fatalf("error sending: %s", err)
 		}
@@ -161,4 +130,19 @@ func verifyBalance(t *testing.T, bc *blockchain.Blockchain, wallet *wallet.Walle
 	if balance != uint(expectedBalance) {
 		t.Fatalf("expected balance for '%x' to be [%d], was: [%d]", address, expectedBalance, balance)
 	}
+}
+
+func setupBlockchain(t *testing.T, name string, owner *wallet.Wallet) *blockchain.Blockchain {
+	repository, err := bolt_impl.NewRepository(name)
+	if err != nil {
+		t.Fatalf("failed to create blockchain repository: %s", err)
+	}
+	miner := proofofwork.NewDefaultMiner()
+
+	bc, err := blockchain.Open(repository, miner, owner.GetAddress())
+	if err != nil {
+		t.Fatalf("failed to open test blockchain: %s", err)
+	}
+
+	return bc
 }
