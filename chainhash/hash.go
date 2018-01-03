@@ -14,6 +14,8 @@ var ErrHashStrSize = fmt.Errorf("max hash string length is %v bytes", MaxHashStr
 
 type Hash [HashSize]byte
 
+var EmptyHash = Hash([HashSize]byte{})
+
 func (hash Hash) String() string {
 	for i := 0; i < HashSize/2; i++ {
 		hash[i], hash[HashSize-1-i] = hash[HashSize-1-i], hash[i]
