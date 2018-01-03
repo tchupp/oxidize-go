@@ -4,6 +4,7 @@ import (
 	"testing"
 
 	"github.com/tclchiam/block_n_go/tx"
+	"github.com/tclchiam/block_n_go/chainhash"
 )
 
 const (
@@ -13,15 +14,16 @@ const (
 
 var (
 	transactions = []*tx.Transaction{tx.NewGenesisCoinbaseTx(address)}
-	block        = &Block{
+	block        = &BlockHeader{
 		Index:        0,
-		PreviousHash: []byte(nil),
+		PreviousHash: chainhash.EmptyHash,
 		Timestamp:    timestamp,
 		Transactions: transactions,
 	}
 )
 
 func BenchmarkCalculateProofOfWork_GenesisBlock(b *testing.B) {
+	b.ResetTimer()
 	for n := 0; n < b.N; n++ {
 		CalculateProofOfWork(block)
 	}

@@ -2,59 +2,84 @@ package blockchain
 
 import (
 	"time"
+
 	"github.com/tclchiam/block_n_go/tx"
-	"crypto/sha256"
+	"github.com/tclchiam/block_n_go/chainhash"
+	"fmt"
+	"strconv"
+	"strings"
 	"bytes"
 )
 
 type Block struct {
 	Index        int
-	PreviousHash []byte
+	PreviousHash chainhash.Hash
 	Timestamp    int64
 	Transactions []*tx.Transaction
-	Hash         []byte
+	Hash         chainhash.Hash
 	Nonce        int
+}
+
+type BlockHeader struct {
+	Index        int
+	PreviousHash chainhash.Hash
+	Timestamp    int64
+	Transactions []*tx.Transaction
 }
 
 func NewGenesisBlock(address string) *Block {
 	transaction := tx.NewGenesisCoinbaseTx(address)
 
-	return NewBlock([]*tx.Transaction{transaction}, []byte(nil), 0)
+	return NewBlock([]*tx.Transaction{transaction}, chainhash.EmptyHash, 0)
 }
 
-func NewBlock(transactions []*tx.Transaction, previousHash []byte, index int) *Block {
-	b := Block{
+func NewBlock(transactions []*tx.Transaction, previousHash chainhash.Hash, index int) *Block {
+	header := &BlockHeader{
 		Index:        index,
 		PreviousHash: previousHash,
 		Timestamp:    time.Now().Unix(),
 		Transactions: transactions,
 	}
-	solution := CalculateProofOfWork(&b)
+	solution := CalculateProofOfWork(header)
 
 	return &Block{
-		Index:        b.Index,
-		PreviousHash: b.PreviousHash,
-		Timestamp:    b.Timestamp,
-		Transactions: b.Transactions,
+		Index:        header.Index,
+		PreviousHash: header.PreviousHash,
+		Timestamp:    header.Timestamp,
+		Transactions: header.Transactions,
 		Hash:         solution.hash,
 		Nonce:        solution.nonce,
 	}
 }
 
-func (block *Block) HashTransactions() []byte {
-	var transactionHashes [][]byte
+func (block *Block) String() string {
+	var lines []string
 
-	for _, transaction := range block.Transactions {
-		transactionHashes = append(transactionHashes, transaction.ID[:])
+	lines = append(lines, fmt.Sprintf("\n============ Block ============"))
+	lines = append(lines, fmt.Sprintf("Index: %x", block.Index))
+	lines = append(lines, fmt.Sprintf("Hash: %x", block.Hash.Slice()))
+	lines = append(lines, fmt.Sprintf("PreviousHash: %x", block.PreviousHash.Slice()))
+	lines = append(lines, fmt.Sprintf("Nonce: %d", block.Nonce))
+	lines = append(lines, fmt.Sprintf("Is valid: %s", strconv.FormatBool(block.Validate())))
+	lines = append(lines, fmt.Sprintf("Transactions:"))
+	block.ForEachTransaction(func(transaction *tx.Transaction) {
+		lines = append(lines, fmt.Sprintf(transaction.String()))
+	})
+
+	return strings.Join(lines, "\n")
+}
+
+func (block *Block) Header() *BlockHeader {
+	return &BlockHeader{
+		Transactions: block.Transactions,
+		Index:        block.Index,
+		PreviousHash: block.PreviousHash,
+		Timestamp:    block.Timestamp,
 	}
-
-	transactionHash := sha256.Sum256(bytes.Join(transactionHashes, []byte{}))
-
-	return transactionHash[:]
 }
 
 func (block *Block) IsGenesisBlock() bool {
-	return len(block.PreviousHash) == 0
+	return bytes.Compare(block.PreviousHash.Slice(), chainhash.EmptyHash.Slice()) == 0
 }
 
 func (block *Block) ForEachTransaction(consume func(*tx.Transaction)) error {

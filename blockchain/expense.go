@@ -16,7 +16,7 @@ func (bc *Blockchain) buildExpenseTransaction(sender, receiver *wallet.Wallet, e
 
 	balance := calculateBalance(unspentOutputs)
 	if balance < expense {
-		return nil, fmt.Errorf("account '%x' does not have enough to send '%d', due to balance '%d'", senderAddress, expense, balance)
+		return nil, fmt.Errorf("account '%s' does not have enough to send '%d', due to balance '%d'", senderAddress, expense, balance)
 	}
 
 	liquidBalance := uint(0)

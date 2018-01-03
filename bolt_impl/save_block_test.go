@@ -2,14 +2,15 @@ package bolt_impl
 
 import (
 	"testing"
-	"github.com/boltdb/bolt"
 	"bytes"
+	"fmt"
+
+	"github.com/boltdb/bolt"
 	"github.com/google/go-cmp/cmp"
 	"github.com/tclchiam/block_n_go/tx"
-	"fmt"
 	"github.com/tclchiam/block_n_go/blockchain"
-	"crypto/rand"
 	"github.com/tclchiam/block_n_go/wallet"
+	"github.com/tclchiam/block_n_go/chainhash"
 )
 
 func TestBlockchainRepository_SaveBlock(t *testing.T) {
@@ -26,11 +27,7 @@ func TestBlockchainRepository_SaveBlock(t *testing.T) {
 	transactions := []*tx.Transaction{transaction}
 
 	previousIndex := 5
-	previousHash := make([]byte, 20)
-	_, err = rand.Read(previousHash)
-	if err != nil {
-		t.Fatalf("creating random hash: %s", err)
-	}
+	previousHash := chainhash.Hash{}
 
 	err = repository.SaveBlock(blockchain.NewBlock(transactions, previousHash, previousIndex+1))
 	if err != nil {
@@ -42,7 +39,7 @@ func TestBlockchainRepository_SaveBlock(t *testing.T) {
 		t.Fatalf("error: %s", err)
 	}
 
-	if bytes.Compare(newBlock.PreviousHash, previousHash) != 0 {
+	if bytes.Compare(newBlock.PreviousHash.Slice(), previousHash.Slice()) != 0 {
 		t.Fatalf("New block has bad PreviousHash, expected [%s], but was [%s]", previousHash, newBlock.PreviousHash)
 	}
 	if newBlock.Index != previousIndex+1 {

@@ -82,7 +82,7 @@ func TestBlockchain_Workflow(t *testing.T) {
 			t.Fatalf("expected error")
 		}
 
-		expectedMessage := fmt.Sprintf("account '%x' does not have enough to send '13', due to balance '10'", owner.GetAddress())
+		expectedMessage := fmt.Sprintf("account '%s' does not have enough to send '13', due to balance '10'", owner.GetAddress())
 		if !strings.Contains(err.Error(), expectedMessage) {
 			t.Fatalf("Expected string to contain: \"%s\", was '%s'", expectedMessage, err.Error())
 		}

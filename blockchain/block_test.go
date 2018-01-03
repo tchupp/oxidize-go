@@ -6,14 +6,18 @@ import (
 	"math/big"
 	"testing"
 	"github.com/tclchiam/block_n_go/wallet"
+	"github.com/tclchiam/block_n_go/chainhash"
 )
 
 func TestNewGenesisBlock(t *testing.T) {
 	address := wallet.NewWallet().GetAddress()
 	genesisBlock := NewGenesisBlock(address)
 
-	if len(genesisBlock.PreviousHash) != 0 {
-		t.Fatalf("Genesis block has bad PreviousHash, expected [%s], but was [%s]", []byte{}, genesisBlock.PreviousHash)
+	if !genesisBlock.IsGenesisBlock() {
+		t.Fatalf("Genesis block does not identify as a genesis block")
+	}
+	if bytes.Compare(genesisBlock.PreviousHash.Slice(), chainhash.EmptyHash.Slice()) != 0 {
+		t.Fatalf("Genesis block has bad PreviousHash, expected [%s], but was [%s]", chainhash.EmptyHash, genesisBlock.PreviousHash)
 	}
 	if genesisBlock.Index != 0 {
 		t.Fatalf("Genesis block has bad Index, expected %d, but was %d", 0, genesisBlock.Index)
@@ -41,21 +45,21 @@ func hasValidHash(block *Block) bool {
 
 func calculateBlockHash(block *Block) [32]byte {
 	rawBlockContents := [][]byte{
-		block.PreviousHash,
-		hashTransactions(block),
+		block.PreviousHash.Slice(),
+		hashTransactionsForTest(block),
 		intToHex(block.Timestamp),
 		intToHex(int64(targetBits)),
 		intToHex(int64(block.Nonce)),
 	}
 	rawBlockData := bytes.Join(rawBlockContents, []byte{})
-	return sha256.Sum256(rawBlockData)
+	return chainhash.CalculateHash(rawBlockData)
 }
 
-func hashTransactions(block *Block) []byte {
+func hashTransactionsForTest(block *Block) []byte {
 	var transactionHashes [][]byte
 
 	for _, transaction := range block.Transactions {
-		transactionHashes = append(transactionHashes, transaction.ID)
+		transactionHashes = append(transactionHashes, transaction.ID[:])
 	}
 
 	transactionHash := sha256.Sum256(bytes.Join(transactionHashes, []byte{}))

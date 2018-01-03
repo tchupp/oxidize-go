@@ -1,9 +1,10 @@
 package bolt_impl
 
 import (
-	"github.com/tclchiam/block_n_go/blockchain"
-	"github.com/boltdb/bolt"
 	"fmt"
+
+	"github.com/boltdb/bolt"
+	"github.com/tclchiam/block_n_go/blockchain"
 )
 
 func (repo *BlockchainRepository) SaveBlock(block *blockchain.Block) error {
@@ -30,12 +31,12 @@ func writeBlock(bucket *bolt.Bucket, block *blockchain.Block) error {
 		return err
 	}
 
-	err = bucket.Put(block.Hash, blockData)
+	err = bucket.Put(block.Hash.Slice(), blockData)
 	if err != nil {
 		return fmt.Errorf("writing block: %s", err)
 	}
 
-	err = bucket.Put(latestBlockHashKey, block.Hash)
+	err = bucket.Put(latestBlockHashKey, block.Hash.Slice())
 	if err != nil {
 		return fmt.Errorf("writing last hash: %s", err)
 	}
