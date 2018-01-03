@@ -22,26 +22,26 @@ func Open(repository Repository, ownerAddress string) (*Blockchain, error) {
 	return &Blockchain{repository: repository}, nil
 }
 
-func (bc *Blockchain) Send(sender, receiver, miner *wallet.Wallet, expense uint) (*Blockchain, error) {
+func (bc *Blockchain) Send(sender, receiver, miner *wallet.Wallet, expense uint) (error) {
 	expenseTransaction, err := bc.buildExpenseTransaction(sender, receiver, expense)
 	if err != nil {
-		return bc, err
+		return err
 	}
 	rewardTransaction := tx.NewCoinbaseTx(miner.GetAddress())
 
 	return bc.mineBlock([]*tx.Transaction{expenseTransaction, rewardTransaction})
 }
 
-func (bc *Blockchain) mineBlock(transactions []*tx.Transaction) (*Blockchain, error) {
+func (bc *Blockchain) mineBlock(transactions []*tx.Transaction) (error) {
 	currentHead, err := bc.repository.Head()
 	if err != nil {
-		return nil, err
+		return err
 	}
 
 	newHead := NewBlock(transactions, currentHead.Hash, currentHead.Index+1)
 	if err = bc.repository.SaveBlock(newHead); err != nil {
-		return nil, err
+		return err
 	}
 
-	return &Blockchain{repository: bc.repository}, nil
+	return nil
 }
