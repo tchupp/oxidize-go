@@ -6,6 +6,7 @@ import (
 	"log"
 	"github.com/tclchiam/block_n_go/bolt_impl"
 	"github.com/tclchiam/block_n_go/wallet"
+	"github.com/tclchiam/block_n_go/proofofwork"
 )
 
 func main() {
@@ -22,7 +23,7 @@ func main() {
 	defer repository.Close()
 	defer bolt_impl.DeleteBlockchain(blockchainName)
 
-	bc, err := blockchain.Open(repository, owner.GetAddress())
+	bc, err := blockchain.Open(repository, proofofwork.NewDefaultMiner(), owner.GetAddress())
 	if err != nil {
 		log.Panic(err)
 	}

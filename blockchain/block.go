@@ -1,14 +1,13 @@
 package blockchain
 
 import (
-	"time"
-
-	"github.com/tclchiam/block_n_go/tx"
-	"github.com/tclchiam/block_n_go/chainhash"
+	"bytes"
 	"fmt"
 	"strconv"
 	"strings"
-	"bytes"
+
+	"github.com/tclchiam/block_n_go/chainhash"
+	"github.com/tclchiam/block_n_go/tx"
 )
 
 type Block struct {
@@ -20,35 +19,14 @@ type Block struct {
 	Nonce        int
 }
 
-type BlockHeader struct {
-	Index        int
-	PreviousHash chainhash.Hash
-	Timestamp    int64
-	Transactions []*tx.Transaction
-}
-
-func NewGenesisBlock(address string) *Block {
-	transaction := tx.NewGenesisCoinbaseTx(address)
-
-	return NewBlock([]*tx.Transaction{transaction}, chainhash.EmptyHash, 0)
-}
-
-func NewBlock(transactions []*tx.Transaction, previousHash chainhash.Hash, index int) *Block {
-	header := &BlockHeader{
-		Index:        index,
-		PreviousHash: previousHash,
-		Timestamp:    time.Now().Unix(),
-		Transactions: transactions,
-	}
-	solution := CalculateProofOfWork(header)
-
+func NewBlock(header *BlockHeader, solution *BlockSolution) *Block {
 	return &Block{
 		Index:        header.Index,
 		PreviousHash: header.PreviousHash,
 		Timestamp:    header.Timestamp,
 		Transactions: header.Transactions,
-		Hash:         solution.hash,
-		Nonce:        solution.nonce,
+		Hash:         solution.Hash,
+		Nonce:        solution.Nonce,
 	}
 }
 
@@ -60,10 +38,10 @@ func (block *Block) String() string {
 	lines = append(lines, fmt.Sprintf("Hash: %x", block.Hash.Slice()))
 	lines = append(lines, fmt.Sprintf("PreviousHash: %x", block.PreviousHash.Slice()))
 	lines = append(lines, fmt.Sprintf("Nonce: %d", block.Nonce))
-	lines = append(lines, fmt.Sprintf("Is valid: %s", strconv.FormatBool(block.Validate())))
+	lines = append(lines, fmt.Sprintf("Is valid: %s", strconv.FormatBool(BlockValid(block))))
 	lines = append(lines, fmt.Sprintf("Transactions:"))
 	block.ForEachTransaction(func(transaction *tx.Transaction) {
-		lines = append(lines, fmt.Sprintf(transaction.String()))
+		lines = append(lines, transaction.String())
 	})
 
 	return strings.Join(lines, "\n")
@@ -82,9 +60,8 @@ func (block *Block) IsGenesisBlock() bool {
 	return bytes.Compare(block.PreviousHash.Slice(), chainhash.EmptyHash.Slice()) == 0
 }
 
-func (block *Block) ForEachTransaction(consume func(*tx.Transaction)) error {
+func (block *Block) ForEachTransaction(consume func(*tx.Transaction)) {
 	for _, transaction := range block.Transactions {
 		consume(transaction)
 	}
-	return nil
 }
