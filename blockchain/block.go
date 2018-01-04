@@ -38,6 +38,7 @@ func (block *Block) String() string {
 	lines = append(lines, fmt.Sprintf("Hash: %x", block.Hash.Slice()))
 	lines = append(lines, fmt.Sprintf("PreviousHash: %x", block.PreviousHash.Slice()))
 	lines = append(lines, fmt.Sprintf("Nonce: %d", block.Nonce))
+	lines = append(lines, fmt.Sprintf("Timestamp: %d", block.Timestamp))
 	lines = append(lines, fmt.Sprintf("Is valid: %s", strconv.FormatBool(BlockValid(block))))
 	lines = append(lines, fmt.Sprintf("Transactions:"))
 	block.ForEachTransaction(func(transaction *tx.Transaction) {

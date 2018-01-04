@@ -55,7 +55,7 @@ func (bc *Blockchain) mineBlock(transactions []*tx.Transaction) (error) {
 		return err
 	}
 
-	newBlockHeader := newBlockHeader(currentHead.Index+1, currentHead.Hash, transactions)
+	newBlockHeader := NewBlockHeader(currentHead.Index+1, currentHead.Hash, transactions)
 	newBlock := bc.miningService.MineBlock(newBlockHeader)
 	if err = bc.repository.SaveBlock(newBlock); err != nil {
 		return err

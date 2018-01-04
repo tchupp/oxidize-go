@@ -14,16 +14,13 @@ var ErrHashStrSize = fmt.Errorf("max hash string length is %v bytes", MaxHashStr
 
 type Hash [HashSize]byte
 
-var EmptyHash = Hash([HashSize]byte{})
+var EmptyHash = Hash([HashSize]byte{0})
 
 func (hash Hash) String() string {
-	for i := 0; i < HashSize/2; i++ {
-		hash[i], hash[HashSize-1-i] = hash[HashSize-1-i], hash[i]
-	}
 	return hex.EncodeToString(hash[:])
 }
 
-func (hash *Hash) Slice() []byte {
+func (hash Hash) Slice() []byte {
 	return hash[:]
 }
 
@@ -48,37 +45,14 @@ func NewHash(newHash []byte) (*Hash, error) {
 }
 
 func NewHashFromStr(hash string) (*Hash, error) {
-	ret := new(Hash)
-	err := decode(ret, hash)
+	bytes, err := hex.DecodeString(hash)
 	if err != nil {
 		return nil, err
 	}
-	return ret, nil
-}
 
-func decode(dst *Hash, src string) error {
-	if len(src) > MaxHashStringSize {
-		return ErrHashStrSize
+	for len(bytes) < HashSize {
+		bytes = append([]byte{0}, bytes...)
 	}
 
-	var srcBytes []byte
-	if len(src)%2 == 0 {
-		srcBytes = []byte(src)
-	} else {
-		srcBytes = make([]byte, 1+len(src))
-		srcBytes[0] = '0'
-		copy(srcBytes[1:], src)
-	}
-
-	var reversedHash Hash
-	_, err := hex.Decode(reversedHash[HashSize-hex.DecodedLen(len(srcBytes)):], srcBytes)
-	if err != nil {
-		return err
-	}
-
-	for i, b := range reversedHash[:HashSize/2] {
-		dst[i], dst[HashSize-1-i] = reversedHash[HashSize-1-i], b
-	}
-
-	return nil
+	return NewHash(bytes)
 }

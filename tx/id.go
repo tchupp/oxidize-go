@@ -16,6 +16,12 @@ func (txId TransactionId) String() string {
 	return hex.EncodeToString(txId[:])
 }
 
+func NewId(newId []byte) (TransactionId) {
+	var id TransactionId
+	copy(id[:], newId[:sha256.Size])
+	return id
+}
+
 func calculateTransactionId(inputs []*UnsignedInput, outputs []*Output) TransactionId {
 	return sha256.Sum256(serialize(inputs, outputs))
 }
