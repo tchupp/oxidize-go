@@ -11,8 +11,8 @@ type UnsignedInput struct {
 	PublicKey       []byte
 }
 
-func NewUnsignedInput(outputTransactionId TransactionId, outputId uint, senderPublicKey []byte) *UnsignedInput {
-	reference := OutputReference{ID: outputTransactionId, OutputIndex: outputId}
+func NewUnsignedInput(outputTransactionId TransactionId, output *Output, senderPublicKey []byte) *UnsignedInput {
+	reference := OutputReference{ID: outputTransactionId, Output: output}
 
 	return &UnsignedInput{
 		OutputReference: reference,
@@ -33,18 +33,7 @@ func (input *UnsignedInput) SpentBy(address string) bool {
 
 type UnsignedInputs <-chan *UnsignedInput
 
-func (tx *Transaction) Inputs() UnsignedInputs {
-	c := make(chan *UnsignedInput, len(tx.TxInputs))
-	go func() {
-		for _, input := range tx.TxInputs {
-			c <- input
-		}
-		close(c)
-	}()
-	return UnsignedInputs(c)
-}
-
-func NewInputs(inputs []*UnsignedInput) UnsignedInputs {
+func EmptyUnsignedInputs(inputs []*UnsignedInput) UnsignedInputs {
 	c := make(chan *UnsignedInput, len(inputs))
 	go func() {
 		for _, input := range inputs {

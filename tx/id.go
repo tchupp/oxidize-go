@@ -22,13 +22,13 @@ func NewId(newId []byte) (TransactionId) {
 	return id
 }
 
-func calculateTransactionId(inputs []*UnsignedInput, outputs []*Output) TransactionId {
-	return sha256.Sum256(serialize(inputs, outputs))
+func calculateTransactionId(inputs []*SignedInput, outputs []*Output) TransactionId {
+	return sha256.Sum256(serializeTxData(inputs, outputs))
 }
 
-func serialize(inputs []*UnsignedInput, outputs []*Output) []byte {
+func serializeTxData(inputs []*SignedInput, outputs []*Output) []byte {
 	data := struct {
-		Inputs  []*UnsignedInput
+		Inputs  []*SignedInput
 		Outputs []*Output
 		Secret  []byte
 	}{Inputs: inputs, Outputs: outputs, Secret: generateSecret()}

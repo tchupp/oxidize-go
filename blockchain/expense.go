@@ -29,13 +29,13 @@ func (bc *Blockchain) buildExpenseTransaction(sender, receiver *wallet.Wallet, e
 	}
 
 	buildInputs := func(res interface{}, transaction *tx.Transaction, output *tx.Output) interface{} {
-		input := tx.NewUnsignedInput(transaction.ID, output.Id, sender.PublicKey)
+		input := tx.NewUnsignedInput(transaction.ID, output, sender.PublicKey)
 		return res.(tx.UnsignedInputs).Add(input)
 	}
 
 	inputs := unspentOutputs.
 		Filter(takeMinimumToMeetExpense).
-		Reduce(tx.NewInputs(nil), buildInputs).(tx.UnsignedInputs)
+		Reduce(tx.EmptyUnsignedInputs(nil), buildInputs).(tx.UnsignedInputs)
 
 	outputs := tx.EmptyOutputs().
 		Add(tx.NewOutput(expense, receiver.GetAddress()))
@@ -44,5 +44,5 @@ func (bc *Blockchain) buildExpenseTransaction(sender, receiver *wallet.Wallet, e
 		outputs = outputs.Add(tx.NewOutput(liquidBalance-expense, senderAddress))
 	}
 
-	return tx.NewTx(&inputs, &outputs), nil
+	return tx.NewTx(&inputs, &outputs, sender.PrivateKey), nil
 }

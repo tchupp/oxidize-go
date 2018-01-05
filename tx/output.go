@@ -6,7 +6,7 @@ import (
 )
 
 type Output struct {
-	Id            uint
+	Index         uint
 	Value         uint
 	PublicKeyHash []byte
 }
@@ -30,7 +30,7 @@ func (output *Output) IsEqual(other *Output) bool {
 	if output == other {
 		return true
 	}
-	if output.Id != other.Id {
+	if output.Index != other.Index {
 		return false
 	}
 	if output.Value != other.Value {

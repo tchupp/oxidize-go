@@ -16,7 +16,7 @@ func (bc *Blockchain) ReadBalance(address string) (uint, error) {
 }
 
 func (bc *Blockchain) findUnspentOutputs(address string) (*tx.TransactionOutputSet, error) {
-	spentOutputs := make(map[string][]uint)
+	spentOutputs := make(map[string][]*tx.Output)
 	outputsForAddress := tx.NewTransactionSet()
 
 	err := bc.ForEachBlock(func(block *Block) {
@@ -28,8 +28,8 @@ func (bc *Blockchain) findUnspentOutputs(address string) (*tx.TransactionOutputS
 
 	isUnspent := func(transaction *tx.Transaction, output *tx.Output) bool {
 		if outputs, ok := spentOutputs[transaction.ID.String()]; ok {
-			for _, outputId := range outputs {
-				if outputId == output.Id {
+			for _, spentOutput := range outputs {
+				if spentOutput.IsEqual(output) {
 					return false
 				}
 			}
