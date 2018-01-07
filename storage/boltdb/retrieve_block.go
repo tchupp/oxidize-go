@@ -7,8 +7,8 @@ import (
 	"github.com/tclchiam/block_n_go/blockchain/block"
 )
 
-func (repo *BlockchainRepository) Head() (head *block.Block, err error) {
-	err = repo.db.View(func(tx *bolt.Tx) error {
+func (r *blockReader) Head() (head *block.Block, err error) {
+	err = r.db.View(func(tx *bolt.Tx) error {
 		bucket, err := bucket(tx, blocksBucketName)
 		if err != nil {
 			return err
@@ -30,8 +30,8 @@ func (repo *BlockchainRepository) Head() (head *block.Block, err error) {
 	return head, err
 }
 
-func (repo *BlockchainRepository) Block(hash chainhash.Hash) (block *block.Block, err error) {
-	err = repo.db.View(func(tx *bolt.Tx) error {
+func (r *blockReader) Block(hash chainhash.Hash) (block *block.Block, err error) {
+	err = r.db.View(func(tx *bolt.Tx) error {
 		bucket, err := bucket(tx, blocksBucketName)
 		if err != nil {
 			return err

@@ -11,4 +11,6 @@ type BlockReader interface {
 	Block(hash chainhash.Hash) (*block.Block, error)
 
 	SaveBlock(*block.Block) error
+
+	Close() error
 }

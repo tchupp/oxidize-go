@@ -18,14 +18,14 @@ func main() {
 
 	fmt.Printf("Owner: '%s', receiver: '%s'\n\n", owner.GetAddress(), receiver.GetAddress())
 
-	repository, err := boltdb.NewRepository(blockchainName)
+	reader, err := boltdb.NewReader(blockchainName)
 	if err != nil {
 		log.Panic(err)
 	}
-	defer repository.Close()
+	defer reader.Close()
 	defer boltdb.DeleteBlockchain(blockchainName)
 
-	bc, err := blockchain.Open(repository, proofofwork.NewDefaultMiner(), owner.GetAddress())
+	bc, err := blockchain.Open(reader, proofofwork.NewDefaultMiner(), owner.GetAddress())
 	if err != nil {
 		log.Panic(err)
 	}

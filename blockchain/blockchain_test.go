@@ -133,13 +133,13 @@ func verifyBalance(t *testing.T, bc *blockchain.Blockchain, wallet *wallet.Walle
 }
 
 func setupBlockchain(t *testing.T, name string, owner *wallet.Wallet) *blockchain.Blockchain {
-	repository, err := boltdb.NewRepository(name)
+	reader, err := boltdb.NewReader(name)
 	if err != nil {
-		t.Fatalf("failed to create blockchain repository: %s", err)
+		t.Fatalf("failed to create block reader: %s", err)
 	}
 	miner := proofofwork.NewDefaultMiner()
 
-	bc, err := blockchain.Open(repository, miner, owner.GetAddress())
+	bc, err := blockchain.Open(reader, miner, owner.GetAddress())
 	if err != nil {
 		t.Fatalf("failed to open test blockchain: %s", err)
 	}

@@ -17,11 +17,11 @@ func TestBlockchainRepository_SaveBlock(t *testing.T) {
 	address := wallet.NewWallet().GetAddress()
 	const testBlockchainName = "test"
 
-	repository, err := NewRepository(testBlockchainName)
+	reader, err := NewReader(testBlockchainName)
 	if err != nil {
-		t.Fatalf("creating blockchain repository: %s", err)
+		t.Fatalf("creating block reader: %s", err)
 	}
-	defer closeAndDeleteDB(repository, t)
+	defer closeAndDeleteDB(reader.(*blockReader), t)
 
 	transactions := []*tx.Transaction{tx.NewCoinbaseTx(address)}
 
@@ -38,12 +38,12 @@ func TestBlockchainRepository_SaveBlock(t *testing.T) {
 		Nonce:        38385,
 	}
 
-	err = repository.SaveBlock(blockToSave)
+	err = reader.SaveBlock(blockToSave)
 	if err != nil {
 		t.Fatalf("SaveBlock failed: %s", err)
 	}
 
-	newBlock, err := readLatestBlock(repository.db, blocksBucketName)
+	newBlock, err := readLatestBlock(reader.(*blockReader).db, blocksBucketName)
 	if err != nil {
 		t.Fatalf("error: %s", err)
 	}

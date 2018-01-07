@@ -7,6 +7,7 @@ import (
 
 	"github.com/tclchiam/block_n_go/blockchain"
 	"github.com/tclchiam/block_n_go/blockchain/block"
+	"github.com/tclchiam/block_n_go/mining"
 )
 
 const (
@@ -17,19 +18,19 @@ var (
 	defaultWorkerCount = uint(runtime.NumCPU())
 )
 
-type Miner struct {
+type miner struct {
 	workerCount uint
 }
 
-func NewMiner(workerCount uint) *Miner {
-	return &Miner{workerCount: workerCount}
+func NewMiner(workerCount uint) mining.Miner {
+	return &miner{workerCount: workerCount}
 }
 
-func NewDefaultMiner() *Miner {
+func NewDefaultMiner() mining.Miner {
 	return NewMiner(defaultWorkerCount)
 }
 
-func (miner *Miner) MineBlock(header *block.Header) (*block.Block) {
+func (miner *miner) MineBlock(header *block.Header) (*block.Block) {
 	solutions := make(chan *block.Solution)
 	nonces := make(chan int, miner.workerCount)
 	defer close(nonces)

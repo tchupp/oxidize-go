@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"github.com/boltdb/bolt"
+	"github.com/tclchiam/block_n_go/storage"
 )
 
 const dbFile = "blockchain_%s.db"
@@ -14,14 +15,14 @@ var (
 	blocksBucketName   = []byte("blocks")
 )
 
-type BlockchainRepository struct {
+type blockReader struct {
 	// Filename to the BoltDB database
-	Path string
+	name string
 
 	db *bolt.DB
 }
 
-func NewRepository(name string) (*BlockchainRepository, error) {
+func NewReader(name string) (storage.BlockReader, error) {
 	path := fmt.Sprintf(dbFile, name)
 
 	db, err := openDB(path)
@@ -37,7 +38,7 @@ func NewRepository(name string) (*BlockchainRepository, error) {
 		return nil, err
 	}
 
-	return &BlockchainRepository{Path: path, db: db}, nil
+	return &blockReader{name: name, db: db}, nil
 
 }
 
@@ -49,8 +50,8 @@ func openDB(dbFile string) (*bolt.DB, error) {
 	return db, err
 }
 
-func (repo *BlockchainRepository) Close() error {
-	return repo.db.Close()
+func (r *blockReader) Close() error {
+	return r.db.Close()
 }
 
 func createBucket(tx *bolt.Tx, bucketName []byte) error {

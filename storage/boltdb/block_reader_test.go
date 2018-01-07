@@ -4,7 +4,7 @@ import (
 	"testing"
 	"fmt"
 	"github.com/boltdb/bolt"
-	"os"
+	"github.com/tclchiam/block_n_go/storage"
 )
 
 func TestNewRepository(t *testing.T) {
@@ -32,12 +32,12 @@ func TestNewRepository(t *testing.T) {
 	db.Close()
 
 	// Execute
-	repository, err := NewRepository(testBlockchainName)
+	reader, err := NewReader(testBlockchainName)
 	if err != nil {
-		t.Fatalf("creating blockchain repository: %s", err)
+		t.Fatalf("creating block reader: %s", err)
 	}
-	defer closeAndDeleteDB(repository, t)
-	repository.Close()
+	defer closeAndDeleteDB(reader.(*blockReader), t)
+	reader.Close()
 
 	// Verify execution
 	db, err = openDB(path)
@@ -58,10 +58,12 @@ func TestNewRepository(t *testing.T) {
 	}
 }
 
-func closeAndDeleteDB(repository *BlockchainRepository, t *testing.T) {
-	repository.Close()
+func closeAndDeleteDB(reader *blockReader, t *testing.T) {
+	if err := reader.Close(); err != nil {
+		t.Fatalf("closing reader: %s", err)
+	}
 
-	if err := os.Remove(repository.Path); err != nil {
+	if err := DeleteBlockchain(reader.name); err != nil {
 		t.Fatalf("deleting test db file: %s", err)
 	}
 }

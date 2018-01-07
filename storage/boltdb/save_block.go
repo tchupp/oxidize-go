@@ -7,8 +7,8 @@ import (
 	"github.com/tclchiam/block_n_go/blockchain/block"
 )
 
-func (repo *BlockchainRepository) SaveBlock(block *block.Block) error {
-	err := repo.db.Update(func(tx *bolt.Tx) error {
+func (r *blockReader) SaveBlock(block *block.Block) error {
+	err := r.db.Update(func(tx *bolt.Tx) error {
 		bucket, err := bucket(tx, blocksBucketName)
 		if err != nil {
 			return err
