@@ -1,4 +1,4 @@
-package bolt_impl
+package boltdb
 
 import (
 	"os"

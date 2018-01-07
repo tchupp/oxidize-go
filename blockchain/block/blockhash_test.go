@@ -1,11 +1,12 @@
-package blockchain
+package block
 
 import (
 	"testing"
-	"github.com/tclchiam/block_n_go/chainhash"
-	"github.com/tclchiam/block_n_go/tx"
 	"fmt"
 	"encoding/hex"
+
+	"github.com/tclchiam/block_n_go/blockchain/chainhash"
+	"github.com/tclchiam/block_n_go/blockchain/tx"
 )
 
 func TestCalculateBlockHash(t *testing.T) {
@@ -19,12 +20,12 @@ func TestCalculateBlockHash(t *testing.T) {
 	}
 
 	tests := []struct {
-		header BlockHeader
+		header Header
 		nonce  int
 		output *chainhash.Hash
 	}{
 		{
-			header: BlockHeader{
+			header: Header{
 				Index:        0,
 				PreviousHash: chainhash.EmptyHash,
 				Timestamp:    1515032127,
@@ -41,7 +42,7 @@ func TestCalculateBlockHash(t *testing.T) {
 			output: buildChainHash("0000d9bbb68fc04dd2b5f34999a35fdf753abfd260d4541967e87e519696a2eb"),
 		},
 		{
-			header: BlockHeader{
+			header: Header{
 				Index:        0,
 				PreviousHash: chainhash.EmptyHash,
 				Timestamp:    1515036711,
@@ -58,7 +59,7 @@ func TestCalculateBlockHash(t *testing.T) {
 			output: buildChainHash("0000e61eeb820f5d29e9a2149adb396f4405963ecc0159f6cec52c8de1fbf672"),
 		},
 		{
-			header: BlockHeader{
+			header: Header{
 				Index:        2,
 				PreviousHash: *buildChainHash("0000745031d715be942d0fc2731fd0f4b4edd340bad2de76a2fa98368be53419"),
 				Timestamp:    1515037418,
@@ -91,10 +92,10 @@ func TestCalculateBlockHash(t *testing.T) {
 	}
 }
 
-func calculateBlockHashTestSuite(header BlockHeader, nonce int, output *chainhash.Hash, index int) error {
-	const unexpectedResultStr = "CalculateBlockHash #%d got: %s want: %s"
+func calculateBlockHashTestSuite(header Header, nonce int, output *chainhash.Hash, index int) error {
+	const unexpectedResultStr = "CalculateHash #%d got: %s want: %s"
 
-	result := CalculateBlockHash(&header, nonce)
+	result := CalculateHash(&header, nonce)
 
 	if !output.IsEqual(&result) {
 		return fmt.Errorf(unexpectedResultStr, index, result, output)

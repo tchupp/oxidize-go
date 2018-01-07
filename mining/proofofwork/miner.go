@@ -4,7 +4,9 @@ import (
 	"math"
 	"runtime"
 	"log"
+
 	"github.com/tclchiam/block_n_go/blockchain"
+	"github.com/tclchiam/block_n_go/blockchain/block"
 )
 
 const (
@@ -24,11 +26,11 @@ func NewMiner(workerCount uint) *Miner {
 }
 
 func NewDefaultMiner() *Miner {
-	return &Miner{workerCount: defaultWorkerCount}
+	return NewMiner(defaultWorkerCount)
 }
 
-func (miner *Miner) MineBlock(header *blockchain.BlockHeader) (*blockchain.Block) {
-	solutions := make(chan *blockchain.BlockSolution)
+func (miner *Miner) MineBlock(header *block.Header) (*block.Block) {
+	solutions := make(chan *block.Solution)
 	nonces := make(chan int, miner.workerCount)
 	defer close(nonces)
 
@@ -39,7 +41,7 @@ func (miner *Miner) MineBlock(header *blockchain.BlockHeader) (*blockchain.Block
 	for nonce := 0; nonce < maxNonce; nonce++ {
 		select {
 		case solution := <-solutions:
-			return blockchain.NewBlock(header, solution)
+			return block.NewBlock(header, solution)
 		default:
 			nonces <- nonce
 		}
@@ -49,12 +51,12 @@ func (miner *Miner) MineBlock(header *blockchain.BlockHeader) (*blockchain.Block
 	return nil
 }
 
-func worker(header *blockchain.BlockHeader, nonces <-chan int, solutions chan<- *blockchain.BlockSolution) {
+func worker(header *block.Header, nonces <-chan int, solutions chan<- *block.Solution) {
 	for nonce := range nonces {
-		hash := blockchain.CalculateBlockHash(header, nonce)
+		hash := block.CalculateHash(header, nonce)
 
-		if blockchain.BlockHashValid(hash) {
-			solutions <- &blockchain.BlockSolution{nonce, hash}
+		if block.HashValid(hash) {
+			solutions <- &block.Solution{nonce, hash}
 		}
 	}
 }

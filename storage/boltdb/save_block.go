@@ -1,13 +1,13 @@
-package bolt_impl
+package boltdb
 
 import (
 	"fmt"
 
 	"github.com/boltdb/bolt"
-	"github.com/tclchiam/block_n_go/blockchain"
+	"github.com/tclchiam/block_n_go/blockchain/block"
 )
 
-func (repo *BlockchainRepository) SaveBlock(block *blockchain.Block) error {
+func (repo *BlockchainRepository) SaveBlock(block *block.Block) error {
 	err := repo.db.Update(func(tx *bolt.Tx) error {
 		bucket, err := bucket(tx, blocksBucketName)
 		if err != nil {
@@ -25,7 +25,7 @@ func (repo *BlockchainRepository) SaveBlock(block *blockchain.Block) error {
 	return err
 }
 
-func writeBlock(bucket *bolt.Bucket, block *blockchain.Block) error {
+func writeBlock(bucket *bolt.Bucket, block *block.Block) error {
 	blockData, err := SerializeBlock(block)
 	if err != nil {
 		return err

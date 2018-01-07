@@ -1,8 +1,9 @@
 package blockchain
 
 import (
-	"github.com/tclchiam/block_n_go/tx"
 	"github.com/imdario/mergo"
+	"github.com/tclchiam/block_n_go/blockchain/tx"
+	"github.com/tclchiam/block_n_go/blockchain/block"
 )
 
 func (bc *Blockchain) ReadBalance(address string) (uint, error) {
@@ -19,7 +20,7 @@ func (bc *Blockchain) findUnspentOutputs(address string) (*tx.TransactionOutputS
 	spentOutputs := make(map[string][]*tx.Output)
 	outputsForAddress := tx.NewTransactionSet()
 
-	err := bc.ForEachBlock(func(block *Block) {
+	err := bc.ForEachBlock(func(block *block.Block) {
 		block.ForEachTransaction(func(transaction *tx.Transaction) {
 			mergo.Map(&spentOutputs, transaction.FindSpentOutputs(address))
 			outputsForAddress = outputsForAddress.Plus(transaction.FindOutputsForAddress(address))

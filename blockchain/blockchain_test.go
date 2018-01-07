@@ -1,14 +1,14 @@
-package main
+package blockchain_test
 
 import (
 	"strings"
 	"fmt"
 	"testing"
 
-	"github.com/tclchiam/block_n_go/bolt_impl"
+	"github.com/tclchiam/block_n_go/storage/boltdb"
 	"github.com/tclchiam/block_n_go/blockchain"
 	"github.com/tclchiam/block_n_go/wallet"
-	"github.com/tclchiam/block_n_go/proofofwork"
+	"github.com/tclchiam/block_n_go/mining/proofofwork"
 )
 
 func TestBlockchain_Workflow(t *testing.T) {
@@ -22,7 +22,7 @@ func TestBlockchain_Workflow(t *testing.T) {
 		const name = "test1"
 
 		bc := setupBlockchain(t, name, owner)
-		defer bolt_impl.DeleteBlockchain(name)
+		defer boltdb.DeleteBlockchain(name)
 
 		err := bc.Send(owner, actor1, owner, 3)
 		if err != nil {
@@ -37,7 +37,7 @@ func TestBlockchain_Workflow(t *testing.T) {
 		const name = "test2"
 
 		bc := setupBlockchain(t, name, owner)
-		defer bolt_impl.DeleteBlockchain(name)
+		defer boltdb.DeleteBlockchain(name)
 
 		err := bc.Send(owner, actor1, owner, 10)
 		if err != nil {
@@ -52,7 +52,7 @@ func TestBlockchain_Workflow(t *testing.T) {
 		const name = "test3"
 
 		bc := setupBlockchain(t, name, owner)
-		defer bolt_impl.DeleteBlockchain(name)
+		defer boltdb.DeleteBlockchain(name)
 
 		err := bc.Send(owner, actor1, owner, 13)
 		if err == nil {
@@ -72,7 +72,7 @@ func TestBlockchain_Workflow(t *testing.T) {
 		const name = "test4"
 
 		bc := setupBlockchain(t, name, owner)
-		defer bolt_impl.DeleteBlockchain(name)
+		defer boltdb.DeleteBlockchain(name)
 
 		err := bc.Send(owner, actor1, owner, 1)
 		if err != nil {
@@ -133,7 +133,7 @@ func verifyBalance(t *testing.T, bc *blockchain.Blockchain, wallet *wallet.Walle
 }
 
 func setupBlockchain(t *testing.T, name string, owner *wallet.Wallet) *blockchain.Blockchain {
-	repository, err := bolt_impl.NewRepository(name)
+	repository, err := boltdb.NewRepository(name)
 	if err != nil {
 		t.Fatalf("failed to create blockchain repository: %s", err)
 	}

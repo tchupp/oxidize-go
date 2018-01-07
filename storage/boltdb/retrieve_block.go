@@ -1,12 +1,13 @@
-package bolt_impl
+package boltdb
 
 import (
 	"github.com/boltdb/bolt"
 	"github.com/tclchiam/block_n_go/blockchain"
-	"github.com/tclchiam/block_n_go/chainhash"
+	"github.com/tclchiam/block_n_go/blockchain/chainhash"
+	"github.com/tclchiam/block_n_go/blockchain/block"
 )
 
-func (repo *BlockchainRepository) Head() (head *blockchain.Block, err error) {
+func (repo *BlockchainRepository) Head() (head *block.Block, err error) {
 	err = repo.db.View(func(tx *bolt.Tx) error {
 		bucket, err := bucket(tx, blocksBucketName)
 		if err != nil {
@@ -29,7 +30,7 @@ func (repo *BlockchainRepository) Head() (head *blockchain.Block, err error) {
 	return head, err
 }
 
-func (repo *BlockchainRepository) Block(hash chainhash.Hash) (block *blockchain.Block, err error) {
+func (repo *BlockchainRepository) Block(hash chainhash.Hash) (block *block.Block, err error) {
 	err = repo.db.View(func(tx *bolt.Tx) error {
 		bucket, err := bucket(tx, blocksBucketName)
 		if err != nil {
@@ -51,16 +52,16 @@ func readLatestHash(bucket *bolt.Bucket) []byte {
 	return bucket.Get(latestBlockHashKey)
 }
 
-func readBlock(bucket *bolt.Bucket, hash []byte) (*blockchain.Block, error) {
+func readBlock(bucket *bolt.Bucket, hash []byte) (*block.Block, error) {
 	latestBlockData := bucket.Get(hash)
 	if latestBlockData == nil || len(latestBlockData) == 0 {
 		return nil, blockchain.BlockDataEmptyError
 	}
 
-	block, err := DeserializeBlock(latestBlockData)
+	b, err := DeserializeBlock(latestBlockData)
 	if err != nil {
 		return nil, err
 	}
 
-	return block, err
+	return b, err
 }

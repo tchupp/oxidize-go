@@ -1,29 +1,29 @@
-package blockchain
+package block
 
 import (
 	"fmt"
 	"time"
 	"strings"
 
-	"github.com/tclchiam/block_n_go/tx"
-	"github.com/tclchiam/block_n_go/chainhash"
+	"github.com/tclchiam/block_n_go/blockchain/tx"
+	"github.com/tclchiam/block_n_go/blockchain/chainhash"
 )
 
-type BlockHeader struct {
+type Header struct {
 	Index        int
 	PreviousHash chainhash.Hash
 	Timestamp    int64
 	Transactions []*tx.Transaction
 }
 
-func NewGenesisBlockHeader(address string) *BlockHeader {
+func NewGenesisBlockHeader(address string) *Header {
 	transaction := tx.NewGenesisCoinbaseTx(address)
 
 	return NewBlockHeader(0, chainhash.EmptyHash, []*tx.Transaction{transaction})
 }
 
-func NewBlockHeader(index int, previousHash chainhash.Hash, transactions []*tx.Transaction) *BlockHeader {
-	return &BlockHeader{
+func NewBlockHeader(index int, previousHash chainhash.Hash, transactions []*tx.Transaction) *Header {
+	return &Header{
 		Index:        index,
 		PreviousHash: previousHash,
 		Timestamp:    time.Now().Unix(),
@@ -31,16 +31,16 @@ func NewBlockHeader(index int, previousHash chainhash.Hash, transactions []*tx.T
 	}
 }
 
-func (header *BlockHeader) ForEachTransaction(consume func(*tx.Transaction)) {
+func (header *Header) ForEachTransaction(consume func(*tx.Transaction)) {
 	for _, transaction := range header.Transactions {
 		consume(transaction)
 	}
 }
 
-func (header BlockHeader) String() string {
+func (header Header) String() string {
 	var lines []string
 
-	lines = append(lines, fmt.Sprintf("\n============ BlockHeader ============"))
+	lines = append(lines, fmt.Sprintf("\n============ Header ============"))
 	lines = append(lines, fmt.Sprintf("Index: %x", header.Index))
 	lines = append(lines, fmt.Sprintf("PreviousHash: %x", header.PreviousHash.Slice()))
 	lines = append(lines, fmt.Sprintf("Timestamp: %d", header.Timestamp))

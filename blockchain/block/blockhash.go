@@ -1,4 +1,4 @@
-package blockchain
+package block
 
 import (
 	"bytes"
@@ -7,8 +7,8 @@ import (
 	"log"
 	"math/big"
 
-	"github.com/tclchiam/block_n_go/chainhash"
-	"github.com/tclchiam/block_n_go/tx"
+	"github.com/tclchiam/block_n_go/blockchain/chainhash"
+	"github.com/tclchiam/block_n_go/blockchain/tx"
 )
 
 const (
@@ -20,7 +20,7 @@ var (
 	target = big.NewInt(1).Lsh(big.NewInt(1), uint(hashLength-targetBits))
 )
 
-func CalculateBlockHash(header *BlockHeader, nonce int) chainhash.Hash {
+func CalculateHash(header *Header, nonce int) chainhash.Hash {
 	rawBlockContents := [][]byte{
 		header.PreviousHash[:],
 		hashTransactions(header.Transactions),
@@ -31,13 +31,13 @@ func CalculateBlockHash(header *BlockHeader, nonce int) chainhash.Hash {
 	return chainhash.CalculateHash(rawBlockData)
 }
 
-func BlockValid(block *Block) bool {
-	hash := CalculateBlockHash(block.Header(), block.Nonce)
+func Valid(block *Block) bool {
+	hash := CalculateHash(block.Header(), block.Nonce)
 
 	return new(big.Int).SetBytes(hash.Slice()).Cmp(target) == -1
 }
 
-func BlockHashValid(hash chainhash.Hash) bool {
+func HashValid(hash chainhash.Hash) bool {
 	return new(big.Int).SetBytes(hash.Slice()).Cmp(target) == -1
 }
 

@@ -1,8 +1,9 @@
-package blockchain
+package block
 
 import (
 	"testing"
-	"github.com/tclchiam/block_n_go/chainhash"
+
+	"github.com/tclchiam/block_n_go/blockchain/chainhash"
 )
 
 func TestNewGenesisBlockHeader(t *testing.T) {

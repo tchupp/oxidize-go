@@ -1,35 +1,38 @@
 package blockchain
 
 import (
-	"github.com/tclchiam/block_n_go/tx"
+	"github.com/tclchiam/block_n_go/blockchain/tx"
 	"github.com/tclchiam/block_n_go/wallet"
+	"github.com/tclchiam/block_n_go/blockchain/block"
+	"github.com/tclchiam/block_n_go/mining"
+	"github.com/tclchiam/block_n_go/storage"
 )
 
 type Blockchain struct {
-	repository    Repository
-	miningService MiningService
+	reader storage.BlockReader
+	miner  mining.Miner
 }
 
-func Open(repository Repository, miningService MiningService, ownerAddress string) (*Blockchain, error) {
-	exists, err := genesisBlockExists(repository)
+func Open(reader storage.BlockReader, miner mining.Miner, ownerAddress string) (*Blockchain, error) {
+	exists, err := genesisBlockExists(reader)
 	if err != nil {
 		return nil, err
 	}
 
 	if !exists {
-		blockHeader := NewGenesisBlockHeader(ownerAddress)
-		block := miningService.MineBlock(blockHeader)
-		err = repository.SaveBlock(block)
+		blockHeader := block.NewGenesisBlockHeader(ownerAddress)
+		b := miner.MineBlock(blockHeader)
+		err = reader.SaveBlock(b)
 	}
 	if err != nil {
 		return nil, err
 	}
 
-	return &Blockchain{repository: repository, miningService: miningService}, nil
+	return &Blockchain{reader: reader, miner: miner}, nil
 }
 
-func genesisBlockExists(repository Repository) (bool, error) {
-	_, err := repository.Head()
+func genesisBlockExists(reader storage.BlockReader) (bool, error) {
+	_, err := reader.Head()
 	if err == HeadBlockNotFoundError {
 		return false, nil
 	}
@@ -50,14 +53,14 @@ func (bc *Blockchain) Send(sender, receiver, miner *wallet.Wallet, expense uint)
 }
 
 func (bc *Blockchain) mineBlock(transactions []*tx.Transaction) (error) {
-	currentHead, err := bc.repository.Head()
+	currentHead, err := bc.reader.Head()
 	if err != nil {
 		return err
 	}
 
-	newBlockHeader := NewBlockHeader(currentHead.Index+1, currentHead.Hash, transactions)
-	newBlock := bc.miningService.MineBlock(newBlockHeader)
-	if err = bc.repository.SaveBlock(newBlock); err != nil {
+	newBlockHeader := block.NewBlockHeader(currentHead.Index+1, currentHead.Hash, transactions)
+	newBlock := bc.miner.MineBlock(newBlockHeader)
+	if err = bc.reader.SaveBlock(newBlock); err != nil {
 		return err
 	}
 

@@ -1,4 +1,4 @@
-package bolt_impl
+package boltdb
 
 import (
 	"testing"
@@ -7,10 +7,10 @@ import (
 
 	"github.com/boltdb/bolt"
 	"github.com/google/go-cmp/cmp"
-	"github.com/tclchiam/block_n_go/tx"
-	"github.com/tclchiam/block_n_go/blockchain"
+	"github.com/tclchiam/block_n_go/blockchain/tx"
 	"github.com/tclchiam/block_n_go/wallet"
-	"github.com/tclchiam/block_n_go/chainhash"
+	"github.com/tclchiam/block_n_go/blockchain/chainhash"
+	"github.com/tclchiam/block_n_go/blockchain/block"
 )
 
 func TestBlockchainRepository_SaveBlock(t *testing.T) {
@@ -29,7 +29,7 @@ func TestBlockchainRepository_SaveBlock(t *testing.T) {
 	previousHash, _ := chainhash.NewHashFromStr("0000f65fe866ab6f810b13a5d864f96cb16ad22e2e931b861f80d870f2e32df7")
 	hash, _ := chainhash.NewHashFromStr("00007eaa535b8894e8815f57d317c3bb14ab598417fe4ddd8d37d65c189f85fe")
 
-	blockToSave := &blockchain.Block{
+	blockToSave := &block.Block{
 		Index:        previousIndex + 1,
 		PreviousHash: *previousHash,
 		Timestamp:    18920304,
@@ -62,7 +62,7 @@ func TestBlockchainRepository_SaveBlock(t *testing.T) {
 	}
 }
 
-func readLatestBlock(db *bolt.DB, bucketName []byte) (latestBlock *blockchain.Block, err error) {
+func readLatestBlock(db *bolt.DB, bucketName []byte) (latestBlock *block.Block, err error) {
 	err = db.View(func(tx *bolt.Tx) error {
 		bucket := tx.Bucket(bucketName)
 		if bucket == nil {

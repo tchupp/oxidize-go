@@ -2,7 +2,8 @@ package blockchain
 
 import (
 	"fmt"
-	"github.com/tclchiam/block_n_go/tx"
+
+	"github.com/tclchiam/block_n_go/blockchain/tx"
 	"github.com/tclchiam/block_n_go/wallet"
 )
 

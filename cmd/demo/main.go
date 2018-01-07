@@ -2,11 +2,13 @@ package main
 
 import (
 	"fmt"
-	"github.com/tclchiam/block_n_go/blockchain"
 	"log"
-	"github.com/tclchiam/block_n_go/bolt_impl"
+
+	"github.com/tclchiam/block_n_go/blockchain"
+	"github.com/tclchiam/block_n_go/blockchain/block"
+	"github.com/tclchiam/block_n_go/mining/proofofwork"
+	"github.com/tclchiam/block_n_go/storage/boltdb"
 	"github.com/tclchiam/block_n_go/wallet"
-	"github.com/tclchiam/block_n_go/proofofwork"
 )
 
 func main() {
@@ -16,12 +18,12 @@ func main() {
 
 	fmt.Printf("Owner: '%s', receiver: '%s'\n\n", owner.GetAddress(), receiver.GetAddress())
 
-	repository, err := bolt_impl.NewRepository(blockchainName)
+	repository, err := boltdb.NewRepository(blockchainName)
 	if err != nil {
 		log.Panic(err)
 	}
 	defer repository.Close()
-	defer bolt_impl.DeleteBlockchain(blockchainName)
+	defer boltdb.DeleteBlockchain(blockchainName)
 
 	bc, err := blockchain.Open(repository, proofofwork.NewDefaultMiner(), owner.GetAddress())
 	if err != nil {
@@ -37,7 +39,7 @@ func main() {
 		log.Panic(err)
 	}
 
-	err = bc.ForEachBlock(func(block *blockchain.Block) {
+	err = bc.ForEachBlock(func(block *block.Block) {
 		fmt.Println(block)
 	})
 	if err != nil {

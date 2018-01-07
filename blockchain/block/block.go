@@ -1,4 +1,4 @@
-package blockchain
+package block
 
 import (
 	"bytes"
@@ -6,8 +6,8 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/tclchiam/block_n_go/chainhash"
-	"github.com/tclchiam/block_n_go/tx"
+	"github.com/tclchiam/block_n_go/blockchain/chainhash"
+	"github.com/tclchiam/block_n_go/blockchain/tx"
 )
 
 type Block struct {
@@ -19,7 +19,7 @@ type Block struct {
 	Nonce        int
 }
 
-func NewBlock(header *BlockHeader, solution *BlockSolution) *Block {
+func NewBlock(header *Header, solution *Solution) *Block {
 	return &Block{
 		Index:        header.Index,
 		PreviousHash: header.PreviousHash,
@@ -39,7 +39,7 @@ func (block *Block) String() string {
 	lines = append(lines, fmt.Sprintf("PreviousHash: %x", block.PreviousHash.Slice()))
 	lines = append(lines, fmt.Sprintf("Nonce: %d", block.Nonce))
 	lines = append(lines, fmt.Sprintf("Timestamp: %d", block.Timestamp))
-	lines = append(lines, fmt.Sprintf("Is valid: %s", strconv.FormatBool(BlockValid(block))))
+	lines = append(lines, fmt.Sprintf("Is valid: %s", strconv.FormatBool(Valid(block))))
 	lines = append(lines, fmt.Sprintf("Transactions:"))
 	block.ForEachTransaction(func(transaction *tx.Transaction) {
 		lines = append(lines, transaction.String())
@@ -48,8 +48,8 @@ func (block *Block) String() string {
 	return strings.Join(lines, "\n")
 }
 
-func (block *Block) Header() *BlockHeader {
-	return &BlockHeader{
+func (block *Block) Header() *Header {
+	return &Header{
 		Transactions: block.Transactions,
 		Index:        block.Index,
 		PreviousHash: block.PreviousHash,
