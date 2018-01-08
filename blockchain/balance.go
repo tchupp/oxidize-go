@@ -17,17 +17,17 @@ func (bc *Blockchain) ReadBalance(address string) (uint, error) {
 }
 
 func (bc *Blockchain) findUnspentOutputs(address string) (*tx.TransactionOutputSet, error) {
-	spentOutputs := make(map[string][]*tx.Output)
+	spentOutputs := make(map[string][]*entity.Output)
 	outputsForAddress := tx.NewTransactionSet()
 
 	err := bc.ForEachBlock(func(block *entity.Block) {
-		block.ForEachTransaction(func(transaction *tx.Transaction) {
+		for _, transaction := range block.Transactions {
 			mergo.Map(&spentOutputs, FindSpentOutputs(transaction, address))
 			outputsForAddress = outputsForAddress.Plus(FindOutputsForAddress(transaction, address))
-		})
+		}
 	})
 
-	isUnspent := func(transaction *tx.Transaction, output *tx.Output) bool {
+	isUnspent := func(transaction *entity.Transaction, output *entity.Output) bool {
 		if outputs, ok := spentOutputs[transaction.ID.String()]; ok {
 			for _, spentOutput := range outputs {
 				if spentOutput.IsEqual(output) {
@@ -42,44 +42,44 @@ func (bc *Blockchain) findUnspentOutputs(address string) (*tx.TransactionOutputS
 }
 
 func calculateBalance(unspentOutputs *tx.TransactionOutputSet) uint {
-	sumBalance := func(res interface{}, _ *tx.Transaction, output *tx.Output) interface{} {
+	sumBalance := func(res interface{}, _ *entity.Transaction, output *entity.Output) interface{} {
 		return res.(uint) + output.Value
 	}
 
 	return unspentOutputs.Reduce(uint(0), sumBalance).(uint)
 }
 
-func FindOutputsForAddress(transaction *tx.Transaction, address string) *tx.TransactionOutputSet {
-	addToTxSet := func(res interface{}, output *tx.Output) interface{} {
+func FindOutputsForAddress(transaction *entity.Transaction, address string) *tx.TransactionOutputSet {
+	addToTxSet := func(res interface{}, output *entity.Output) interface{} {
 		return res.(*tx.TransactionOutputSet).Add(transaction, output)
 	}
 
 	outputs := tx.NewTransactionSet()
-	for _, output := range transaction.TxOutputs {
+	for _, output := range transaction.Outputs {
 		if output.IsLockedWithKey(address) {
 			outputs = outputs.Add(transaction, output)
 		}
 	}
 
-	return tx.NewOutputs(transaction.TxOutputs).
-		Filter(func(output *tx.Output) bool { return output.IsLockedWithKey(address) }).
+	return entity.NewOutputs(transaction.Outputs).
+		Filter(func(output *entity.Output) bool { return output.IsLockedWithKey(address) }).
 		Reduce(tx.NewTransactionSet(), addToTxSet).(*tx.TransactionOutputSet)
 }
 
-func FindSpentOutputs(transaction *tx.Transaction, address string) map[string][]*tx.Output {
-	spent := make(map[string][]*tx.Output)
+func FindSpentOutputs(transaction *entity.Transaction, address string) map[string][]*entity.Output {
+	spent := make(map[string][]*entity.Output)
 	if transaction.IsCoinbase() {
 		return spent
 	}
 
-	addToUnspent := func(res interface{}, input *tx.SignedInput) interface{} {
+	addToUnspent := func(res interface{}, input *entity.SignedInput) interface{} {
 		transactionId := input.OutputReference.ID.String()
-		res.(map[string][]*tx.Output)[transactionId] = append(res.(map[string][]*tx.Output)[transactionId], input.OutputReference.Output)
+		res.(map[string][]*entity.Output)[transactionId] = append(res.(map[string][]*entity.Output)[transactionId], input.OutputReference.Output)
 
 		return res
 	}
 
-	return transaction.Inputs().
-		Filter(func(input *tx.SignedInput) bool { return input.SpentBy(address) }).
-		Reduce(spent, addToUnspent).(map[string][]*tx.Output)
+	return entity.NewSignedInputs(transaction.Inputs).
+		Filter(func(input *entity.SignedInput) bool { return input.SpentBy(address) }).
+		Reduce(spent, addToUnspent).(map[string][]*entity.Output)
 }

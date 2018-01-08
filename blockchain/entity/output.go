@@ -1,8 +1,10 @@
-package tx
+package entity
 
 import (
 	"github.com/tclchiam/block_n_go/wallet"
 	"bytes"
+	"fmt"
+	"strings"
 )
 
 type Output struct {
@@ -15,6 +17,17 @@ func NewOutput(value uint, address string) *Output {
 	publicKeyHash, _ := wallet.AddressToPublicKeyHash(address)
 
 	return &Output{Value: value, PublicKeyHash: publicKeyHash}
+}
+
+func (output *Output) String() string {
+	var lines []string
+
+	lines = append(lines, fmt.Sprintf("     Output:"))
+	lines = append(lines, fmt.Sprintf("       Index:         %d", output.Index))
+	lines = append(lines, fmt.Sprintf("       Value:         %d", output.Value))
+	lines = append(lines, fmt.Sprintf("       PublicKeyHash: %x", output.PublicKeyHash))
+
+	return strings.Join(lines, "\n")
 }
 
 func (output *Output) IsLockedWithKey(address string) bool {
@@ -44,11 +57,6 @@ func (output *Output) IsEqual(other *Output) bool {
 }
 
 type Outputs <-chan *Output
-
-func (tx *Transaction) Outputs() Outputs {
-	outputs := tx.TxOutputs
-	return NewOutputs(outputs)
-}
 
 func EmptyOutputs() Outputs {
 	outputs := make([]*Output, 0)

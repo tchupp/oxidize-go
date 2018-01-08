@@ -7,7 +7,6 @@ import (
 
 	"github.com/boltdb/bolt"
 	"github.com/google/go-cmp/cmp"
-	"github.com/tclchiam/block_n_go/blockchain/tx"
 	"github.com/tclchiam/block_n_go/wallet"
 	"github.com/tclchiam/block_n_go/blockchain/chainhash"
 	"github.com/tclchiam/block_n_go/blockchain/entity"
@@ -23,7 +22,7 @@ func TestBlockchainRepository_SaveBlock(t *testing.T) {
 	}
 	defer closeAndDeleteDB(reader.(*blockReader), t)
 
-	transactions := []*tx.Transaction{tx.NewCoinbaseTx(address)}
+	transactions := []*entity.Transaction{entity.NewCoinbaseTx(address)}
 
 	const previousIndex = 5
 	previousHash, _ := chainhash.NewHashFromStr("0000f65fe866ab6f810b13a5d864f96cb16ad22e2e931b861f80d870f2e32df7")

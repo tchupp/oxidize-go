@@ -3,11 +3,13 @@ package blockchain
 import (
 	"fmt"
 
+	"github.com/tclchiam/block_n_go/blockchain/entity"
 	"github.com/tclchiam/block_n_go/blockchain/tx"
+	"github.com/tclchiam/block_n_go/crypto"
 	"github.com/tclchiam/block_n_go/wallet"
 )
 
-func (bc *Blockchain) buildExpenseTransaction(sender, receiver *wallet.Wallet, expense uint) (*tx.Transaction, error) {
+func (bc *Blockchain) buildExpenseTransaction(sender, receiver *wallet.Wallet, expense uint) (*entity.Transaction, error) {
 	senderAddress := sender.GetAddress()
 
 	unspentOutputs, err := bc.findUnspentOutputs(senderAddress)
@@ -21,7 +23,7 @@ func (bc *Blockchain) buildExpenseTransaction(sender, receiver *wallet.Wallet, e
 	}
 
 	liquidBalance := uint(0)
-	takeMinimumToMeetExpense := func(_ *tx.Transaction, output *tx.Output) bool {
+	takeMinimumToMeetExpense := func(_ *entity.Transaction, output *entity.Output) bool {
 		take := liquidBalance < expense
 		if take {
 			liquidBalance += output.Value
@@ -29,21 +31,37 @@ func (bc *Blockchain) buildExpenseTransaction(sender, receiver *wallet.Wallet, e
 		return take
 	}
 
-	buildInputs := func(res interface{}, transaction *tx.Transaction, output *tx.Output) interface{} {
-		input := tx.NewUnsignedInput(transaction.ID, output, sender.PublicKey)
-		return res.(tx.UnsignedInputs).Add(input)
+	buildInputs := func(res interface{}, transaction *entity.Transaction, output *entity.Output) interface{} {
+		input := entity.NewUnsignedInput(transaction.ID, output, sender.PublicKey)
+		return res.(entity.UnsignedInputs).Add(input)
 	}
 
 	inputs := unspentOutputs.
 		Filter(takeMinimumToMeetExpense).
-		Reduce(tx.EmptyUnsignedInputs(nil), buildInputs).(tx.UnsignedInputs)
+		Reduce(entity.EmptyUnsignedInputs(nil), buildInputs).(entity.UnsignedInputs)
 
-	outputs := tx.EmptyOutputs().
-		Add(tx.NewOutput(expense, receiver.GetAddress()))
+	outputs := entity.EmptyOutputs().
+		Add(entity.NewOutput(expense, receiver.GetAddress()))
 
 	if liquidBalance-expense > 0 {
-		outputs = outputs.Add(tx.NewOutput(liquidBalance-expense, senderAddress))
+		outputs = outputs.Add(entity.NewOutput(liquidBalance-expense, senderAddress))
 	}
 
-	return tx.NewTx(&inputs, &outputs, sender.PrivateKey), nil
+	finalizedOutputs := outputs.Reduce(make([]*entity.Output, 0), collectOutputs).([]*entity.Output)
+	signedInputs := inputs.Reduce(make([]*entity.SignedInput, 0), signInputs(finalizedOutputs, sender.PrivateKey)).([]*entity.SignedInput)
+
+	return entity.NewTx(signedInputs, finalizedOutputs), nil
+}
+
+func signInputs(outputs []*entity.Output, privateKey *crypto.PrivateKey) func(res interface{}, input *entity.UnsignedInput) interface{} {
+	return func(res interface{}, input *entity.UnsignedInput) interface{} {
+		signature := tx.GenerateSignature(input, outputs, privateKey)
+		return append(res.([]*entity.SignedInput), entity.NewSignedInput(input, signature))
+	}
+}
+
+func collectOutputs(res interface{}, output *entity.Output) interface{} {
+	outputs := res.([]*entity.Output)
+	output.Index = uint(len(outputs))
+	return append(outputs, output)
 }

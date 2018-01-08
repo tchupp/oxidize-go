@@ -4,20 +4,24 @@ import (
 	"testing"
 	"fmt"
 	"encoding/hex"
+	"crypto/sha256"
 
 	"github.com/tclchiam/block_n_go/blockchain/chainhash"
-	"github.com/tclchiam/block_n_go/blockchain/tx"
 	"github.com/tclchiam/block_n_go/blockchain/entity"
 )
+
+func buildTransactionId(newId string) entity.TransactionId {
+	decoded, _ := hex.DecodeString(newId)
+
+	var id entity.TransactionId
+	copy(id[:], decoded[:sha256.Size])
+	return id
+}
 
 func TestCalculateBlockHash(t *testing.T) {
 	buildChainHash := func(hash string) *chainhash.Hash {
 		ret, _ := chainhash.NewHashFromStr(hash)
 		return ret
-	}
-	buildTransactionId := func(id string) tx.TransactionId {
-		decoded, _ := hex.DecodeString(id)
-		return tx.NewId(decoded)
 	}
 
 	tests := []struct {
@@ -30,10 +34,10 @@ func TestCalculateBlockHash(t *testing.T) {
 				Index:        0,
 				PreviousHash: chainhash.EmptyHash,
 				Timestamp:    1515032127,
-				Transactions: []*tx.Transaction{
+				Transactions: []*entity.Transaction{
 					{
 						ID: buildTransactionId("69a101b4ab5c06bf126074a32a6eee3c06b5612f59994a9df280ab5c3603c6b8"),
-						TxOutputs: []*tx.Output{
+						Outputs: []*entity.Output{
 							{Index: 0, Value: 10, PublicKeyHash: []byte("4c0b332404ac6f5d11c96c0f967398ffd94121ce")},
 						},
 					},
@@ -47,10 +51,10 @@ func TestCalculateBlockHash(t *testing.T) {
 				Index:        0,
 				PreviousHash: chainhash.EmptyHash,
 				Timestamp:    1515036711,
-				Transactions: []*tx.Transaction{
+				Transactions: []*entity.Transaction{
 					{
 						ID: buildTransactionId("bbbe0e2f0dd48b427fff9e3ac2105aabb070d2fcea365cb40f8c1e84c0b6ce0b"),
-						TxOutputs: []*tx.Output{
+						Outputs: []*entity.Output{
 							{Index: 0, Value: 10, PublicKeyHash: []byte("65633924d71fb5244d89afe45aabfaf512cfd148")},
 						},
 					},
@@ -64,17 +68,17 @@ func TestCalculateBlockHash(t *testing.T) {
 				Index:        2,
 				PreviousHash: *buildChainHash("0000745031d715be942d0fc2731fd0f4b4edd340bad2de76a2fa98368be53419"),
 				Timestamp:    1515037418,
-				Transactions: []*tx.Transaction{
+				Transactions: []*entity.Transaction{
 					{
 						ID: buildTransactionId("b0093d332b4c5bbb5f3c4aa2c9ada8632f9efb2489799a74c55168f3487ec256"),
-						TxOutputs: []*tx.Output{
+						Outputs: []*entity.Output{
 							{Index: 0, Value: 4, PublicKeyHash: []byte("ded5a23a73a574f8465db3c154fc4e7fd75c5bdb")},
 							{Index: 1, Value: 3, PublicKeyHash: []byte("52a530c258e53e04116f66d9cae093d0a38950a5")},
 						},
 					},
 					{
 						ID: buildTransactionId("6ba28ab31ac33141dcf6def7adf601be3229c4aa148cfa69e7036cc2cedf0aff"),
-						TxOutputs: []*tx.Output{
+						Outputs: []*entity.Output{
 							{Index: 0, Value: 10, PublicKeyHash: []byte("ded5a23a73a574f8465db3c154fc4e7fd75c5bdb")},
 						},
 					},

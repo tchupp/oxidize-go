@@ -1,7 +1,6 @@
 package blockchain
 
 import (
-	"github.com/tclchiam/block_n_go/blockchain/tx"
 	"github.com/tclchiam/block_n_go/wallet"
 	"github.com/tclchiam/block_n_go/blockchain/entity"
 	"github.com/tclchiam/block_n_go/mining"
@@ -47,12 +46,12 @@ func (bc *Blockchain) Send(sender, receiver, miner *wallet.Wallet, expense uint)
 	if err != nil {
 		return err
 	}
-	rewardTransaction := tx.NewCoinbaseTx(miner.GetAddress())
+	rewardTransaction := entity.NewCoinbaseTx(miner.GetAddress())
 
-	return bc.mineBlock([]*tx.Transaction{expenseTransaction, rewardTransaction})
+	return bc.mineBlock([]*entity.Transaction{expenseTransaction, rewardTransaction})
 }
 
-func (bc *Blockchain) mineBlock(transactions []*tx.Transaction) (error) {
+func (bc *Blockchain) mineBlock(transactions []*entity.Transaction) (error) {
 	currentHead, err := bc.reader.Head()
 	if err != nil {
 		return err

@@ -8,7 +8,6 @@ import (
 	"math/big"
 
 	"github.com/tclchiam/block_n_go/blockchain/chainhash"
-	"github.com/tclchiam/block_n_go/blockchain/tx"
 	"github.com/tclchiam/block_n_go/blockchain/entity"
 )
 
@@ -52,7 +51,7 @@ func intToHex(num int64) []byte {
 	return buff.Bytes()
 }
 
-func hashTransactions(transactions []*tx.Transaction) []byte {
+func hashTransactions(transactions []*entity.Transaction) []byte {
 	var transactionHashes [][]byte
 
 	for _, transaction := range transactions {

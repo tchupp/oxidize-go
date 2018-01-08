@@ -6,14 +6,13 @@ import (
 	"strings"
 
 	"github.com/tclchiam/block_n_go/blockchain/chainhash"
-	"github.com/tclchiam/block_n_go/blockchain/tx"
 )
 
 type Block struct {
 	Index        int
 	PreviousHash chainhash.Hash
 	Timestamp    int64
-	Transactions []*tx.Transaction
+	Transactions []*Transaction
 	Hash         chainhash.Hash
 	Nonce        int
 }
@@ -39,9 +38,9 @@ func (block *Block) String() string {
 	lines = append(lines, fmt.Sprintf("Nonce: %d", block.Nonce))
 	lines = append(lines, fmt.Sprintf("Timestamp: %d", block.Timestamp))
 	lines = append(lines, fmt.Sprintf("Transactions:"))
-	block.ForEachTransaction(func(transaction *tx.Transaction) {
+	for _, transaction := range block.Transactions {
 		lines = append(lines, transaction.String())
-	})
+	}
 
 	return strings.Join(lines, "\n")
 }
@@ -57,10 +56,4 @@ func (block *Block) Header() *BlockHeader {
 
 func (block *Block) IsGenesisBlock() bool {
 	return bytes.Compare(block.PreviousHash.Slice(), chainhash.EmptyHash.Slice()) == 0
-}
-
-func (block *Block) ForEachTransaction(consume func(*tx.Transaction)) {
-	for _, transaction := range block.Transactions {
-		consume(transaction)
-	}
 }

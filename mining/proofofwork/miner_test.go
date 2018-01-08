@@ -3,7 +3,6 @@ package proofofwork_test
 import (
 	"testing"
 
-	"github.com/tclchiam/block_n_go/blockchain/tx"
 	"github.com/tclchiam/block_n_go/blockchain/chainhash"
 	"github.com/tclchiam/block_n_go/mining/proofofwork"
 	"github.com/tclchiam/block_n_go/blockchain/entity"
@@ -15,7 +14,7 @@ const (
 )
 
 var (
-	transactions = []*tx.Transaction{tx.NewGenesisCoinbaseTx(address)}
+	transactions = []*entity.Transaction{entity.NewGenesisCoinbaseTx(address)}
 	blockHeader  = &entity.BlockHeader{
 		Index:        0,
 		PreviousHash: chainhash.EmptyHash,

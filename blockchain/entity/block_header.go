@@ -5,7 +5,6 @@ import (
 	"time"
 	"strings"
 
-	"github.com/tclchiam/block_n_go/blockchain/tx"
 	"github.com/tclchiam/block_n_go/blockchain/chainhash"
 )
 
@@ -13,16 +12,16 @@ type BlockHeader struct {
 	Index        int
 	PreviousHash chainhash.Hash
 	Timestamp    int64
-	Transactions []*tx.Transaction
+	Transactions []*Transaction
 }
 
 func NewGenesisBlockHeader(address string) *BlockHeader {
-	transaction := tx.NewGenesisCoinbaseTx(address)
+	transaction := NewGenesisCoinbaseTx(address)
 
-	return NewBlockHeader(0, chainhash.EmptyHash, []*tx.Transaction{transaction})
+	return NewBlockHeader(0, chainhash.EmptyHash, []*Transaction{transaction})
 }
 
-func NewBlockHeader(index int, previousHash chainhash.Hash, transactions []*tx.Transaction) *BlockHeader {
+func NewBlockHeader(index int, previousHash chainhash.Hash, transactions []*Transaction) *BlockHeader {
 	return &BlockHeader{
 		Index:        index,
 		PreviousHash: previousHash,

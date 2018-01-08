@@ -1,23 +1,35 @@
-package tx
+package entity
 
 import (
 	"bytes"
 
 	"github.com/tclchiam/block_n_go/wallet"
+	"github.com/tclchiam/block_n_go/crypto"
+	"fmt"
+	"strings"
 )
 
 type UnsignedInput struct {
-	OutputReference OutputReference
-	PublicKey       []byte
+	OutputReference *OutputReference
+	PublicKey       *crypto.PublicKey
 }
 
-func NewUnsignedInput(outputTransactionId TransactionId, output *Output, senderPublicKey []byte) *UnsignedInput {
-	reference := OutputReference{ID: outputTransactionId, Output: output}
+func NewUnsignedInput(outputTransactionId TransactionId, output *Output, senderPublicKey *crypto.PublicKey) *UnsignedInput {
+	reference := &OutputReference{ID: outputTransactionId, Output: output}
 
 	return &UnsignedInput{
 		OutputReference: reference,
 		PublicKey:       senderPublicKey,
 	}
+}
+
+func (input *UnsignedInput) String() string {
+	var lines []string
+	lines = append(lines, fmt.Sprintf("     UnsignedInput:"))
+	lines = append(lines, fmt.Sprintf("       TransactionId: %s", input.OutputReference.ID))
+	lines = append(lines, fmt.Sprintf("       OutputIndex:   %d", input.OutputReference.Output.Index))
+	lines = append(lines, fmt.Sprintf("       PublicKey:     %x", input.PublicKey))
+	return strings.Join(lines, "\n")
 }
 
 func (input *UnsignedInput) SpentBy(address string) bool {
