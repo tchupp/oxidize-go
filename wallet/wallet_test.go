@@ -11,7 +11,7 @@ func TestHashPubKey(t *testing.T) {
 	wallet := NewWallet()
 	walletPublicKeyHash := HashPubKey(wallet.PublicKey)
 
-	publicSHA256 := sha256.Sum256(wallet.PublicKey)
+	publicSHA256 := sha256.Sum256(wallet.PublicKey.Serialize())
 
 	hashImpl := ripemd160.New()
 	_, err := hashImpl.Write(publicSHA256[:])

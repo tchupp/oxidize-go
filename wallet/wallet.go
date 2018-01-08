@@ -1,14 +1,12 @@
 package wallet
 
 import (
-	"crypto/ecdsa"
-	"crypto/elliptic"
-	"crypto/rand"
 	"crypto/sha256"
 	"log"
 
 	"golang.org/x/crypto/ripemd160"
 	"github.com/mr-tron/base58/base58"
+	"github.com/tclchiam/block_n_go/crypto"
 )
 
 const (
@@ -17,24 +15,13 @@ const (
 )
 
 type Wallet struct {
-	PrivateKey ecdsa.PrivateKey
-	PublicKey  []byte
+	PrivateKey *crypto.PrivateKey
+	PublicKey  *crypto.PublicKey
 }
 
 func NewWallet() *Wallet {
-	privateKey, publicKey := newKeyPair()
-	return &Wallet{privateKey, publicKey}
-}
-
-func newKeyPair() (ecdsa.PrivateKey, []byte) {
-	privateKey, err := ecdsa.GenerateKey(elliptic.P256(), rand.Reader)
-	if err != nil {
-		log.Panic(err)
-	}
-
-	publicKey := append(privateKey.PublicKey.X.Bytes(), privateKey.PublicKey.Y.Bytes()...)
-
-	return *privateKey, publicKey
+	privateKey := crypto.NewP256PrivateKey()
+	return &Wallet{PrivateKey: privateKey, PublicKey: privateKey.PubKey()}
 }
 
 func (w *Wallet) GetAddress() string {
@@ -55,8 +42,8 @@ func AddressToPublicKeyHash(address string) ([]byte, error) {
 	return rawAddress[1: len(rawAddress)-addressChecksumLength], nil
 }
 
-func HashPubKey(publicKey []byte) []byte {
-	publicSHA256 := sha256.Sum256(publicKey)
+func HashPubKey(publicKey *crypto.PublicKey) []byte {
+	publicSHA256 := sha256.Sum256(publicKey.Serialize())
 
 	hashImpl := ripemd160.New()
 	_, err := hashImpl.Write(publicSHA256[:])
