@@ -6,17 +6,17 @@ import (
 )
 
 type Iterator struct {
-	current *entity.Block
-	reader  storage.BlockReader
+	current         *entity.Block
+	blockRepository storage.BlockRepository
 }
 
 func (it *Iterator) next() (*Iterator, error) {
-	b, err := it.reader.Block(it.current.PreviousHash)
+	b, err := it.blockRepository.Block(it.current.PreviousHash)
 	if err != nil {
 		return nil, err
 	}
 
-	return &Iterator{current: b, reader: it.reader}, nil
+	return &Iterator{current: b, blockRepository: it.blockRepository}, nil
 }
 
 func (it *Iterator) hasNext() bool {
@@ -24,14 +24,14 @@ func (it *Iterator) hasNext() bool {
 }
 
 func (bc *Blockchain) head() (*Iterator, error) {
-	head, err := bc.reader.Head()
+	head, err := bc.blockRepository.Head()
 	if err != nil {
 		return nil, err
 	}
 
 	return &Iterator{
-		current: head,
-		reader:  bc.reader,
+		current:         head,
+		blockRepository: bc.blockRepository,
 	}, nil
 }
 

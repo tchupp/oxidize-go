@@ -13,16 +13,16 @@ import (
 	"github.com/tclchiam/block_n_go/encoding"
 )
 
-func TestBlockReader_SaveBlock(t *testing.T) {
+func TestBlockRepository_SaveBlock(t *testing.T) {
 	address := wallet.NewWallet().GetAddress()
 	const testBlockchainName = "test"
 
 	blockEncoder := encoding.NewBlockGobEncoder()
-	reader, err := NewReader(testBlockchainName, blockEncoder)
+	blockRepository, err := NewBlockRepository(testBlockchainName, blockEncoder)
 	if err != nil {
-		t.Fatalf("creating block reader: %s", err)
+		t.Fatalf("creating block repository: %s", err)
 	}
-	defer closeAndDeleteDB(reader.(*blockReader), t)
+	defer closeAndDeleteDB(blockRepository.(*blockBoltRepository), t)
 
 	transactions := []*entity.Transaction{entity.NewCoinbaseTx(address, encoding.NewTransactionGobEncoder())}
 
@@ -39,12 +39,12 @@ func TestBlockReader_SaveBlock(t *testing.T) {
 		Nonce:        38385,
 	}
 
-	err = reader.SaveBlock(blockToSave)
+	err = blockRepository.SaveBlock(blockToSave)
 	if err != nil {
 		t.Fatalf("SaveBlock failed: %s", err)
 	}
 
-	newBlock, err := readLatestBlock(reader.(*blockReader).db, blocksBucketName, blockEncoder)
+	newBlock, err := readLatestBlock(blockRepository.(*blockBoltRepository).db, blocksBucketName, blockEncoder)
 	if err != nil {
 		t.Fatalf("error: %s", err)
 	}

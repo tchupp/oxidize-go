@@ -33,12 +33,12 @@ func TestNewRepository(t *testing.T) {
 	db.Close()
 
 	// Execute
-	reader, err := NewReader(testBlockchainName, encoding.NewBlockGobEncoder())
+	blockRepository, err := NewBlockRepository(testBlockchainName, encoding.NewBlockGobEncoder())
 	if err != nil {
-		t.Fatalf("creating block reader: %s", err)
+		t.Fatalf("creating block repository: %s", err)
 	}
-	defer closeAndDeleteDB(reader.(*blockReader), t)
-	reader.Close()
+	defer closeAndDeleteDB(blockRepository.(*blockBoltRepository), t)
+	blockRepository.Close()
 
 	// Verify execution
 	db, err = openDB(path)
@@ -59,12 +59,12 @@ func TestNewRepository(t *testing.T) {
 	}
 }
 
-func closeAndDeleteDB(reader *blockReader, t *testing.T) {
-	if err := reader.Close(); err != nil {
-		t.Fatalf("closing reader: %s", err)
+func closeAndDeleteDB(repository *blockBoltRepository, t *testing.T) {
+	if err := repository.Close(); err != nil {
+		t.Fatalf("closing repository: %s", err)
 	}
 
-	if err := DeleteBlockchain(reader.name); err != nil {
+	if err := DeleteBlockchain(repository.name); err != nil {
 		t.Fatalf("deleting test db file: %s", err)
 	}
 }

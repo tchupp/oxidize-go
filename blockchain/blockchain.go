@@ -12,12 +12,12 @@ import (
 )
 
 type Blockchain struct {
-	reader storage.BlockReader
+	blockRepository storage.BlockRepository
 	miner  mining.Miner
 }
 
-func Open(reader storage.BlockReader, miner mining.Miner, ownerAddress string) (*Blockchain, error) {
-	exists, err := genesisBlockExists(reader)
+func Open(repository storage.BlockRepository, miner mining.Miner, ownerAddress string) (*Blockchain, error) {
+	exists, err := genesisBlockExists(repository)
 	if err != nil {
 		return nil, err
 	}
@@ -25,17 +25,17 @@ func Open(reader storage.BlockReader, miner mining.Miner, ownerAddress string) (
 	if !exists {
 		blockHeader := entity.NewGenesisBlockHeader(ownerAddress, encoding.NewTransactionGobEncoder())
 		b := miner.MineBlock(blockHeader)
-		err = reader.SaveBlock(b)
+		err = repository.SaveBlock(b)
 	}
 	if err != nil {
 		return nil, err
 	}
 
-	return &Blockchain{reader: reader, miner: miner}, nil
+	return &Blockchain{blockRepository: repository, miner: miner}, nil
 }
 
-func genesisBlockExists(reader storage.BlockReader) (bool, error) {
-	_, err := reader.Head()
+func genesisBlockExists(repository storage.BlockRepository) (bool, error) {
+	_, err := repository.Head()
 	if err == HeadBlockNotFoundError {
 		return false, nil
 	}
@@ -56,7 +56,7 @@ func (bc *Blockchain) Send(sender, receiver, miner *wallet.Wallet, expense uint)
 }
 
 func (bc *Blockchain) mineBlock(transactions []*entity.Transaction) (error) {
-	currentHead, err := bc.reader.Head()
+	currentHead, err := bc.blockRepository.Head()
 	if err != nil {
 		return err
 	}
@@ -72,7 +72,7 @@ func (bc *Blockchain) mineBlock(transactions []*entity.Transaction) (error) {
 
 	newBlockHeader := entity.NewBlockHeader(currentHead.Index+1, currentHead.Hash, transactions)
 	newBlock := bc.miner.MineBlock(newBlockHeader)
-	if err = bc.reader.SaveBlock(newBlock); err != nil {
+	if err = bc.blockRepository.SaveBlock(newBlock); err != nil {
 		return err
 	}
 

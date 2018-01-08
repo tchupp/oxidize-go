@@ -16,13 +16,13 @@ var (
 	blocksBucketName   = []byte("blocks")
 )
 
-type blockReader struct {
+type blockBoltRepository struct {
 	name         string
 	db           *bolt.DB
 	blockEncoder entity.BlockEncoder
 }
 
-func NewReader(name string, blockEncoder entity.BlockEncoder) (storage.BlockReader, error) {
+func NewBlockRepository(name string, blockEncoder entity.BlockEncoder) (storage.BlockRepository, error) {
 	path := fmt.Sprintf(dbFile, name)
 
 	db, err := openDB(path)
@@ -38,7 +38,7 @@ func NewReader(name string, blockEncoder entity.BlockEncoder) (storage.BlockRead
 		return nil, err
 	}
 
-	return &blockReader{name: name, db: db, blockEncoder: blockEncoder}, nil
+	return &blockBoltRepository{name: name, db: db, blockEncoder: blockEncoder}, nil
 
 }
 
@@ -50,7 +50,7 @@ func openDB(dbFile string) (*bolt.DB, error) {
 	return db, err
 }
 
-func (r *blockReader) Close() error {
+func (r *blockBoltRepository) Close() error {
 	return r.db.Close()
 }
 

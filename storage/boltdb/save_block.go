@@ -7,7 +7,7 @@ import (
 	"github.com/tclchiam/block_n_go/blockchain/entity"
 )
 
-func (r *blockReader) SaveBlock(block *entity.Block) error {
+func (r *blockBoltRepository) SaveBlock(block *entity.Block) error {
 	err := r.db.Update(func(tx *bolt.Tx) error {
 		bucket, err := bucket(tx, blocksBucketName)
 		if err != nil {

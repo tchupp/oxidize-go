@@ -5,7 +5,7 @@ import (
 	"github.com/tclchiam/block_n_go/blockchain/entity"
 )
 
-type BlockReader interface {
+type BlockRepository interface {
 	Head() (head *entity.Block, err error)
 
 	Block(hash chainhash.Hash) (*entity.Block, error)

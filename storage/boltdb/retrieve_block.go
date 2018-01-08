@@ -7,7 +7,7 @@ import (
 	"github.com/tclchiam/block_n_go/blockchain/entity"
 )
 
-func (r *blockReader) Head() (head *entity.Block, err error) {
+func (r *blockBoltRepository) Head() (head *entity.Block, err error) {
 	err = r.db.View(func(tx *bolt.Tx) error {
 		bucket, err := bucket(tx, blocksBucketName)
 		if err != nil {
@@ -30,7 +30,7 @@ func (r *blockReader) Head() (head *entity.Block, err error) {
 	return head, err
 }
 
-func (r *blockReader) Block(hash chainhash.Hash) (block *entity.Block, err error) {
+func (r *blockBoltRepository) Block(hash chainhash.Hash) (block *entity.Block, err error) {
 	err = r.db.View(func(tx *bolt.Tx) error {
 		bucket, err := bucket(tx, blocksBucketName)
 		if err != nil {
