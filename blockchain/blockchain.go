@@ -1,11 +1,14 @@
 package blockchain
 
 import (
+	"fmt"
+
 	"github.com/tclchiam/block_n_go/wallet"
 	"github.com/tclchiam/block_n_go/blockchain/entity"
 	"github.com/tclchiam/block_n_go/mining"
 	"github.com/tclchiam/block_n_go/storage"
 	"github.com/tclchiam/block_n_go/encoding"
+	"github.com/tclchiam/block_n_go/blockchain/tx"
 )
 
 type Blockchain struct {
@@ -56,6 +59,15 @@ func (bc *Blockchain) mineBlock(transactions []*entity.Transaction) (error) {
 	currentHead, err := bc.reader.Head()
 	if err != nil {
 		return err
+	}
+
+	for _, transaction := range transactions {
+		for index, input := range transaction.Inputs {
+			verified := tx.VerifySignature(input, transaction.Outputs, encoding.NewTransactionGobEncoder())
+			if !verified {
+				return fmt.Errorf(TransactionInputHasBadSignatureMessage, transaction.ID, index)
+			}
+		}
 	}
 
 	newBlockHeader := entity.NewBlockHeader(currentHead.Index+1, currentHead.Hash, transactions)

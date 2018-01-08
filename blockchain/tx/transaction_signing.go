@@ -5,17 +5,26 @@ import (
 
 	"github.com/tclchiam/block_n_go/crypto"
 	"github.com/tclchiam/block_n_go/blockchain/entity"
-	"github.com/tclchiam/block_n_go/encoding"
 )
 
-func GenerateSignature(input *entity.UnsignedInput, outputs []*entity.Output, privateKey *crypto.PrivateKey) *crypto.Signature {
-	signatureData := serializeSignatureData(input, outputs, encoding.NewTransactionGobEncoder())
+func GenerateSignature(input *entity.UnsignedInput, outputs []*entity.Output, privateKey *crypto.PrivateKey, encoder entity.TransactionEncoder) *crypto.Signature {
+	signatureData := serializeSignatureData(input, outputs, encoder)
 	signature, err := privateKey.Sign(signatureData)
 	if err != nil {
 		log.Panic(err)
 	}
 
 	return signature
+}
+
+func VerifySignature(input *entity.SignedInput, outputs []*entity.Output, encoder entity.TransactionEncoder) (verified bool) {
+	unsignedInput := &entity.UnsignedInput{
+		PublicKey:       input.PublicKey,
+		OutputReference: input.OutputReference,
+	}
+	signatureData := serializeSignatureData(unsignedInput, outputs, encoder)
+
+	return input.PublicKey.Verify(signatureData, input.Signature)
 }
 
 func serializeSignatureData(input *entity.UnsignedInput, outputs []*entity.Output, encoder entity.TransactionEncoder) []byte {

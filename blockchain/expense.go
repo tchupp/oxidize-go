@@ -56,7 +56,7 @@ func (bc *Blockchain) buildExpenseTransaction(sender, receiver *wallet.Wallet, e
 
 func signInputs(outputs []*entity.Output, privateKey *crypto.PrivateKey) func(res interface{}, input *entity.UnsignedInput) interface{} {
 	return func(res interface{}, input *entity.UnsignedInput) interface{} {
-		signature := tx.GenerateSignature(input, outputs, privateKey)
+		signature := tx.GenerateSignature(input, outputs, privateKey, encoding.NewTransactionGobEncoder())
 		return append(res.([]*entity.SignedInput), entity.NewSignedInput(input, signature))
 	}
 }

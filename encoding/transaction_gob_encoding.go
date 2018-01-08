@@ -9,8 +9,10 @@ import (
 
 type transactionGobEncoder struct{}
 
+var transactionGobEncoderInstance transactionGobEncoder
+
 func NewTransactionGobEncoder() entity.TransactionEncoder {
-	return &transactionGobEncoder{}
+	return &transactionGobEncoderInstance
 }
 
 func (*transactionGobEncoder) EncodeTransaction(transaction *entity.Transaction) ([]byte, error) {

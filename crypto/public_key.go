@@ -16,6 +16,10 @@ func (p *PublicKey) IsEqual(otherPubKey *PublicKey) bool {
 	return p.X.Cmp(otherPubKey.X) == 0 && p.Y.Cmp(otherPubKey.Y) == 0
 }
 
+func (p *PublicKey) Verify(hash []byte, signature *Signature) bool {
+	return ecdsa.Verify(p.ToECDSA(), hash, signature.R, signature.S)
+}
+
 func (p *PublicKey) Serialize() []byte {
 	return append(p.X.Bytes(), p.Y.Bytes()...)
 }

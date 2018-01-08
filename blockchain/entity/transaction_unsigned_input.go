@@ -1,9 +1,6 @@
 package entity
 
 import (
-	"bytes"
-
-	"github.com/tclchiam/block_n_go/wallet"
 	"github.com/tclchiam/block_n_go/crypto"
 	"fmt"
 	"strings"
@@ -30,17 +27,6 @@ func (input *UnsignedInput) String() string {
 	lines = append(lines, fmt.Sprintf("       OutputIndex:   %d", input.OutputReference.Output.Index))
 	lines = append(lines, fmt.Sprintf("       PublicKey:     %x", input.PublicKey))
 	return strings.Join(lines, "\n")
-}
-
-func (input *UnsignedInput) SpentBy(address string) bool {
-	publicKeyHash, err := wallet.AddressToPublicKeyHash(address)
-	if err != nil {
-		return false
-	}
-
-	lockingHash := wallet.HashPubKey(input.PublicKey)
-
-	return bytes.Compare(lockingHash, publicKeyHash) == 0
 }
 
 type UnsignedInputs <-chan *UnsignedInput

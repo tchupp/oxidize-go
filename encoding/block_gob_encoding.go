@@ -9,8 +9,10 @@ import (
 
 type blockGobEncoder struct{}
 
+var blockGobEncoderInstance blockGobEncoder
+
 func NewBlockGobEncoder() entity.BlockEncoder {
-	return &blockGobEncoder{}
+	return &blockGobEncoderInstance
 }
 
 func (*blockGobEncoder) EncodeBlock(block *entity.Block) ([]byte, error) {
