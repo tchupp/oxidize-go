@@ -7,7 +7,7 @@ import (
 )
 
 func (bc *Blockchain) ReadBalance(address string) (uint, error) {
-	unspentOutputs, err := bc.findUnspentOutputs(address)
+	unspentOutputs, err := findUnspentOutputs(address, bc)
 	if err != nil {
 		return 0, err
 	}
@@ -16,14 +16,14 @@ func (bc *Blockchain) ReadBalance(address string) (uint, error) {
 	return balance, nil
 }
 
-func (bc *Blockchain) findUnspentOutputs(address string) (*tx.TransactionOutputSet, error) {
+func findUnspentOutputs(address string, bc *Blockchain) (*tx.TransactionOutputSet, error) {
 	spentOutputs := make(map[string][]*entity.Output)
 	outputsForAddress := tx.NewTransactionSet()
 
 	err := bc.ForEachBlock(func(block *entity.Block) {
 		for _, transaction := range block.Transactions {
-			mergo.Map(&spentOutputs, FindSpentOutputs(transaction, address))
-			outputsForAddress = outputsForAddress.Plus(FindOutputsForAddress(transaction, address))
+			mergo.Map(&spentOutputs, findSpentOutputs(transaction, address))
+			outputsForAddress = outputsForAddress.Plus(findOutputsForAddress(transaction, address))
 		}
 	})
 
@@ -49,7 +49,7 @@ func calculateBalance(unspentOutputs *tx.TransactionOutputSet) uint {
 	return unspentOutputs.Reduce(uint(0), sumBalance).(uint)
 }
 
-func FindOutputsForAddress(transaction *entity.Transaction, address string) *tx.TransactionOutputSet {
+func findOutputsForAddress(transaction *entity.Transaction, address string) *tx.TransactionOutputSet {
 	addToTxSet := func(res interface{}, output *entity.Output) interface{} {
 		return res.(*tx.TransactionOutputSet).Add(transaction, output)
 	}
@@ -66,7 +66,7 @@ func FindOutputsForAddress(transaction *entity.Transaction, address string) *tx.
 		Reduce(tx.NewTransactionSet(), addToTxSet).(*tx.TransactionOutputSet)
 }
 
-func FindSpentOutputs(transaction *entity.Transaction, address string) map[string][]*entity.Output {
+func findSpentOutputs(transaction *entity.Transaction, address string) map[string][]*entity.Output {
 	spent := make(map[string][]*entity.Output)
 	if transaction.IsCoinbase() {
 		return spent

@@ -4,16 +4,16 @@ import (
 	"fmt"
 
 	"github.com/tclchiam/block_n_go/blockchain/entity"
-	"github.com/tclchiam/block_n_go/blockchain/tx"
 	"github.com/tclchiam/block_n_go/crypto"
 	"github.com/tclchiam/block_n_go/wallet"
 	"github.com/tclchiam/block_n_go/encoding"
+	"github.com/tclchiam/block_n_go/blockchain/engine"
 )
 
 func (bc *Blockchain) buildExpenseTransaction(sender, receiver *wallet.Wallet, expense uint) (*entity.Transaction, error) {
 	senderAddress := sender.GetAddress()
 
-	unspentOutputs, err := bc.findUnspentOutputs(senderAddress)
+	unspentOutputs, err := findUnspentOutputs(senderAddress, bc)
 	if err != nil {
 		return nil, err
 	}
@@ -56,7 +56,7 @@ func (bc *Blockchain) buildExpenseTransaction(sender, receiver *wallet.Wallet, e
 
 func signInputs(outputs []*entity.Output, privateKey *crypto.PrivateKey) func(res interface{}, input *entity.UnsignedInput) interface{} {
 	return func(res interface{}, input *entity.UnsignedInput) interface{} {
-		signature := tx.GenerateSignature(input, outputs, privateKey, encoding.NewTransactionGobEncoder())
+		signature := engine.GenerateSignature(input, outputs, privateKey, encoding.NewTransactionGobEncoder())
 		return append(res.([]*entity.SignedInput), entity.NewSignedInput(input, signature))
 	}
 }

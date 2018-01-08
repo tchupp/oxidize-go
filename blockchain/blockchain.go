@@ -8,7 +8,7 @@ import (
 	"github.com/tclchiam/block_n_go/mining"
 	"github.com/tclchiam/block_n_go/storage"
 	"github.com/tclchiam/block_n_go/encoding"
-	"github.com/tclchiam/block_n_go/blockchain/tx"
+	"github.com/tclchiam/block_n_go/blockchain/engine"
 )
 
 type Blockchain struct {
@@ -63,7 +63,7 @@ func (bc *Blockchain) mineBlock(transactions []*entity.Transaction) (error) {
 
 	for _, transaction := range transactions {
 		for index, input := range transaction.Inputs {
-			verified := tx.VerifySignature(input, transaction.Outputs, encoding.NewTransactionGobEncoder())
+			verified := engine.VerifySignature(input, transaction.Outputs, encoding.NewTransactionGobEncoder())
 			if !verified {
 				return fmt.Errorf(TransactionInputHasBadSignatureMessage, transaction.ID, index)
 			}

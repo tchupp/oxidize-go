@@ -1,4 +1,4 @@
-package tx_test
+package engine
 
 import (
 	"testing"
@@ -8,7 +8,6 @@ import (
 	"github.com/tclchiam/block_n_go/blockchain/entity"
 	"github.com/tclchiam/block_n_go/wallet"
 	"github.com/tclchiam/block_n_go/encoding"
-	"github.com/tclchiam/block_n_go/blockchain/tx"
 )
 
 func buildTransactionId(newId string) entity.TransactionId {
@@ -19,7 +18,7 @@ func buildTransactionId(newId string) entity.TransactionId {
 	return id
 }
 
-func serializeSignatureData(input *entity.UnsignedInput, outputs []*entity.Output, encoder entity.TransactionEncoder) ([]byte, error) {
+func serializeSignatureTestData(input *entity.UnsignedInput, outputs []*entity.Output, encoder entity.TransactionEncoder) ([]byte, error) {
 	var data []byte
 
 	bytes, err := encoder.EncodeUnsignedInput(input)
@@ -78,17 +77,17 @@ func TestGenerateInputSignature(t *testing.T) {
 		const testVerifyFailedStr = "GenerateSignature #%d %s was a bad signature"
 		const realVerifyResultMismatchStr = "VerifySignature #%d did not agree with test, got: %s, expected: %s"
 
-		signatureData, err := serializeSignatureData(testParams.input, testParams.outputs, encoding.NewTransactionGobEncoder())
+		signatureData, err := serializeSignatureTestData(testParams.input, testParams.outputs, encoding.NewTransactionGobEncoder())
 		if err != nil {
 			t.Error(err)
 			continue
 		}
 
-		signature := tx.GenerateSignature(testParams.input, testParams.outputs, identity.PrivateKey, encoding.NewTransactionGobEncoder())
+		signature := GenerateSignature(testParams.input, testParams.outputs, identity.PrivateKey, encoding.NewTransactionGobEncoder())
 
 		signedInput := entity.NewSignedInput(testParams.input, signature)
 		testVerifyResult := identity.PublicKey.Verify(signatureData, signature)
-		actualVerifyResult := tx.VerifySignature(signedInput, testParams.outputs, encoding.NewTransactionGobEncoder())
+		actualVerifyResult := VerifySignature(signedInput, testParams.outputs, encoding.NewTransactionGobEncoder())
 
 		if !testVerifyResult {
 			t.Errorf(testVerifyFailedStr, index, signature)
