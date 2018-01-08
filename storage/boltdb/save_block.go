@@ -14,7 +14,7 @@ func (r *blockReader) SaveBlock(block *entity.Block) error {
 			return err
 		}
 
-		err = writeBlock(bucket, block)
+		err = writeBlock(bucket, block, r.blockEncoder)
 		if err != nil {
 			return err
 		}
@@ -25,8 +25,8 @@ func (r *blockReader) SaveBlock(block *entity.Block) error {
 	return err
 }
 
-func writeBlock(bucket *bolt.Bucket, block *entity.Block) error {
-	blockData, err := SerializeBlock(block)
+func writeBlock(bucket *bolt.Bucket, block *entity.Block, encoder entity.BlockEncoder) error {
+	blockData, err := encoder.EncodeBlock(block)
 	if err != nil {
 		return err
 	}

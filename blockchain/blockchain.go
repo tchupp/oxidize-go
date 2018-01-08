@@ -5,6 +5,7 @@ import (
 	"github.com/tclchiam/block_n_go/blockchain/entity"
 	"github.com/tclchiam/block_n_go/mining"
 	"github.com/tclchiam/block_n_go/storage"
+	"github.com/tclchiam/block_n_go/encoding"
 )
 
 type Blockchain struct {
@@ -19,7 +20,7 @@ func Open(reader storage.BlockReader, miner mining.Miner, ownerAddress string) (
 	}
 
 	if !exists {
-		blockHeader := entity.NewGenesisBlockHeader(ownerAddress)
+		blockHeader := entity.NewGenesisBlockHeader(ownerAddress, encoding.NewTransactionGobEncoder())
 		b := miner.MineBlock(blockHeader)
 		err = reader.SaveBlock(b)
 	}
@@ -46,7 +47,7 @@ func (bc *Blockchain) Send(sender, receiver, miner *wallet.Wallet, expense uint)
 	if err != nil {
 		return err
 	}
-	rewardTransaction := entity.NewCoinbaseTx(miner.GetAddress())
+	rewardTransaction := entity.NewCoinbaseTx(miner.GetAddress(), encoding.NewTransactionGobEncoder())
 
 	return bc.mineBlock([]*entity.Transaction{expenseTransaction, rewardTransaction})
 }

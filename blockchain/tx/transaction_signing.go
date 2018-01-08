@@ -1,16 +1,15 @@
 package tx
 
 import (
-	"bytes"
-	"encoding/gob"
 	"log"
 
 	"github.com/tclchiam/block_n_go/crypto"
 	"github.com/tclchiam/block_n_go/blockchain/entity"
+	"github.com/tclchiam/block_n_go/encoding"
 )
 
 func GenerateSignature(input *entity.UnsignedInput, outputs []*entity.Output, privateKey *crypto.PrivateKey) *crypto.Signature {
-	signatureData := serializeSignatureData(input, outputs)
+	signatureData := serializeSignatureData(input, outputs, encoding.NewTransactionGobEncoder())
 	signature, err := privateKey.Sign(signatureData)
 	if err != nil {
 		log.Panic(err)
@@ -19,18 +18,22 @@ func GenerateSignature(input *entity.UnsignedInput, outputs []*entity.Output, pr
 	return signature
 }
 
-func serializeSignatureData(input *entity.UnsignedInput, outputs []*entity.Output) []byte {
-	data := struct {
-		Input   *entity.UnsignedInput
-		Outputs []*entity.Output
-	}{Input: input, Outputs: outputs}
+func serializeSignatureData(input *entity.UnsignedInput, outputs []*entity.Output, encoder entity.TransactionEncoder) []byte {
+	var data []byte
 
-	var encoded bytes.Buffer
-	encoder := gob.NewEncoder(&encoded)
-	err := encoder.Encode(data)
+	bytes, err := encoder.EncodeUnsignedInput(input)
 	if err != nil {
 		log.Panic(err)
 	}
 
-	return encoded.Bytes()
+	data = append(data, bytes...)
+	for _, output := range outputs {
+		bytes, err := encoder.EncodeOutput(output)
+		if err != nil {
+			log.Panic(err)
+		}
+		data = append(data, bytes...)
+	}
+
+	return data
 }

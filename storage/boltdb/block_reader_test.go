@@ -5,6 +5,7 @@ import (
 	"fmt"
 
 	"github.com/boltdb/bolt"
+	"github.com/tclchiam/block_n_go/encoding"
 )
 
 func TestNewRepository(t *testing.T) {
@@ -32,7 +33,7 @@ func TestNewRepository(t *testing.T) {
 	db.Close()
 
 	// Execute
-	reader, err := NewReader(testBlockchainName)
+	reader, err := NewReader(testBlockchainName, encoding.NewBlockGobEncoder())
 	if err != nil {
 		t.Fatalf("creating block reader: %s", err)
 	}

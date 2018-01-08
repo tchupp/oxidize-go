@@ -15,8 +15,8 @@ type BlockHeader struct {
 	Transactions []*Transaction
 }
 
-func NewGenesisBlockHeader(address string) *BlockHeader {
-	transaction := NewGenesisCoinbaseTx(address)
+func NewGenesisBlockHeader(address string, encoder TransactionEncoder) *BlockHeader {
+	transaction := NewGenesisCoinbaseTx(address, encoder)
 
 	return NewBlockHeader(0, chainhash.EmptyHash, []*Transaction{transaction})
 }

@@ -7,6 +7,7 @@ import (
 	"github.com/tclchiam/block_n_go/blockchain/tx"
 	"github.com/tclchiam/block_n_go/crypto"
 	"github.com/tclchiam/block_n_go/wallet"
+	"github.com/tclchiam/block_n_go/encoding"
 )
 
 func (bc *Blockchain) buildExpenseTransaction(sender, receiver *wallet.Wallet, expense uint) (*entity.Transaction, error) {
@@ -50,7 +51,7 @@ func (bc *Blockchain) buildExpenseTransaction(sender, receiver *wallet.Wallet, e
 	finalizedOutputs := outputs.Reduce(make([]*entity.Output, 0), collectOutputs).([]*entity.Output)
 	signedInputs := inputs.Reduce(make([]*entity.SignedInput, 0), signInputs(finalizedOutputs, sender.PrivateKey)).([]*entity.SignedInput)
 
-	return entity.NewTx(signedInputs, finalizedOutputs), nil
+	return entity.NewTx(signedInputs, finalizedOutputs, encoding.NewTransactionGobEncoder()), nil
 }
 
 func signInputs(outputs []*entity.Output, privateKey *crypto.PrivateKey) func(res interface{}, input *entity.UnsignedInput) interface{} {

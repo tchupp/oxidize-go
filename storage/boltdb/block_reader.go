@@ -6,6 +6,7 @@ import (
 
 	"github.com/boltdb/bolt"
 	"github.com/tclchiam/block_n_go/storage"
+	"github.com/tclchiam/block_n_go/blockchain/entity"
 )
 
 const dbFile = "blockchain_%s.db"
@@ -16,13 +17,12 @@ var (
 )
 
 type blockReader struct {
-	// Filename to the BoltDB database
-	name string
-
-	db *bolt.DB
+	name         string
+	db           *bolt.DB
+	blockEncoder entity.BlockEncoder
 }
 
-func NewReader(name string) (storage.BlockReader, error) {
+func NewReader(name string, blockEncoder entity.BlockEncoder) (storage.BlockReader, error) {
 	path := fmt.Sprintf(dbFile, name)
 
 	db, err := openDB(path)
@@ -38,7 +38,7 @@ func NewReader(name string) (storage.BlockReader, error) {
 		return nil, err
 	}
 
-	return &blockReader{name: name, db: db}, nil
+	return &blockReader{name: name, db: db, blockEncoder: blockEncoder}, nil
 
 }
 

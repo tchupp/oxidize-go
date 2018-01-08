@@ -10,19 +10,21 @@ import (
 	"github.com/tclchiam/block_n_go/wallet"
 	"github.com/tclchiam/block_n_go/blockchain/chainhash"
 	"github.com/tclchiam/block_n_go/blockchain/entity"
+	"github.com/tclchiam/block_n_go/encoding"
 )
 
-func TestBlockchainRepository_SaveBlock(t *testing.T) {
+func TestBlockReader_SaveBlock(t *testing.T) {
 	address := wallet.NewWallet().GetAddress()
 	const testBlockchainName = "test"
 
-	reader, err := NewReader(testBlockchainName)
+	blockEncoder := encoding.NewBlockGobEncoder()
+	reader, err := NewReader(testBlockchainName, blockEncoder)
 	if err != nil {
 		t.Fatalf("creating block reader: %s", err)
 	}
 	defer closeAndDeleteDB(reader.(*blockReader), t)
 
-	transactions := []*entity.Transaction{entity.NewCoinbaseTx(address)}
+	transactions := []*entity.Transaction{entity.NewCoinbaseTx(address, encoding.NewTransactionGobEncoder())}
 
 	const previousIndex = 5
 	previousHash, _ := chainhash.NewHashFromStr("0000f65fe866ab6f810b13a5d864f96cb16ad22e2e931b861f80d870f2e32df7")
@@ -42,7 +44,7 @@ func TestBlockchainRepository_SaveBlock(t *testing.T) {
 		t.Fatalf("SaveBlock failed: %s", err)
 	}
 
-	newBlock, err := readLatestBlock(reader.(*blockReader).db, blocksBucketName)
+	newBlock, err := readLatestBlock(reader.(*blockReader).db, blocksBucketName, blockEncoder)
 	if err != nil {
 		t.Fatalf("error: %s", err)
 	}
@@ -61,7 +63,7 @@ func TestBlockchainRepository_SaveBlock(t *testing.T) {
 	}
 }
 
-func readLatestBlock(db *bolt.DB, bucketName []byte) (latestBlock *entity.Block, err error) {
+func readLatestBlock(db *bolt.DB, bucketName []byte, encoder entity.BlockEncoder) (latestBlock *entity.Block, err error) {
 	err = db.View(func(tx *bolt.Tx) error {
 		bucket := tx.Bucket(bucketName)
 		if bucket == nil {
@@ -78,7 +80,7 @@ func readLatestBlock(db *bolt.DB, bucketName []byte) (latestBlock *entity.Block,
 			return fmt.Errorf("latest block data is empty: '%s'", latestBlockData)
 		}
 
-		latestBlock, err = DeserializeBlock(latestBlockData)
+		latestBlock, err = encoder.DecodeBlock(latestBlockData)
 		if err != nil {
 			return err
 		}

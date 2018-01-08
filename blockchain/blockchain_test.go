@@ -9,6 +9,7 @@ import (
 	"github.com/tclchiam/block_n_go/blockchain"
 	"github.com/tclchiam/block_n_go/wallet"
 	"github.com/tclchiam/block_n_go/mining/proofofwork"
+	"github.com/tclchiam/block_n_go/encoding"
 )
 
 func TestBlockchain_Workflow(t *testing.T) {
@@ -133,7 +134,7 @@ func verifyBalance(t *testing.T, bc *blockchain.Blockchain, wallet *wallet.Walle
 }
 
 func setupBlockchain(t *testing.T, name string, owner *wallet.Wallet) *blockchain.Blockchain {
-	reader, err := boltdb.NewReader(name)
+	reader, err := boltdb.NewReader(name, encoding.NewBlockGobEncoder())
 	if err != nil {
 		t.Fatalf("failed to create block reader: %s", err)
 	}

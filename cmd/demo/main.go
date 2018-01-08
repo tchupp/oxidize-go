@@ -9,6 +9,7 @@ import (
 	"github.com/tclchiam/block_n_go/mining/proofofwork"
 	"github.com/tclchiam/block_n_go/storage/boltdb"
 	"github.com/tclchiam/block_n_go/wallet"
+	"github.com/tclchiam/block_n_go/encoding"
 )
 
 func main() {
@@ -18,7 +19,7 @@ func main() {
 
 	fmt.Printf("Owner: '%s', receiver: '%s'\n\n", owner.GetAddress(), receiver.GetAddress())
 
-	reader, err := boltdb.NewReader(blockchainName)
+	reader, err := boltdb.NewReader(blockchainName, encoding.NewBlockGobEncoder())
 	if err != nil {
 		log.Panic(err)
 	}
