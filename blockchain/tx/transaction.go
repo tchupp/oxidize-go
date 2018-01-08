@@ -1,16 +1,21 @@
 package tx
 
 import (
-	"crypto/ecdsa"
+	"crypto/rand"
+	"fmt"
+	"strconv"
+	"strings"
 )
 
 const subsidy = 10
+const secretLength = 32
 
 type (
 	Transaction struct {
 		ID        TransactionId
 		TxInputs  []*SignedInput
 		TxOutputs []*Output
+		Secret    []byte
 	}
 
 	OutputReference struct {
@@ -23,6 +28,23 @@ func (tx *Transaction) IsCoinbase() bool {
 	return len(tx.TxInputs) == 0
 }
 
+func (tx *Transaction) String() string {
+	var lines []string
+
+	lines = append(lines, fmt.Sprintf("--- Transaction %s:", tx.ID))
+	lines = append(lines, fmt.Sprintf("     Is Coinbase: %s", strconv.FormatBool(tx.IsCoinbase())))
+
+	for _, input := range tx.TxInputs {
+		lines = append(lines, input.String())
+	}
+
+	for _, output := range tx.TxOutputs {
+		lines = append(lines, output.String())
+	}
+
+	return strings.Join(lines, "\n")
+}
+
 func NewGenesisCoinbaseTx(ownerAddress string) *Transaction {
 	return NewCoinbaseTx(ownerAddress)
 }
@@ -31,66 +53,22 @@ func NewCoinbaseTx(minerAddress string) *Transaction {
 	var inputs []*SignedInput
 	outputs := []*Output{NewOutput(subsidy, minerAddress)}
 
-	return newTx(inputs, outputs)
+	return NewTx(inputs, outputs)
 }
 
-func collectOutputs(res interface{}, output *Output) interface{} {
-	outputs := res.([]*Output)
-	output.Index = uint(len(outputs))
-	return append(outputs, output)
-}
+func NewTx(inputs []*SignedInput, outputs []*Output) *Transaction {
+	secret := generateSecret()
 
-func NewTx(inputs *UnsignedInputs, outputs *Outputs, privateKey ecdsa.PrivateKey) *Transaction {
-	finalizedOutputs := outputs.Reduce(make([]*Output, 0), collectOutputs).([]*Output)
-
-	signInputs := func(res interface{}, input *UnsignedInput) interface{} {
-		signedInput := generateSignedInput(input, finalizedOutputs, privateKey)
-		return append(res.([]*SignedInput), signedInput)
-	}
-	signedInputs := inputs.Reduce(make([]*SignedInput, 0), signInputs).([]*SignedInput)
-
-	return newTx(signedInputs, finalizedOutputs)
-}
-
-func newTx(inputs []*SignedInput, outputs []*Output) *Transaction {
 	return &Transaction{
-		ID:        calculateTransactionId(inputs, outputs),
+		ID:        calculateTransactionId(inputs, outputs, secret),
 		TxInputs:  inputs,
 		TxOutputs: outputs,
+		Secret:    secret,
 	}
 }
 
-func (tx *Transaction) FindOutputsForAddress(address string) *TransactionOutputSet {
-	addToTxSet := func(res interface{}, output *Output) interface{} {
-		return res.(*TransactionOutputSet).Add(tx, output)
-	}
-
-	outputs := NewTransactionSet()
-	for _, output := range tx.TxOutputs {
-		if output.IsLockedWithKey(address) {
-			outputs = outputs.Add(tx, output)
-		}
-	}
-
-	return tx.Outputs().
-		Filter(func(output *Output) bool { return output.IsLockedWithKey(address) }).
-		Reduce(NewTransactionSet(), addToTxSet).(*TransactionOutputSet)
-}
-
-func (tx *Transaction) FindSpentOutputs(address string) map[string][]*Output {
-	spent := make(map[string][]*Output)
-	if tx.IsCoinbase() {
-		return spent
-	}
-
-	addToUnspent := func(res interface{}, input *SignedInput) interface{} {
-		transactionId := input.OutputReference.ID.String()
-		res.(map[string][]*Output)[transactionId] = append(res.(map[string][]*Output)[transactionId], input.OutputReference.Output)
-
-		return res
-	}
-
-	return tx.Inputs().
-		Filter(func(input *SignedInput) bool { return input.SpentBy(address) }).
-		Reduce(spent, addToUnspent).(map[string][]*Output)
+func generateSecret() []byte {
+	secret := make([]byte, secretLength)
+	rand.Read(secret)
+	return secret
 }

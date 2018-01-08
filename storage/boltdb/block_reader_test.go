@@ -3,8 +3,8 @@ package boltdb
 import (
 	"testing"
 	"fmt"
+
 	"github.com/boltdb/bolt"
-	"github.com/tclchiam/block_n_go/storage"
 )
 
 func TestNewRepository(t *testing.T) {

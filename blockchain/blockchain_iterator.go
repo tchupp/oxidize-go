@@ -1,12 +1,12 @@
 package blockchain
 
 import (
-	"github.com/tclchiam/block_n_go/blockchain/block"
+	"github.com/tclchiam/block_n_go/blockchain/entity"
 	"github.com/tclchiam/block_n_go/storage"
 )
 
 type Iterator struct {
-	current *block.Block
+	current *entity.Block
 	reader  storage.BlockReader
 }
 
@@ -35,7 +35,7 @@ func (bc *Blockchain) head() (*Iterator, error) {
 	}, nil
 }
 
-func (bc *Blockchain) ForEachBlock(consume func(*block.Block)) (err error) {
+func (bc *Blockchain) ForEachBlock(consume func(*entity.Block)) (err error) {
 	b, err := bc.head()
 	if err != nil {
 		return err

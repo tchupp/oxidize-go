@@ -4,10 +4,10 @@ import (
 	"github.com/boltdb/bolt"
 	"github.com/tclchiam/block_n_go/blockchain"
 	"github.com/tclchiam/block_n_go/blockchain/chainhash"
-	"github.com/tclchiam/block_n_go/blockchain/block"
+	"github.com/tclchiam/block_n_go/blockchain/entity"
 )
 
-func (r *blockReader) Head() (head *block.Block, err error) {
+func (r *blockReader) Head() (head *entity.Block, err error) {
 	err = r.db.View(func(tx *bolt.Tx) error {
 		bucket, err := bucket(tx, blocksBucketName)
 		if err != nil {
@@ -30,7 +30,7 @@ func (r *blockReader) Head() (head *block.Block, err error) {
 	return head, err
 }
 
-func (r *blockReader) Block(hash chainhash.Hash) (block *block.Block, err error) {
+func (r *blockReader) Block(hash chainhash.Hash) (block *entity.Block, err error) {
 	err = r.db.View(func(tx *bolt.Tx) error {
 		bucket, err := bucket(tx, blocksBucketName)
 		if err != nil {
@@ -52,7 +52,7 @@ func readLatestHash(bucket *bolt.Bucket) []byte {
 	return bucket.Get(latestBlockHashKey)
 }
 
-func readBlock(bucket *bolt.Bucket, hash []byte) (*block.Block, error) {
+func readBlock(bucket *bolt.Bucket, hash []byte) (*entity.Block, error) {
 	latestBlockData := bucket.Get(hash)
 	if latestBlockData == nil || len(latestBlockData) == 0 {
 		return nil, blockchain.BlockDataEmptyError

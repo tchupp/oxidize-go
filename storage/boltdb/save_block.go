@@ -4,10 +4,10 @@ import (
 	"fmt"
 
 	"github.com/boltdb/bolt"
-	"github.com/tclchiam/block_n_go/blockchain/block"
+	"github.com/tclchiam/block_n_go/blockchain/entity"
 )
 
-func (r *blockReader) SaveBlock(block *block.Block) error {
+func (r *blockReader) SaveBlock(block *entity.Block) error {
 	err := r.db.Update(func(tx *bolt.Tx) error {
 		bucket, err := bucket(tx, blocksBucketName)
 		if err != nil {
@@ -25,7 +25,7 @@ func (r *blockReader) SaveBlock(block *block.Block) error {
 	return err
 }
 
-func writeBlock(bucket *bolt.Bucket, block *block.Block) error {
+func writeBlock(bucket *bolt.Bucket, block *entity.Block) error {
 	blockData, err := SerializeBlock(block)
 	if err != nil {
 		return err

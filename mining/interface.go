@@ -1,7 +1,7 @@
 package mining
 
-import "github.com/tclchiam/block_n_go/blockchain/block"
+import "github.com/tclchiam/block_n_go/blockchain/entity"
 
 type Miner interface {
-	MineBlock(header *block.Header) *block.Block
+	MineBlock(header *entity.BlockHeader) *entity.Block
 }

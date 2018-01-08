@@ -1,9 +1,8 @@
-package block
+package entity
 
 import (
 	"bytes"
 	"fmt"
-	"strconv"
 	"strings"
 
 	"github.com/tclchiam/block_n_go/blockchain/chainhash"
@@ -19,7 +18,7 @@ type Block struct {
 	Nonce        int
 }
 
-func NewBlock(header *Header, solution *Solution) *Block {
+func NewBlock(header *BlockHeader, solution *BlockSolution) *Block {
 	return &Block{
 		Index:        header.Index,
 		PreviousHash: header.PreviousHash,
@@ -39,7 +38,6 @@ func (block *Block) String() string {
 	lines = append(lines, fmt.Sprintf("PreviousHash: %x", block.PreviousHash.Slice()))
 	lines = append(lines, fmt.Sprintf("Nonce: %d", block.Nonce))
 	lines = append(lines, fmt.Sprintf("Timestamp: %d", block.Timestamp))
-	lines = append(lines, fmt.Sprintf("Is valid: %s", strconv.FormatBool(Valid(block))))
 	lines = append(lines, fmt.Sprintf("Transactions:"))
 	block.ForEachTransaction(func(transaction *tx.Transaction) {
 		lines = append(lines, transaction.String())
@@ -48,8 +46,8 @@ func (block *Block) String() string {
 	return strings.Join(lines, "\n")
 }
 
-func (block *Block) Header() *Header {
-	return &Header{
+func (block *Block) Header() *BlockHeader {
+	return &BlockHeader{
 		Transactions: block.Transactions,
 		Index:        block.Index,
 		PreviousHash: block.PreviousHash,

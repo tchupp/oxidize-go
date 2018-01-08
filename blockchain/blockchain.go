@@ -3,7 +3,7 @@ package blockchain
 import (
 	"github.com/tclchiam/block_n_go/blockchain/tx"
 	"github.com/tclchiam/block_n_go/wallet"
-	"github.com/tclchiam/block_n_go/blockchain/block"
+	"github.com/tclchiam/block_n_go/blockchain/entity"
 	"github.com/tclchiam/block_n_go/mining"
 	"github.com/tclchiam/block_n_go/storage"
 )
@@ -20,7 +20,7 @@ func Open(reader storage.BlockReader, miner mining.Miner, ownerAddress string) (
 	}
 
 	if !exists {
-		blockHeader := block.NewGenesisBlockHeader(ownerAddress)
+		blockHeader := entity.NewGenesisBlockHeader(ownerAddress)
 		b := miner.MineBlock(blockHeader)
 		err = reader.SaveBlock(b)
 	}
@@ -58,7 +58,7 @@ func (bc *Blockchain) mineBlock(transactions []*tx.Transaction) (error) {
 		return err
 	}
 
-	newBlockHeader := block.NewBlockHeader(currentHead.Index+1, currentHead.Hash, transactions)
+	newBlockHeader := entity.NewBlockHeader(currentHead.Index+1, currentHead.Hash, transactions)
 	newBlock := bc.miner.MineBlock(newBlockHeader)
 	if err = bc.reader.SaveBlock(newBlock); err != nil {
 		return err

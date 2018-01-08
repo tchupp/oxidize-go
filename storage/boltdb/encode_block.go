@@ -5,10 +5,10 @@ import (
 	"encoding/gob"
 	"fmt"
 
-	"github.com/tclchiam/block_n_go/blockchain/block"
+	"github.com/tclchiam/block_n_go/blockchain/entity"
 )
 
-func SerializeBlock(block *block.Block) ([]byte, error) {
+func SerializeBlock(block *entity.Block) ([]byte, error) {
 	var result bytes.Buffer
 	encoder := gob.NewEncoder(&result)
 
@@ -20,14 +20,14 @@ func SerializeBlock(block *block.Block) ([]byte, error) {
 	return result.Bytes(), nil
 }
 
-func DeserializeBlock(data []byte) (*block.Block, error) {
-	var b block.Block
+func DeserializeBlock(data []byte) (*entity.Block, error) {
+	var block entity.Block
 
 	decoder := gob.NewDecoder(bytes.NewReader(data))
-	err := decoder.Decode(&b)
+	err := decoder.Decode(&block)
 	if err != nil {
 		return nil, fmt.Errorf("deserializing block '%s': %s", data, err)
 	}
 
-	return &b, nil
+	return &block, nil
 }

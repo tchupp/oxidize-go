@@ -5,7 +5,7 @@ import (
 	"log"
 
 	"github.com/tclchiam/block_n_go/blockchain"
-	"github.com/tclchiam/block_n_go/blockchain/block"
+	"github.com/tclchiam/block_n_go/blockchain/entity"
 	"github.com/tclchiam/block_n_go/mining/proofofwork"
 	"github.com/tclchiam/block_n_go/storage/boltdb"
 	"github.com/tclchiam/block_n_go/wallet"
@@ -39,7 +39,7 @@ func main() {
 		log.Panic(err)
 	}
 
-	err = bc.ForEachBlock(func(block *block.Block) {
+	err = bc.ForEachBlock(func(block *entity.Block) {
 		fmt.Println(block)
 	})
 	if err != nil {

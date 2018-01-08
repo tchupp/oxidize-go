@@ -6,7 +6,7 @@ import (
 	"github.com/tclchiam/block_n_go/blockchain/tx"
 	"github.com/tclchiam/block_n_go/blockchain/chainhash"
 	"github.com/tclchiam/block_n_go/mining/proofofwork"
-	"github.com/tclchiam/block_n_go/blockchain/block"
+	"github.com/tclchiam/block_n_go/blockchain/entity"
 )
 
 const (
@@ -16,7 +16,7 @@ const (
 
 var (
 	transactions = []*tx.Transaction{tx.NewGenesisCoinbaseTx(address)}
-	blockHeader  = &block.Header{
+	blockHeader  = &entity.BlockHeader{
 		Index:        0,
 		PreviousHash: chainhash.EmptyHash,
 		Timestamp:    timestamp,
