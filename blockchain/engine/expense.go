@@ -1,19 +1,20 @@
-package blockchain
+package engine
 
 import (
 	"fmt"
 
 	"github.com/tclchiam/block_n_go/blockchain/entity"
+	"github.com/tclchiam/block_n_go/blockchain/engine/utxo"
 	"github.com/tclchiam/block_n_go/crypto"
-	"github.com/tclchiam/block_n_go/wallet"
 	"github.com/tclchiam/block_n_go/encoding"
-	"github.com/tclchiam/block_n_go/blockchain/engine"
+	"github.com/tclchiam/block_n_go/storage"
+	"github.com/tclchiam/block_n_go/wallet"
 )
 
-func (bc *Blockchain) buildExpenseTransaction(sender, receiver *wallet.Wallet, expense uint) (*entity.Transaction, error) {
+func BuildExpenseTransaction(sender, receiver *wallet.Wallet, expense uint, repository storage.BlockRepository) (*entity.Transaction, error) {
 	senderAddress := sender.GetAddress()
 
-	unspentOutputs, err := findUnspentOutputs(senderAddress, bc)
+	unspentOutputs, err := utxo.NewEngine(repository).FindUnspentOutputs(senderAddress)
 	if err != nil {
 		return nil, err
 	}
@@ -32,14 +33,9 @@ func (bc *Blockchain) buildExpenseTransaction(sender, receiver *wallet.Wallet, e
 		return take
 	}
 
-	buildInputs := func(res interface{}, transaction *entity.Transaction, output *entity.Output) interface{} {
-		input := entity.NewUnsignedInput(transaction.ID, output, sender.PublicKey)
-		return res.(entity.UnsignedInputs).Add(input)
-	}
-
 	inputs := unspentOutputs.
 		Filter(takeMinimumToMeetExpense).
-		Reduce(entity.EmptyUnsignedInputs(nil), buildInputs).(entity.UnsignedInputs)
+		Reduce(entity.EmptyUnsignedInputs(nil), buildInputs(sender.PublicKey)).(entity.UnsignedInputs)
 
 	outputs := entity.EmptyOutputs().
 		Add(entity.NewOutput(expense, receiver.GetAddress()))
@@ -54,9 +50,16 @@ func (bc *Blockchain) buildExpenseTransaction(sender, receiver *wallet.Wallet, e
 	return entity.NewTx(signedInputs, finalizedOutputs, encoding.NewTransactionGobEncoder()), nil
 }
 
+func buildInputs(publicKey *crypto.PublicKey) func(res interface{}, transaction *entity.Transaction, output *entity.Output) interface{} {
+	return func(res interface{}, transaction *entity.Transaction, output *entity.Output) interface{} {
+		input := entity.NewUnsignedInput(transaction.ID, output, publicKey)
+		return res.(entity.UnsignedInputs).Add(input)
+	}
+}
+
 func signInputs(outputs []*entity.Output, privateKey *crypto.PrivateKey) func(res interface{}, input *entity.UnsignedInput) interface{} {
 	return func(res interface{}, input *entity.UnsignedInput) interface{} {
-		signature := engine.GenerateSignature(input, outputs, privateKey, encoding.NewTransactionGobEncoder())
+		signature := GenerateSignature(input, outputs, privateKey, encoding.NewTransactionGobEncoder())
 		return append(res.([]*entity.SignedInput), entity.NewSignedInput(input, signature))
 	}
 }

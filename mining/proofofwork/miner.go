@@ -35,9 +35,11 @@ func (miner *miner) MineBlock(header *entity.BlockHeader) (*entity.Block) {
 	nonces := make(chan int, miner.workerCount)
 	defer close(nonces)
 
-	for workerNum := uint(0); workerNum < miner.workerCount; workerNum++ {
-		go worker(header, nonces, solutions)
-	}
+	go func() {
+		for workerNum := uint(0); workerNum < miner.workerCount; workerNum++ {
+			go worker(header, nonces, solutions)
+		}
+	}()
 
 	for nonce := 0; nonce < maxNonce; nonce++ {
 		select {

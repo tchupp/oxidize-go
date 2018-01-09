@@ -1,19 +1,18 @@
 package blockchain
 
 import (
-	"fmt"
-
-	"github.com/tclchiam/block_n_go/wallet"
-	"github.com/tclchiam/block_n_go/blockchain/entity"
-	"github.com/tclchiam/block_n_go/mining"
-	"github.com/tclchiam/block_n_go/storage"
-	"github.com/tclchiam/block_n_go/encoding"
 	"github.com/tclchiam/block_n_go/blockchain/engine"
+	"github.com/tclchiam/block_n_go/blockchain/engine/iter"
+	"github.com/tclchiam/block_n_go/blockchain/entity"
+	"github.com/tclchiam/block_n_go/encoding"
+	"github.com/tclchiam/block_n_go/storage"
+	"github.com/tclchiam/block_n_go/mining"
+	"github.com/tclchiam/block_n_go/wallet"
 )
 
 type Blockchain struct {
 	blockRepository storage.BlockRepository
-	miner  mining.Miner
+	miner           mining.Miner
 }
 
 func Open(repository storage.BlockRepository, miner mining.Miner, ownerAddress string) (*Blockchain, error) {
@@ -45,36 +44,24 @@ func genesisBlockExists(repository storage.BlockRepository) (bool, error) {
 	return true, nil
 }
 
+func (bc *Blockchain) ForEachBlock(consume func(*entity.Block)) error {
+	return iter.ForEachBlock(bc.blockRepository, consume)
+}
+
+func (bc *Blockchain) ReadBalance(address string) (uint, error) {
+	return engine.ReadBalance(address, bc.blockRepository)
+}
+
 func (bc *Blockchain) Send(sender, receiver, miner *wallet.Wallet, expense uint) (error) {
-	expenseTransaction, err := bc.buildExpenseTransaction(sender, receiver, expense)
+	expenseTransaction, err := engine.BuildExpenseTransaction(sender, receiver, expense, bc.blockRepository)
 	if err != nil {
 		return err
 	}
 	rewardTransaction := entity.NewCoinbaseTx(miner.GetAddress(), encoding.NewTransactionGobEncoder())
 
-	return bc.mineBlock([]*entity.Transaction{expenseTransaction, rewardTransaction})
-}
-
-func (bc *Blockchain) mineBlock(transactions []*entity.Transaction) (error) {
-	currentHead, err := bc.blockRepository.Head()
+	newBlock, err := engine.MineBlock([]*entity.Transaction{expenseTransaction, rewardTransaction}, bc.miner, bc.blockRepository)
 	if err != nil {
 		return err
 	}
-
-	for _, transaction := range transactions {
-		for index, input := range transaction.Inputs {
-			verified := engine.VerifySignature(input, transaction.Outputs, encoding.NewTransactionGobEncoder())
-			if !verified {
-				return fmt.Errorf(TransactionInputHasBadSignatureMessage, transaction.ID, index)
-			}
-		}
-	}
-
-	newBlockHeader := entity.NewBlockHeader(currentHead.Index+1, currentHead.Hash, transactions)
-	newBlock := bc.miner.MineBlock(newBlockHeader)
-	if err = bc.blockRepository.SaveBlock(newBlock); err != nil {
-		return err
-	}
-
-	return nil
+	return bc.blockRepository.SaveBlock(newBlock)
 }

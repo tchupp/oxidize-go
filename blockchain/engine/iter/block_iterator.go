@@ -1,4 +1,4 @@
-package blockchain
+package iter
 
 import (
 	"github.com/tclchiam/block_n_go/blockchain/entity"
@@ -23,32 +23,32 @@ func (it *Iterator) hasNext() bool {
 	return !it.current.IsGenesisBlock()
 }
 
-func (bc *Blockchain) head() (*Iterator, error) {
-	head, err := bc.blockRepository.Head()
+func head(blockRepository storage.BlockRepository) (*Iterator, error) {
+	head, err := blockRepository.Head()
 	if err != nil {
 		return nil, err
 	}
 
 	return &Iterator{
 		current:         head,
-		blockRepository: bc.blockRepository,
+		blockRepository: blockRepository,
 	}, nil
 }
 
-func (bc *Blockchain) ForEachBlock(consume func(*entity.Block)) (err error) {
-	b, err := bc.head()
+func ForEachBlock(blockRepository storage.BlockRepository, consume func(*entity.Block)) error {
+	it, err := head(blockRepository)
 	if err != nil {
 		return err
 	}
 
 	for {
-		consume(b.current)
+		consume(it.current)
 
-		if !b.hasNext() {
+		if !it.hasNext() {
 			break
 		}
 
-		b, err = b.next()
+		it, err = it.next()
 		if err != nil {
 			return err
 		}
