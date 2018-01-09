@@ -16,7 +16,7 @@ func (r *blockBoltRepository) Head() (head *entity.Block, err error) {
 
 		latestBlockHash := readLatestHash(bucket)
 		if latestBlockHash == nil {
-			return blockchain.HeadBlockNotFoundError
+			return nil
 		}
 
 		head, err = readBlock(bucket, latestBlockHash, r.blockEncoder)

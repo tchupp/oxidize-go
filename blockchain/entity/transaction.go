@@ -53,9 +53,9 @@ func NewGenesisCoinbaseTx(ownerAddress string, encoder TransactionEncoder) *Tran
 	return NewCoinbaseTx(ownerAddress, encoder)
 }
 
-func NewCoinbaseTx(minerAddress string, encoder TransactionEncoder) *Transaction {
+func NewCoinbaseTx(coinbaseAddress string, encoder TransactionEncoder) *Transaction {
 	var inputs []*SignedInput
-	outputs := []*Output{NewOutput(subsidy, minerAddress)}
+	outputs := []*Output{NewOutput(subsidy, coinbaseAddress)}
 
 	return NewTx(inputs, outputs, encoder)
 }

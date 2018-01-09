@@ -3,22 +3,21 @@ package utxo
 import (
 	"github.com/tclchiam/block_n_go/blockchain/engine/iter"
 	"github.com/tclchiam/block_n_go/blockchain/entity"
-	"github.com/tclchiam/block_n_go/blockchain/tx"
 	"github.com/tclchiam/block_n_go/storage"
 	"github.com/imdario/mergo"
 )
 
-type realUTXOEngine struct {
+type utxoCrawlerEngine struct {
 	repository storage.BlockRepository
 }
 
-func NewEngine(repository storage.BlockRepository) Engine {
-	return &realUTXOEngine{repository: repository}
+func NewCrawlerEngine(repository storage.BlockRepository) Engine {
+	return &utxoCrawlerEngine{repository: repository}
 }
 
-func (engine *realUTXOEngine) FindUnspentOutputs(address string) (*tx.TransactionOutputSet, error) {
+func (engine *utxoCrawlerEngine) FindUnspentOutputs(address string) (*TransactionOutputSet, error) {
 	spentOutputs := make(map[string][]*entity.Output)
-	outputsForAddress := tx.NewTransactionSet()
+	outputsForAddress := NewTransactionSet()
 
 	err := iter.ForEachBlock(engine.repository, func(block *entity.Block) {
 		for _, transaction := range block.Transactions {
@@ -61,12 +60,12 @@ func findSpentOutputs(transaction *entity.Transaction, address string) map[strin
 		Reduce(spent, addToUnspent).(map[string][]*entity.Output)
 }
 
-func findOutputsForAddress(transaction *entity.Transaction, address string) *tx.TransactionOutputSet {
+func findOutputsForAddress(transaction *entity.Transaction, address string) *TransactionOutputSet {
 	addToTxSet := func(res interface{}, output *entity.Output) interface{} {
-		return res.(*tx.TransactionOutputSet).Add(transaction, output)
+		return res.(*TransactionOutputSet).Add(transaction, output)
 	}
 
-	outputs := tx.NewTransactionSet()
+	outputs := NewTransactionSet()
 	for _, output := range transaction.Outputs {
 		if output.IsLockedWithKey(address) {
 			outputs = outputs.Add(transaction, output)
@@ -75,5 +74,5 @@ func findOutputsForAddress(transaction *entity.Transaction, address string) *tx.
 
 	return entity.NewOutputs(transaction.Outputs).
 		Filter(func(output *entity.Output) bool { return output.IsLockedWithKey(address) }).
-		Reduce(tx.NewTransactionSet(), addToTxSet).(*tx.TransactionOutputSet)
+		Reduce(NewTransactionSet(), addToTxSet).(*TransactionOutputSet)
 }

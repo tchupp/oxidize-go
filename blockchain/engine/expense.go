@@ -3,18 +3,18 @@ package engine
 import (
 	"fmt"
 
-	"github.com/tclchiam/block_n_go/blockchain/entity"
+	"github.com/tclchiam/block_n_go/blockchain/engine/txsigning"
 	"github.com/tclchiam/block_n_go/blockchain/engine/utxo"
+	"github.com/tclchiam/block_n_go/blockchain/entity"
 	"github.com/tclchiam/block_n_go/crypto"
 	"github.com/tclchiam/block_n_go/encoding"
-	"github.com/tclchiam/block_n_go/storage"
 	"github.com/tclchiam/block_n_go/wallet"
 )
 
-func BuildExpenseTransaction(sender, receiver *wallet.Wallet, expense uint, repository storage.BlockRepository) (*entity.Transaction, error) {
+func BuildExpenseTransaction(sender, receiver *wallet.Wallet, expense uint, engine utxo.Engine) (*entity.Transaction, error) {
 	senderAddress := sender.GetAddress()
 
-	unspentOutputs, err := utxo.NewEngine(repository).FindUnspentOutputs(senderAddress)
+	unspentOutputs, err := engine.FindUnspentOutputs(senderAddress)
 	if err != nil {
 		return nil, err
 	}
@@ -59,7 +59,7 @@ func buildInputs(publicKey *crypto.PublicKey) func(res interface{}, transaction 
 
 func signInputs(outputs []*entity.Output, privateKey *crypto.PrivateKey) func(res interface{}, input *entity.UnsignedInput) interface{} {
 	return func(res interface{}, input *entity.UnsignedInput) interface{} {
-		signature := GenerateSignature(input, outputs, privateKey, encoding.NewTransactionGobEncoder())
+		signature := txsigning.GenerateSignature(input, outputs, privateKey, encoding.NewTransactionGobEncoder())
 		return append(res.([]*entity.SignedInput), entity.NewSignedInput(input, signature))
 	}
 }

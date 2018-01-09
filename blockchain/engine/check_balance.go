@@ -1,14 +1,12 @@
 package engine
 
 import (
-	"github.com/tclchiam/block_n_go/blockchain/entity"
 	"github.com/tclchiam/block_n_go/blockchain/engine/utxo"
-	"github.com/tclchiam/block_n_go/blockchain/tx"
-	"github.com/tclchiam/block_n_go/storage"
+	"github.com/tclchiam/block_n_go/blockchain/entity"
 )
 
-func ReadBalance(address string, repository storage.BlockRepository) (uint, error) {
-	unspentOutputs, err := utxo.NewEngine(repository).FindUnspentOutputs(address)
+func ReadBalance(address string, engine utxo.Engine) (uint, error) {
+	unspentOutputs, err := engine.FindUnspentOutputs(address)
 	if err != nil {
 		return 0, err
 	}
@@ -16,7 +14,7 @@ func ReadBalance(address string, repository storage.BlockRepository) (uint, erro
 	return calculateBalance(unspentOutputs), nil
 }
 
-func calculateBalance(unspentOutputs *tx.TransactionOutputSet) uint {
+func calculateBalance(unspentOutputs *utxo.TransactionOutputSet) uint {
 	sumBalance := func(res interface{}, _ *entity.Transaction, output *entity.Output) interface{} {
 		return res.(uint) + output.Value
 	}

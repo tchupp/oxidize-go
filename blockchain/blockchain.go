@@ -8,11 +8,13 @@ import (
 	"github.com/tclchiam/block_n_go/storage"
 	"github.com/tclchiam/block_n_go/mining"
 	"github.com/tclchiam/block_n_go/wallet"
+	"github.com/tclchiam/block_n_go/blockchain/engine/utxo"
 )
 
 type Blockchain struct {
 	blockRepository storage.BlockRepository
 	miner           mining.Miner
+	utxoEngine      utxo.Engine
 }
 
 func Open(repository storage.BlockRepository, miner mining.Miner, ownerAddress string) (*Blockchain, error) {
@@ -30,16 +32,20 @@ func Open(repository storage.BlockRepository, miner mining.Miner, ownerAddress s
 		return nil, err
 	}
 
-	return &Blockchain{blockRepository: repository, miner: miner}, nil
+	return &Blockchain{
+		blockRepository: repository,
+		miner:           miner,
+		utxoEngine:      utxo.NewCrawlerEngine(repository),
+	}, nil
 }
 
 func genesisBlockExists(repository storage.BlockRepository) (bool, error) {
-	_, err := repository.Head()
-	if err == HeadBlockNotFoundError {
-		return false, nil
-	}
+	head, err := repository.Head()
 	if err != nil {
 		return false, err
+	}
+	if head == nil {
+		return false, nil
 	}
 	return true, nil
 }
@@ -49,15 +55,15 @@ func (bc *Blockchain) ForEachBlock(consume func(*entity.Block)) error {
 }
 
 func (bc *Blockchain) ReadBalance(address string) (uint, error) {
-	return engine.ReadBalance(address, bc.blockRepository)
+	return engine.ReadBalance(address, bc.utxoEngine)
 }
 
-func (bc *Blockchain) Send(sender, receiver, miner *wallet.Wallet, expense uint) (error) {
-	expenseTransaction, err := engine.BuildExpenseTransaction(sender, receiver, expense, bc.blockRepository)
+func (bc *Blockchain) Send(sender, receiver, coinbase *wallet.Wallet, expense uint) error {
+	expenseTransaction, err := engine.BuildExpenseTransaction(sender, receiver, expense, bc.utxoEngine)
 	if err != nil {
 		return err
 	}
-	rewardTransaction := entity.NewCoinbaseTx(miner.GetAddress(), encoding.NewTransactionGobEncoder())
+	rewardTransaction := entity.NewCoinbaseTx(coinbase.GetAddress(), encoding.NewTransactionGobEncoder())
 
 	newBlock, err := engine.MineBlock([]*entity.Transaction{expenseTransaction, rewardTransaction}, bc.miner, bc.blockRepository)
 	if err != nil {

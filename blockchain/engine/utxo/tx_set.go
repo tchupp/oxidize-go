@@ -1,4 +1,4 @@
-package tx
+package utxo
 
 import "github.com/tclchiam/block_n_go/blockchain/entity"
 
@@ -8,10 +8,6 @@ type TransactionOutputSet struct {
 
 func NewTransactionSet() *TransactionOutputSet {
 	return &TransactionOutputSet{make(map[*entity.Transaction][]*entity.Output, 0)}
-}
-
-func (set *TransactionOutputSet) Len() int {
-	return len(set.transactionsToOutputs)
 }
 
 func (set *TransactionOutputSet) Add(transaction *entity.Transaction, output *entity.Output) *TransactionOutputSet {
