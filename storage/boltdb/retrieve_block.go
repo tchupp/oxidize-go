@@ -2,7 +2,6 @@ package boltdb
 
 import (
 	"github.com/boltdb/bolt"
-	"github.com/tclchiam/block_n_go/blockchain"
 	"github.com/tclchiam/block_n_go/blockchain/chainhash"
 	"github.com/tclchiam/block_n_go/blockchain/entity"
 )
@@ -55,7 +54,7 @@ func readLatestHash(bucket *bolt.Bucket) []byte {
 func readBlock(bucket *bolt.Bucket, hash []byte, encoder entity.BlockEncoder) (*entity.Block, error) {
 	latestBlockData := bucket.Get(hash)
 	if latestBlockData == nil || len(latestBlockData) == 0 {
-		return nil, blockchain.BlockDataEmptyError
+		return nil, BlockDataEmptyError
 	}
 
 	b, err := encoder.DecodeBlock(latestBlockData)

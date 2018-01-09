@@ -5,13 +5,12 @@ import (
 	"runtime"
 	"log"
 
-	"github.com/tclchiam/block_n_go/blockchain"
 	"github.com/tclchiam/block_n_go/blockchain/entity"
 	"github.com/tclchiam/block_n_go/mining"
 )
 
 const (
-	maxNonce = math.MaxInt64
+	maxNonce = math.MaxUint64
 )
 
 var (
@@ -32,7 +31,7 @@ func NewDefaultMiner() mining.Miner {
 
 func (miner *miner) MineBlock(header *entity.BlockHeader) (*entity.BlockSolution) {
 	solutions := make(chan *entity.BlockSolution)
-	nonces := make(chan int, miner.workerCount)
+	nonces := make(chan uint64, miner.workerCount)
 	defer close(nonces)
 
 	go func() {
@@ -41,7 +40,7 @@ func (miner *miner) MineBlock(header *entity.BlockHeader) (*entity.BlockSolution
 		}
 	}()
 
-	for nonce := 0; nonce < maxNonce; nonce++ {
+	for nonce := uint64(0); nonce < maxNonce; nonce++ {
 		select {
 		case solution := <-solutions:
 			return solution
@@ -50,11 +49,11 @@ func (miner *miner) MineBlock(header *entity.BlockHeader) (*entity.BlockSolution
 		}
 	}
 
-	log.Panic(blockchain.MaxNonceOverflowError)
+	log.Panic(MaxNonceOverflowError)
 	return nil
 }
 
-func worker(header *entity.BlockHeader, nonces <-chan int, solutions chan<- *entity.BlockSolution) {
+func worker(header *entity.BlockHeader, nonces <-chan uint64, solutions chan<- *entity.BlockSolution) {
 	for nonce := range nonces {
 		hash := mining.CalculateHash(header, nonce)
 

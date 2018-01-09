@@ -10,9 +10,9 @@ import (
 )
 
 type BlockHeader struct {
-	Index            int
+	Index            uint64
 	PreviousHash     *chainhash.Hash
-	Timestamp        int64
+	Timestamp        uint64
 	TransactionsHash *chainhash.Hash
 }
 
@@ -20,11 +20,11 @@ func NewGenesisBlockHeader(transactions Transactions) *BlockHeader {
 	return NewBlockHeaderNow(0, &chainhash.EmptyHash, transactions)
 }
 
-func NewBlockHeaderNow(index int, previousHash *chainhash.Hash, transactions Transactions) *BlockHeader {
-	return NewBlockHeader(index, previousHash, transactions, time.Now().Unix())
+func NewBlockHeaderNow(index uint64, previousHash *chainhash.Hash, transactions Transactions) *BlockHeader {
+	return NewBlockHeader(index, previousHash, transactions, uint64(time.Now().Unix()))
 }
 
-func NewBlockHeader(index int, previousHash *chainhash.Hash, transactions Transactions, timestamp int64) *BlockHeader {
+func NewBlockHeader(index uint64, previousHash *chainhash.Hash, transactions Transactions, timestamp uint64) *BlockHeader {
 	transactionsHash := hashTransactions(transactions)
 
 	return &BlockHeader{

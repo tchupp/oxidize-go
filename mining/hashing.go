@@ -3,7 +3,6 @@ package mining
 import (
 	"bytes"
 	"encoding/binary"
-	"log"
 	"math/big"
 
 	"github.com/tclchiam/block_n_go/blockchain/chainhash"
@@ -19,12 +18,12 @@ var (
 	target = big.NewInt(1).Lsh(big.NewInt(1), uint(hashLength-targetBits))
 )
 
-func CalculateHash(header *entity.BlockHeader, nonce int) chainhash.Hash {
+func CalculateHash(header *entity.BlockHeader, nonce uint64) chainhash.Hash {
 	rawBlockContents := [][]byte{
 		header.PreviousHash[:],
 		header.TransactionsHash.Slice(),
 		intToHex(header.Timestamp),
-		intToHex(int64(nonce)),
+		intToHex(nonce),
 	}
 	rawBlockData := bytes.Join(rawBlockContents, []byte(nil))
 	return chainhash.CalculateHash(rawBlockData)
@@ -40,12 +39,8 @@ func HashValid(hash chainhash.Hash) bool {
 	return new(big.Int).SetBytes(hash.Slice()).Cmp(target) == -1
 }
 
-func intToHex(num int64) []byte {
-	buff := new(bytes.Buffer)
-	err := binary.Write(buff, binary.BigEndian, num)
-	if err != nil {
-		log.Panic(err)
-	}
-
-	return buff.Bytes()
+func intToHex(num uint64) []byte {
+	enc := make([]byte, 8)
+	binary.BigEndian.PutUint64(enc, num)
+	return enc
 }

@@ -20,7 +20,7 @@ var (
 			Secret: []byte("aa407e4c07e7c2437747ebc07de419351c1737c4bba212481362ecec437f2981"),
 		},
 	}
-	blockHeader = entity.NewBlockHeader(0, &chainhash.EmptyHash, transactions, int64(1514479677))
+	blockHeader = entity.NewBlockHeader(0, &chainhash.EmptyHash, transactions, uint64(1514479677))
 )
 
 func buildTransactionId(newId string) entity.TransactionId {

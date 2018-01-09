@@ -26,7 +26,7 @@ func TestCalculateBlockHash(t *testing.T) {
 
 	tests := []struct {
 		header *entity.BlockHeader
-		nonce  int
+		nonce  uint64
 		output *chainhash.Hash
 	}{
 		{
@@ -97,7 +97,7 @@ func TestCalculateBlockHash(t *testing.T) {
 	}
 }
 
-func calculateBlockHashTestSuite(header *entity.BlockHeader, nonce int, output *chainhash.Hash, index int) error {
+func calculateBlockHashTestSuite(header *entity.BlockHeader, nonce uint64, output *chainhash.Hash, index int) error {
 	const unexpectedResultStr = "CalculateHash #%d got: %s want: %s"
 
 	result := CalculateHash(header, nonce)

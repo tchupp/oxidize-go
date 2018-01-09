@@ -7,12 +7,12 @@ import (
 
 type (
 	blockData struct {
-		Index        int             `json:"index"`
+		Index        uint64          `json:"index"`
 		PreviousHash *chainhash.Hash `json:"previous_hash"`
-		Timestamp    int64           `json:"timestamp"`
+		Timestamp    uint64          `json:"timestamp"`
 		Transactions []*txData       `json:"transactions"`
 		Hash         *chainhash.Hash `json:"hash"`
-		Nonce        int             `json:"nonce"`
+		Nonce        uint64          `json:"nonce"`
 	}
 )
 
