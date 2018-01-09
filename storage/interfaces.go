@@ -8,7 +8,7 @@ import (
 type BlockRepository interface {
 	Head() (head *entity.Block, err error)
 
-	Block(hash chainhash.Hash) (*entity.Block, error)
+	Block(hash *chainhash.Hash) (*entity.Block, error)
 
 	SaveBlock(*entity.Block) error
 

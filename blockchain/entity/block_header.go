@@ -6,27 +6,32 @@ import (
 	"strings"
 
 	"github.com/tclchiam/block_n_go/blockchain/chainhash"
+	"bytes"
 )
 
 type BlockHeader struct {
-	Index        int
-	PreviousHash chainhash.Hash
-	Timestamp    int64
-	Transactions []*Transaction
+	Index            int
+	PreviousHash     *chainhash.Hash
+	Timestamp        int64
+	TransactionsHash *chainhash.Hash
 }
 
-func NewGenesisBlockHeader(address string, encoder TransactionEncoder) *BlockHeader {
-	transaction := NewGenesisCoinbaseTx(address, encoder)
-
-	return NewBlockHeader(0, chainhash.EmptyHash, []*Transaction{transaction})
+func NewGenesisBlockHeader(transactions Transactions) *BlockHeader {
+	return NewBlockHeaderNow(0, &chainhash.EmptyHash, transactions)
 }
 
-func NewBlockHeader(index int, previousHash chainhash.Hash, transactions []*Transaction) *BlockHeader {
+func NewBlockHeaderNow(index int, previousHash *chainhash.Hash, transactions Transactions) *BlockHeader {
+	return NewBlockHeader(index, previousHash, transactions, time.Now().Unix())
+}
+
+func NewBlockHeader(index int, previousHash *chainhash.Hash, transactions Transactions, timestamp int64) *BlockHeader {
+	transactionsHash := hashTransactions(transactions)
+
 	return &BlockHeader{
-		Index:        index,
-		PreviousHash: previousHash,
-		Timestamp:    time.Now().Unix(),
-		Transactions: transactions,
+		Index:            index,
+		PreviousHash:     previousHash,
+		Timestamp:        timestamp,
+		TransactionsHash: &transactionsHash,
 	}
 }
 
@@ -37,10 +42,34 @@ func (header BlockHeader) String() string {
 	lines = append(lines, fmt.Sprintf("Index: %x", header.Index))
 	lines = append(lines, fmt.Sprintf("PreviousHash: %x", header.PreviousHash.Slice()))
 	lines = append(lines, fmt.Sprintf("Timestamp: %d", header.Timestamp))
-	lines = append(lines, fmt.Sprintf("Transactions:"))
-	for _, transaction := range header.Transactions {
-		lines = append(lines, transaction.String())
-	}
+	lines = append(lines, fmt.Sprintf("TransactionsHash: %x", header.TransactionsHash))
 
 	return strings.Join(lines, "\n")
+}
+
+func (header *BlockHeader) IsEqual(other *BlockHeader) bool {
+	if header.Index != other.Index {
+		return false
+	}
+	if !header.PreviousHash.IsEqual(other.PreviousHash) {
+		return true
+	}
+	if header.Timestamp != other.Timestamp {
+		return false
+	}
+	if !header.TransactionsHash.IsEqual(other.TransactionsHash) {
+		return false
+	}
+
+	return true
+}
+
+func hashTransactions(transactions Transactions) chainhash.Hash {
+	var transactionHashes [][]byte
+
+	for _, transaction := range transactions {
+		transactionHashes = append(transactionHashes, transaction.ID[:])
+	}
+
+	return chainhash.CalculateHash(bytes.Join(transactionHashes, []byte{}))
 }

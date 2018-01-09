@@ -11,7 +11,7 @@ import (
 )
 
 var (
-	transactions = []*entity.Transaction{
+	transactions = entity.Transactions{
 		{
 			ID: buildTransactionId("a34a558abd4599cb63141c556357fba1a777f15fa65835ce190781e2bb2452d9"),
 			Outputs: []*entity.Output{
@@ -20,12 +20,7 @@ var (
 			Secret: []byte("aa407e4c07e7c2437747ebc07de419351c1737c4bba212481362ecec437f2981"),
 		},
 	}
-	blockHeader = &entity.BlockHeader{
-		Index:        0,
-		PreviousHash: chainhash.EmptyHash,
-		Timestamp:    int64(1514479677),
-		Transactions: transactions,
-	}
+	blockHeader = entity.NewBlockHeader(0, &chainhash.EmptyHash, transactions, int64(1514479677))
 )
 
 func buildTransactionId(newId string) entity.TransactionId {

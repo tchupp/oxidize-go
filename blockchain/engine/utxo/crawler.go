@@ -20,7 +20,7 @@ func (engine *utxoCrawlerEngine) FindUnspentOutputs(address string) (*Transactio
 	outputsForAddress := NewTransactionSet()
 
 	err := iter.ForEachBlock(engine.repository, func(block *entity.Block) {
-		for _, transaction := range block.Transactions {
+		for _, transaction := range block.Transactions() {
 			mergo.Map(&spentOutputs, findSpentOutputs(transaction, address))
 			outputsForAddress = outputsForAddress.Plus(findOutputsForAddress(transaction, address))
 		}

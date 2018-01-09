@@ -2,7 +2,6 @@ package mining
 
 import (
 	"bytes"
-	"crypto/sha256"
 	"encoding/binary"
 	"log"
 	"math/big"
@@ -23,7 +22,7 @@ var (
 func CalculateHash(header *entity.BlockHeader, nonce int) chainhash.Hash {
 	rawBlockContents := [][]byte{
 		header.PreviousHash[:],
-		hashTransactions(header.Transactions),
+		header.TransactionsHash.Slice(),
 		intToHex(header.Timestamp),
 		intToHex(int64(nonce)),
 	}
@@ -32,7 +31,7 @@ func CalculateHash(header *entity.BlockHeader, nonce int) chainhash.Hash {
 }
 
 func Valid(block *entity.Block) bool {
-	hash := CalculateHash(block.Header(), block.Nonce)
+	hash := CalculateHash(block.Header(), block.Nonce())
 
 	return new(big.Int).SetBytes(hash.Slice()).Cmp(target) == -1
 }
@@ -49,16 +48,4 @@ func intToHex(num int64) []byte {
 	}
 
 	return buff.Bytes()
-}
-
-func hashTransactions(transactions []*entity.Transaction) []byte {
-	var transactionHashes [][]byte
-
-	for _, transaction := range transactions {
-		transactionHashes = append(transactionHashes, transaction.ID[:])
-	}
-
-	transactionHash := sha256.Sum256(bytes.Join(transactionHashes, []byte{}))
-
-	return transactionHash[:]
 }

@@ -10,7 +10,7 @@ import (
 	"github.com/tclchiam/block_n_go/encoding"
 )
 
-func MineBlock(transactions []*entity.Transaction, miner mining.Miner, repository storage.BlockRepository) (*entity.Block, error) {
+func MineBlock(transactions entity.Transactions, miner mining.Miner, repository storage.BlockRepository) (*entity.Block, error) {
 	headBlock, err := repository.Head()
 	if err != nil {
 		return nil, err
@@ -25,6 +25,7 @@ func MineBlock(transactions []*entity.Transaction, miner mining.Miner, repositor
 		}
 	}
 
-	newBlockHeader := entity.NewBlockHeader(headBlock.Index+1, headBlock.Hash, transactions)
-	return miner.MineBlock(newBlockHeader), nil
+	newBlockHeader := entity.NewBlockHeaderNow(headBlock.Index()+1, headBlock.Hash(), transactions)
+	solution := miner.MineBlock(newBlockHeader)
+	return entity.NewBlock(newBlockHeader, solution, transactions), nil
 }

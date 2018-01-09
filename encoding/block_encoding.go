@@ -7,28 +7,28 @@ import (
 
 type (
 	blockData struct {
-		Index        int
-		PreviousHash chainhash.Hash
-		Timestamp    int64
-		Transactions []*txData
-		Hash         chainhash.Hash
-		Nonce        int
+		Index        int             `json:"index"`
+		PreviousHash *chainhash.Hash `json:"previous_hash"`
+		Timestamp    int64           `json:"timestamp"`
+		Transactions []*txData       `json:"transactions"`
+		Hash         *chainhash.Hash `json:"hash"`
+		Nonce        int             `json:"nonce"`
 	}
 )
 
 func toBlockData(block *entity.Block) *blockData {
 	var transactions []*txData
-	for _, transaction := range block.Transactions {
+	for _, transaction := range block.Transactions() {
 		transactions = append(transactions, toTxData(transaction))
 	}
 
 	return &blockData{
-		Index:        block.Index,
-		PreviousHash: block.PreviousHash,
-		Timestamp:    block.Timestamp,
+		Index:        block.Index(),
+		PreviousHash: block.PreviousHash(),
+		Timestamp:    block.Timestamp(),
 		Transactions: transactions,
-		Hash:         block.Hash,
-		Nonce:        block.Nonce,
+		Hash:         block.Hash(),
+		Nonce:        block.Nonce(),
 	}
 }
 
@@ -43,12 +43,9 @@ func fromBlockData(block *blockData) (*entity.Block, error) {
 		transactions = append(transactions, transaction)
 	}
 
-	return &entity.Block{
-		Index:        block.Index,
-		PreviousHash: block.PreviousHash,
-		Timestamp:    block.Timestamp,
-		Transactions: transactions,
-		Hash:         block.Hash,
-		Nonce:        block.Nonce,
-	}, nil
+	return entity.NewBlock(
+		entity.NewBlockHeader(block.Index, block.PreviousHash, transactions, block.Timestamp),
+		&entity.BlockSolution{Hash: block.Hash, Nonce: block.Nonce},
+		transactions,
+	), nil
 }

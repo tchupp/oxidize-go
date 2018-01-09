@@ -30,7 +30,7 @@ func NewDefaultMiner() mining.Miner {
 	return NewMiner(defaultWorkerCount)
 }
 
-func (miner *miner) MineBlock(header *entity.BlockHeader) (*entity.Block) {
+func (miner *miner) MineBlock(header *entity.BlockHeader) (*entity.BlockSolution) {
 	solutions := make(chan *entity.BlockSolution)
 	nonces := make(chan int, miner.workerCount)
 	defer close(nonces)
@@ -44,7 +44,7 @@ func (miner *miner) MineBlock(header *entity.BlockHeader) (*entity.Block) {
 	for nonce := 0; nonce < maxNonce; nonce++ {
 		select {
 		case solution := <-solutions:
-			return entity.NewBlock(header, solution)
+			return solution
 		default:
 			nonces <- nonce
 		}
@@ -59,7 +59,7 @@ func worker(header *entity.BlockHeader, nonces <-chan int, solutions chan<- *ent
 		hash := mining.CalculateHash(header, nonce)
 
 		if mining.HashValid(hash) {
-			solutions <- &entity.BlockSolution{nonce, hash}
+			solutions <- &entity.BlockSolution{Nonce: nonce, Hash: &hash}
 		}
 	}
 }

@@ -24,12 +24,16 @@ func Open(repository storage.BlockRepository, miner mining.Miner, ownerAddress s
 	}
 
 	if !exists {
-		blockHeader := entity.NewGenesisBlockHeader(ownerAddress, encoding.NewTransactionGobEncoder())
-		b := miner.MineBlock(blockHeader)
-		err = repository.SaveBlock(b)
-	}
-	if err != nil {
-		return nil, err
+		transactionEncoder := encoding.NewTransactionGobEncoder()
+
+		transactions := entity.Transactions{entity.NewCoinbaseTx(ownerAddress, transactionEncoder)}
+		header := entity.NewGenesisBlockHeader(transactions)
+		solution := miner.MineBlock(header)
+
+		err := repository.SaveBlock(entity.NewBlock(header, solution, transactions))
+		if err != nil {
+			return nil, err
+		}
 	}
 
 	return &Blockchain{

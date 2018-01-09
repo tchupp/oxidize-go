@@ -25,16 +25,15 @@ func TestCalculateBlockHash(t *testing.T) {
 	}
 
 	tests := []struct {
-		header entity.BlockHeader
+		header *entity.BlockHeader
 		nonce  int
 		output *chainhash.Hash
 	}{
 		{
-			header: entity.BlockHeader{
-				Index:        0,
-				PreviousHash: chainhash.EmptyHash,
-				Timestamp:    1515032127,
-				Transactions: []*entity.Transaction{
+			header: entity.NewBlockHeader(
+				0,
+				&chainhash.EmptyHash,
+				[]*entity.Transaction{
 					{
 						ID: buildTransactionId("69a101b4ab5c06bf126074a32a6eee3c06b5612f59994a9df280ab5c3603c6b8"),
 						Outputs: []*entity.Output{
@@ -42,16 +41,16 @@ func TestCalculateBlockHash(t *testing.T) {
 						},
 					},
 				},
-			},
+				1515032127,
+			),
 			nonce:  18193,
 			output: buildChainHash("0000d9bbb68fc04dd2b5f34999a35fdf753abfd260d4541967e87e519696a2eb"),
 		},
 		{
-			header: entity.BlockHeader{
-				Index:        0,
-				PreviousHash: chainhash.EmptyHash,
-				Timestamp:    1515036711,
-				Transactions: []*entity.Transaction{
+			header: entity.NewBlockHeader(
+				0,
+				&chainhash.EmptyHash,
+				[]*entity.Transaction{
 					{
 						ID: buildTransactionId("bbbe0e2f0dd48b427fff9e3ac2105aabb070d2fcea365cb40f8c1e84c0b6ce0b"),
 						Outputs: []*entity.Output{
@@ -59,16 +58,16 @@ func TestCalculateBlockHash(t *testing.T) {
 						},
 					},
 				},
-			},
+				1515036711,
+			),
 			nonce:  27764,
 			output: buildChainHash("0000e61eeb820f5d29e9a2149adb396f4405963ecc0159f6cec52c8de1fbf672"),
 		},
 		{
-			header: entity.BlockHeader{
-				Index:        2,
-				PreviousHash: *buildChainHash("0000745031d715be942d0fc2731fd0f4b4edd340bad2de76a2fa98368be53419"),
-				Timestamp:    1515037418,
-				Transactions: []*entity.Transaction{
+			header: entity.NewBlockHeader(
+				2,
+				buildChainHash("0000745031d715be942d0fc2731fd0f4b4edd340bad2de76a2fa98368be53419"),
+				[]*entity.Transaction{
 					{
 						ID: buildTransactionId("b0093d332b4c5bbb5f3c4aa2c9ada8632f9efb2489799a74c55168f3487ec256"),
 						Outputs: []*entity.Output{
@@ -83,7 +82,8 @@ func TestCalculateBlockHash(t *testing.T) {
 						},
 					},
 				},
-			},
+				1515037418,
+			),
 			nonce:  25634,
 			output: buildChainHash("000012f029d52582ed6f179f7b949a0eca1e4f3f7115898de1c15c42ac576f42"),
 		},
@@ -97,10 +97,10 @@ func TestCalculateBlockHash(t *testing.T) {
 	}
 }
 
-func calculateBlockHashTestSuite(header entity.BlockHeader, nonce int, output *chainhash.Hash, index int) error {
+func calculateBlockHashTestSuite(header *entity.BlockHeader, nonce int, output *chainhash.Hash, index int) error {
 	const unexpectedResultStr = "CalculateHash #%d got: %s want: %s"
 
-	result := CalculateHash(&header, nonce)
+	result := CalculateHash(header, nonce)
 
 	if !output.IsEqual(&result) {
 		return fmt.Errorf(unexpectedResultStr, index, result, output)

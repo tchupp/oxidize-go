@@ -31,12 +31,12 @@ func writeBlock(bucket *bolt.Bucket, block *entity.Block, encoder entity.BlockEn
 		return err
 	}
 
-	err = bucket.Put(block.Hash.Slice(), blockData)
+	err = bucket.Put(block.Hash().Slice(), blockData)
 	if err != nil {
 		return fmt.Errorf("writing block: %s", err)
 	}
 
-	err = bucket.Put(latestBlockHashKey, block.Hash.Slice())
+	err = bucket.Put(latestBlockHashKey, block.Hash().Slice())
 	if err != nil {
 		return fmt.Errorf("writing last hash: %s", err)
 	}

@@ -21,6 +21,8 @@ type (
 		Secret  []byte
 	}
 
+	Transactions []*Transaction
+
 	OutputReference struct {
 		ID     TransactionId
 		Output *Output
@@ -47,10 +49,6 @@ func (tx *Transaction) String() string {
 	}
 
 	return strings.Join(lines, "\n")
-}
-
-func NewGenesisCoinbaseTx(ownerAddress string, encoder TransactionEncoder) *Transaction {
-	return NewCoinbaseTx(ownerAddress, encoder)
 }
 
 func NewCoinbaseTx(coinbaseAddress string, encoder TransactionEncoder) *Transaction {
