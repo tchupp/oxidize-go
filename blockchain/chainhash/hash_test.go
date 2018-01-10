@@ -43,8 +43,8 @@ func TestHash(t *testing.T) {
 	}
 
 	// Ensure contents match.
-	if !bytes.Equal(hash[:], buf) {
-		t.Errorf("NewHash: hash contents mismatch - got: %v, want: %v", hash[:], buf)
+	if !bytes.Equal(hash.Slice(), buf) {
+		t.Errorf("NewHash: hash contents mismatch - got: %v, want: %v", hash.Slice(), buf)
 	}
 
 	// Ensure contents of hash of block 234440 don't match 234439.

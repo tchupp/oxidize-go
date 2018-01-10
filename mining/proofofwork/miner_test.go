@@ -2,8 +2,6 @@ package proofofwork_test
 
 import (
 	"testing"
-	"crypto/sha256"
-	"encoding/hex"
 
 	"github.com/tclchiam/block_n_go/blockchain/chainhash"
 	"github.com/tclchiam/block_n_go/mining/proofofwork"
@@ -13,7 +11,7 @@ import (
 var (
 	transactions = entity.Transactions{
 		{
-			ID: buildTransactionId("a34a558abd4599cb63141c556357fba1a777f15fa65835ce190781e2bb2452d9"),
+			ID: entity.TxIdFromString("a34a558abd4599cb63141c556357fba1a777f15fa65835ce190781e2bb2452d9"),
 			Outputs: []*entity.Output{
 				{Index: 0, Value: 10, PublicKeyHash: []byte("0afd17a7153fc34cfa18b05322d7916dbb5ea24f")},
 			},
@@ -22,14 +20,6 @@ var (
 	}
 	blockHeader = entity.NewBlockHeader(0, &chainhash.EmptyHash, transactions, uint64(1514479677))
 )
-
-func buildTransactionId(newId string) entity.TransactionId {
-	decoded, _ := hex.DecodeString(newId)
-
-	var id entity.TransactionId
-	copy(id[:], decoded[:sha256.Size])
-	return id
-}
 
 func BenchmarkNewDefaultMiner(b *testing.B) {
 	miner := proofofwork.NewDefaultMiner()

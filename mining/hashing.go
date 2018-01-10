@@ -20,7 +20,7 @@ var (
 
 func CalculateHash(header *entity.BlockHeader, nonce uint64) chainhash.Hash {
 	rawBlockContents := [][]byte{
-		header.PreviousHash[:],
+		header.PreviousHash.Slice(),
 		header.TransactionsHash.Slice(),
 		intToHex(header.Timestamp),
 		intToHex(nonce),

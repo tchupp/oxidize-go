@@ -58,11 +58,11 @@ func (bc *Blockchain) ForEachBlock(consume func(*entity.Block)) error {
 	return iter.ForEachBlock(bc.blockRepository, consume)
 }
 
-func (bc *Blockchain) ReadBalance(address string) (uint, error) {
+func (bc *Blockchain) ReadBalance(address string) (uint32, error) {
 	return engine.ReadBalance(address, bc.utxoEngine)
 }
 
-func (bc *Blockchain) Send(sender, receiver, coinbase *wallet.Wallet, expense uint) error {
+func (bc *Blockchain) Send(sender, receiver, coinbase *wallet.Wallet, expense uint32) error {
 	expenseTransaction, err := engine.BuildExpenseTransaction(sender, receiver, expense, bc.utxoEngine)
 	if err != nil {
 		return err

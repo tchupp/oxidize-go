@@ -77,8 +77,24 @@ func generateSecret() []byte {
 
 type TransactionId [sha256.Size]byte
 
+func TxIdFromString(newId string) TransactionId {
+	decoded, _ := hex.DecodeString(newId)
+
+	return TxIdFromBytes(decoded)
+}
+
+func TxIdFromBytes(newId []byte) TransactionId {
+	var id TransactionId
+	copy(id[:], newId[:sha256.Size])
+	return id
+}
+
 func (txId TransactionId) String() string {
 	return hex.EncodeToString(txId[:])
+}
+
+func (txId TransactionId) Slice() []byte {
+	return txId[:]
 }
 
 func calculateTransactionId(inputs []*SignedInput, outputs []*Output, secret []byte, encoder TransactionEncoder) TransactionId {

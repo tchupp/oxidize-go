@@ -8,12 +8,12 @@ import (
 )
 
 type Output struct {
-	Index         uint
-	Value         uint
+	Index         uint32
+	Value         uint32
 	PublicKeyHash []byte
 }
 
-func NewOutput(value uint, address string) *Output {
+func NewOutput(value uint32, address string) *Output {
 	publicKeyHash, _ := wallet.AddressToPublicKeyHash(address)
 
 	return &Output{Value: value, PublicKeyHash: publicKeyHash}

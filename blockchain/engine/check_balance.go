@@ -5,7 +5,7 @@ import (
 	"github.com/tclchiam/block_n_go/blockchain/entity"
 )
 
-func ReadBalance(address string, engine utxo.Engine) (uint, error) {
+func ReadBalance(address string, engine utxo.Engine) (uint32, error) {
 	unspentOutputs, err := engine.FindUnspentOutputs(address)
 	if err != nil {
 		return 0, err
@@ -14,10 +14,10 @@ func ReadBalance(address string, engine utxo.Engine) (uint, error) {
 	return calculateBalance(unspentOutputs), nil
 }
 
-func calculateBalance(unspentOutputs *utxo.TransactionOutputSet) uint {
+func calculateBalance(unspentOutputs *utxo.TransactionOutputSet) uint32 {
 	sumBalance := func(res interface{}, _ *entity.Transaction, output *entity.Output) interface{} {
-		return res.(uint) + output.Value
+		return res.(uint32) + output.Value
 	}
 
-	return unspentOutputs.Reduce(uint(0), sumBalance).(uint)
+	return unspentOutputs.Reduce(uint32(0), sumBalance).(uint32)
 }

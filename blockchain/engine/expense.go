@@ -11,7 +11,7 @@ import (
 	"github.com/tclchiam/block_n_go/wallet"
 )
 
-func BuildExpenseTransaction(sender, receiver *wallet.Wallet, expense uint, engine utxo.Engine) (*entity.Transaction, error) {
+func BuildExpenseTransaction(sender, receiver *wallet.Wallet, expense uint32, engine utxo.Engine) (*entity.Transaction, error) {
 	senderAddress := sender.GetAddress()
 
 	unspentOutputs, err := engine.FindUnspentOutputs(senderAddress)
@@ -24,7 +24,7 @@ func BuildExpenseTransaction(sender, receiver *wallet.Wallet, expense uint, engi
 		return nil, fmt.Errorf("account '%s' does not have enough to send '%d', due to balance '%d'", senderAddress, expense, balance)
 	}
 
-	liquidBalance := uint(0)
+	liquidBalance := uint32(0)
 	takeMinimumToMeetExpense := func(_ *entity.Transaction, output *entity.Output) bool {
 		take := liquidBalance < expense
 		if take {
@@ -47,7 +47,7 @@ func BuildExpenseTransaction(sender, receiver *wallet.Wallet, expense uint, engi
 	finalizedOutputs := outputs.Reduce(make([]*entity.Output, 0), collectOutputs).([]*entity.Output)
 	signedInputs := inputs.Reduce(make([]*entity.SignedInput, 0), signInputs(finalizedOutputs, sender.PrivateKey)).([]*entity.SignedInput)
 
-	return entity.NewTx(signedInputs, finalizedOutputs, encoding.NewTransactionGobEncoder()), nil
+	return entity.NewTx(signedInputs, finalizedOutputs, encoding.TransactionProtoEncoder()), nil
 }
 
 func buildInputs(publicKey *crypto.PublicKey) func(res interface{}, transaction *entity.Transaction, output *entity.Output) interface{} {
@@ -59,13 +59,13 @@ func buildInputs(publicKey *crypto.PublicKey) func(res interface{}, transaction 
 
 func signInputs(outputs []*entity.Output, privateKey *crypto.PrivateKey) func(res interface{}, input *entity.UnsignedInput) interface{} {
 	return func(res interface{}, input *entity.UnsignedInput) interface{} {
-		signature := txsigning.GenerateSignature(input, outputs, privateKey, encoding.NewTransactionGobEncoder())
+		signature := txsigning.GenerateSignature(input, outputs, privateKey, encoding.TransactionProtoEncoder())
 		return append(res.([]*entity.SignedInput), entity.NewSignedInput(input, signature))
 	}
 }
 
 func collectOutputs(res interface{}, output *entity.Output) interface{} {
 	outputs := res.([]*entity.Output)
-	output.Index = uint(len(outputs))
+	output.Index = uint32(len(outputs))
 	return append(outputs, output)
 }

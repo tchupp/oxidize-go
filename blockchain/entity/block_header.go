@@ -68,7 +68,7 @@ func hashTransactions(transactions Transactions) chainhash.Hash {
 	var transactionHashes [][]byte
 
 	for _, transaction := range transactions {
-		transactionHashes = append(transactionHashes, transaction.ID[:])
+		transactionHashes = append(transactionHashes, transaction.ID.Slice())
 	}
 
 	return chainhash.CalculateHash(bytes.Join(transactionHashes, []byte{}))
