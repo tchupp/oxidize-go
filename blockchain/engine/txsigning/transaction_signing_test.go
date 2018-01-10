@@ -6,8 +6,8 @@ import (
 	"crypto/sha256"
 
 	"github.com/tclchiam/block_n_go/blockchain/entity"
+	"github.com/tclchiam/block_n_go/blockchain/entity/encoding"
 	"github.com/tclchiam/block_n_go/wallet"
-	"github.com/tclchiam/block_n_go/encoding"
 )
 
 func buildTransactionId(newId string) entity.TransactionId {

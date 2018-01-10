@@ -5,7 +5,7 @@ import (
 	"fmt"
 
 	"github.com/boltdb/bolt"
-	"github.com/tclchiam/block_n_go/encoding"
+	"github.com/tclchiam/block_n_go/blockchain/entity/encoding"
 )
 
 func TestNewRepository(t *testing.T) {

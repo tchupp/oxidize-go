@@ -9,7 +9,7 @@ import (
 	"github.com/tclchiam/block_n_go/wallet"
 	"github.com/tclchiam/block_n_go/blockchain/chainhash"
 	"github.com/tclchiam/block_n_go/blockchain/entity"
-	"github.com/tclchiam/block_n_go/encoding"
+	"github.com/tclchiam/block_n_go/blockchain/entity/encoding"
 )
 
 func TestBlockRepository_SaveBlock(t *testing.T) {

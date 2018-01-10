@@ -5,11 +5,11 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/tclchiam/block_n_go/storage/boltdb"
 	"github.com/tclchiam/block_n_go/blockchain"
-	"github.com/tclchiam/block_n_go/wallet"
+	"github.com/tclchiam/block_n_go/blockchain/entity/encoding"
 	"github.com/tclchiam/block_n_go/mining/proofofwork"
-	"github.com/tclchiam/block_n_go/encoding"
+	"github.com/tclchiam/block_n_go/storage/boltdb"
+	"github.com/tclchiam/block_n_go/wallet"
 )
 
 func TestBlockchain_Workflow(t *testing.T) {
@@ -121,14 +121,14 @@ func TestBlockchain_Workflow(t *testing.T) {
 	})
 }
 
-func verifyBalance(t *testing.T, bc *blockchain.Blockchain, wallet *wallet.Wallet, expectedBalance int) {
+func verifyBalance(t *testing.T, bc *blockchain.Blockchain, wallet *wallet.Wallet, expectedBalance uint32) {
 	address := wallet.GetAddress()
 	balance, err := bc.ReadBalance(address)
 
 	if err != nil {
 		t.Fatalf("reading balance for '%x' %s", address, err)
 	}
-	if balance != uint(expectedBalance) {
+	if balance != expectedBalance {
 		t.Fatalf("expected balance for '%x' to be [%d], was: [%d]", address, expectedBalance, balance)
 	}
 }

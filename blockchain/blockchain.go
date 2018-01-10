@@ -4,7 +4,7 @@ import (
 	"github.com/tclchiam/block_n_go/blockchain/engine"
 	"github.com/tclchiam/block_n_go/blockchain/engine/iter"
 	"github.com/tclchiam/block_n_go/blockchain/entity"
-	"github.com/tclchiam/block_n_go/encoding"
+	"github.com/tclchiam/block_n_go/blockchain/entity/encoding"
 	"github.com/tclchiam/block_n_go/storage"
 	"github.com/tclchiam/block_n_go/mining"
 	"github.com/tclchiam/block_n_go/wallet"
