@@ -23,7 +23,7 @@ func TestBlockRepository_SaveBlock(t *testing.T) {
 	}
 	defer closeAndDeleteDB(blockRepository.(*blockBoltRepository), t)
 
-	transactions := entity.Transactions{entity.NewCoinbaseTx(address, encoding.NewTransactionGobEncoder())}
+	transactions := entity.Transactions{entity.NewCoinbaseTx(address, encoding.TransactionProtoEncoder())}
 
 	const previousIndex = 5
 	previousHash, _ := chainhash.NewHashFromStr("0000f65fe866ab6f810b13a5d864f96cb16ad22e2e931b861f80d870f2e32df7")

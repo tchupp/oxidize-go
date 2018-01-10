@@ -24,7 +24,7 @@ func Open(repository storage.BlockRepository, miner mining.Miner, ownerAddress s
 	}
 
 	if !exists {
-		transactionEncoder := encoding.NewTransactionGobEncoder()
+		transactionEncoder := encoding.TransactionProtoEncoder()
 
 		transactions := entity.Transactions{entity.NewCoinbaseTx(ownerAddress, transactionEncoder)}
 		header := entity.NewGenesisBlockHeader(transactions)
@@ -67,7 +67,7 @@ func (bc *Blockchain) Send(sender, receiver, coinbase *wallet.Wallet, expense ui
 	if err != nil {
 		return err
 	}
-	rewardTransaction := entity.NewCoinbaseTx(coinbase.GetAddress(), encoding.NewTransactionGobEncoder())
+	rewardTransaction := entity.NewCoinbaseTx(coinbase.GetAddress(), encoding.TransactionProtoEncoder())
 
 	newBlock, err := engine.MineBlock([]*entity.Transaction{expenseTransaction, rewardTransaction}, bc.miner, bc.blockRepository)
 	if err != nil {

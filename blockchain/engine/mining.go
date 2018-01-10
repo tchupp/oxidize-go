@@ -18,8 +18,7 @@ func MineBlock(transactions entity.Transactions, miner mining.Miner, repository 
 
 	for _, transaction := range transactions {
 		for index, input := range transaction.Inputs {
-			verified := txsigning.VerifySignature(input, transaction.Outputs, encoding.NewTransactionGobEncoder())
-			if !verified {
+			if verified := txsigning.VerifySignature(input, transaction.Outputs, encoding.TransactionProtoEncoder()); !verified {
 				return nil, fmt.Errorf(TransactionInputHasBadSignatureMessage, transaction.ID, index)
 			}
 		}

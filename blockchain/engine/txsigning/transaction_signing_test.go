@@ -77,17 +77,17 @@ func TestGenerateInputSignature(t *testing.T) {
 		const testVerifyFailedStr = "GenerateSignature #%d %s was a bad signature"
 		const realVerifyResultMismatchStr = "VerifySignature #%d did not agree with test, got: %s, expected: %s"
 
-		signatureData, err := serializeSignatureTestData(testParams.input, testParams.outputs, encoding.NewTransactionGobEncoder())
+		signatureData, err := serializeSignatureTestData(testParams.input, testParams.outputs, encoding.TransactionProtoEncoder())
 		if err != nil {
 			t.Error(err)
 			continue
 		}
 
-		signature := GenerateSignature(testParams.input, testParams.outputs, identity.PrivateKey, encoding.NewTransactionGobEncoder())
+		signature := GenerateSignature(testParams.input, testParams.outputs, identity.PrivateKey, encoding.TransactionProtoEncoder())
 
 		signedInput := entity.NewSignedInput(testParams.input, signature)
 		testVerifyResult := identity.PublicKey.Verify(signatureData, signature)
-		actualVerifyResult := VerifySignature(signedInput, testParams.outputs, encoding.NewTransactionGobEncoder())
+		actualVerifyResult := VerifySignature(signedInput, testParams.outputs, encoding.TransactionProtoEncoder())
 
 		if !testVerifyResult {
 			t.Errorf(testVerifyFailedStr, index, signature)

@@ -3,64 +3,34 @@ package encoding
 import (
 	"github.com/tclchiam/block_n_go/blockchain/entity"
 	"github.com/tclchiam/block_n_go/crypto"
+	"github.com/golang/protobuf/proto"
 )
 
-type (
-	txData struct {
-		ID      entity.TransactionId `json:"id"`
-		Inputs  []*txSignedInputData `json:"inputs"`
-		Outputs []*txOutputData      `json:"outputs"`
-		Secret  []byte               `json:"secret"`
-	}
-
-	txSignedInputData struct {
-		Reference *txOutputReferenceData `json:"reference"`
-		Signature []byte                 `json:"signature"`
-		PublicKey []byte                 `json:"public_key"`
-	}
-
-	txUnsignedInputData struct {
-		Reference *txOutputReferenceData `json:"reference"`
-		PublicKey []byte                 `json:"public_key"`
-	}
-
-	txOutputReferenceData struct {
-		ID     entity.TransactionId `json:"id"`
-		Output *txOutputData        `json:"output"`
-	}
-
-	txOutputData struct {
-		Index         uint   `json:"index"`
-		Value         uint   `json:"value"`
-		PublicKeyHash []byte `json:"public_key_hash"`
-	}
-)
-
-func toTxData(transaction *entity.Transaction) *txData {
-	var inputs []*txSignedInputData
+func toTransactionData(transaction *entity.Transaction) *Transaction {
+	var inputs []*SignedInput
 	for _, input := range transaction.Inputs {
-		data := toTxSignedInputData(input)
+		data := toSignedInputData(input)
 		inputs = append(inputs, data)
 	}
 
-	var outputs []*txOutputData
+	var outputs []*Output
 	for _, output := range transaction.Outputs {
-		data := toTxOutputData(output)
+		data := toOutputData(output)
 		outputs = append(outputs, data)
 	}
 
-	return &txData{
-		ID:      transaction.ID,
+	return &Transaction{
+		Id:      transaction.ID.Slice(),
 		Inputs:  inputs,
 		Outputs: outputs,
 		Secret:  transaction.Secret,
 	}
 }
 
-func fromTxData(transaction *txData) (*entity.Transaction, error) {
+func fromTransactionData(transaction *Transaction) (*entity.Transaction, error) {
 	var inputs []*entity.SignedInput
-	for _, input := range transaction.Inputs {
-		data, err := fromTxSignedInputData(input)
+	for _, input := range transaction.GetInputs() {
+		data, err := fromSignedInputData(input)
 		if err != nil {
 			return nil, err
 		}
@@ -68,90 +38,90 @@ func fromTxData(transaction *txData) (*entity.Transaction, error) {
 	}
 
 	var outputs []*entity.Output
-	for _, output := range transaction.Outputs {
-		data := fromTxOutputData(output)
+	for _, output := range transaction.GetOutputs() {
+		data := fromOutputData(output)
 		outputs = append(outputs, data)
 	}
 
 	return &entity.Transaction{
-		ID:      transaction.ID,
+		ID:      entity.TxIdFromBytes(transaction.GetId()),
 		Inputs:  inputs,
 		Outputs: outputs,
-		Secret:  transaction.Secret,
+		Secret:  transaction.GetSecret(),
 	}, nil
 }
 
-func toTxSignedInputData(input *entity.SignedInput) *txSignedInputData {
-	return &txSignedInputData{
-		Reference: toTxOutputReferenceData(input.OutputReference),
+func toSignedInputData(input *entity.SignedInput) *SignedInput {
+	return &SignedInput{
+		Reference: toOutputReferenceData(input.OutputReference),
 		Signature: input.Signature.Serialize(),
 		PublicKey: input.PublicKey.Serialize(),
 	}
 }
 
-func fromTxSignedInputData(input *txSignedInputData) (*entity.SignedInput, error) {
-	publicKey, err := crypto.DeserializePublicKey(input.PublicKey)
+func fromSignedInputData(input *SignedInput) (*entity.SignedInput, error) {
+	publicKey, err := crypto.DeserializePublicKey(input.GetPublicKey())
 	if err != nil {
 		return nil, err
 	}
 
-	signature, err := crypto.DeserializeSignature(input.Signature)
+	signature, err := crypto.DeserializeSignature(input.GetSignature())
 	if err != nil {
 		return nil, err
 	}
 
 	return &entity.SignedInput{
-		OutputReference: fromTxOutputReferenceData(input.Reference),
+		OutputReference: fromOutputReferenceData(input.GetReference()),
 		PublicKey:       publicKey,
 		Signature:       signature,
 	}, nil
 }
 
-func toTxUnsignedInputData(input *entity.UnsignedInput) *txUnsignedInputData {
-	return &txUnsignedInputData{
-		Reference: toTxOutputReferenceData(input.OutputReference),
+func toUnsignedInputData(input *entity.UnsignedInput) *UnsignedInput {
+	return &UnsignedInput{
+		Reference: toOutputReferenceData(input.OutputReference),
 		PublicKey: input.PublicKey.Serialize(),
 	}
 }
 
-func fromTxUnsignedInputData(input *txUnsignedInputData) (*entity.UnsignedInput, error) {
-	publicKey, err := crypto.DeserializePublicKey(input.PublicKey)
+func fromUnsignedInputData(input *UnsignedInput) (*entity.UnsignedInput, error) {
+	publicKey, err := crypto.DeserializePublicKey(input.GetPublicKey())
 	if err != nil {
 		return nil, err
 	}
 
 	return &entity.UnsignedInput{
-		OutputReference: fromTxOutputReferenceData(input.Reference),
+		OutputReference: fromOutputReferenceData(input.GetReference()),
 		PublicKey:       publicKey,
 	}, nil
 }
 
-func toTxOutputReferenceData(reference *entity.OutputReference) *txOutputReferenceData {
-	return &txOutputReferenceData{
-		ID:     reference.ID,
-		Output: toTxOutputData(reference.Output),
+func toOutputReferenceData(reference *entity.OutputReference) *OutputReference {
+	return &OutputReference{
+		Id:     reference.ID.Slice(),
+		Output: toOutputData(reference.Output),
 	}
 }
 
-func fromTxOutputReferenceData(reference *txOutputReferenceData) *entity.OutputReference {
+func fromOutputReferenceData(reference *OutputReference) *entity.OutputReference {
 	return &entity.OutputReference{
-		ID:     reference.ID,
-		Output: fromTxOutputData(reference.Output),
+		ID:     entity.TxIdFromBytes(reference.GetId()),
+		Output: fromOutputData(reference.GetOutput()),
 	}
 }
 
-func toTxOutputData(output *entity.Output) *txOutputData {
-	return &txOutputData{
-		Index:         output.Index,
-		Value:         output.Value,
+func toOutputData(output *entity.Output) *Output {
+	return &Output{
+		Index:         proto.Uint32(output.Index),
+		Value:         proto.Uint32(output.Value),
 		PublicKeyHash: output.PublicKeyHash,
 	}
 }
 
-func fromTxOutputData(output *txOutputData) *entity.Output {
+func fromOutputData(output *Output) *entity.Output {
 	return &entity.Output{
-		Index:         output.Index,
-		Value:         output.Value,
-		PublicKeyHash: output.PublicKeyHash,
+		Index:         output.GetIndex(),
+		Value:         output.GetValue(),
+		PublicKeyHash: output.GetPublicKeyHash(),
 	}
 }

@@ -27,7 +27,7 @@ func (*blockGobEncoder) EncodeBlock(block *entity.Block) ([]byte, error) {
 }
 
 func (*blockGobEncoder) DecodeBlock(input []byte) (*entity.Block, error) {
-	var data blockData
+	var data Block
 
 	decoder := gob.NewDecoder(bytes.NewReader(input))
 	err := decoder.Decode(&data)

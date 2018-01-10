@@ -11,14 +11,14 @@ type transactionGobEncoder struct{}
 
 var transactionGobEncoderInstance transactionGobEncoder
 
-func NewTransactionGobEncoder() entity.TransactionEncoder {
+func TransactionGobEncoder() entity.TransactionEncoder {
 	return &transactionGobEncoderInstance
 }
 
 func (*transactionGobEncoder) EncodeTransaction(transaction *entity.Transaction) ([]byte, error) {
 	var result bytes.Buffer
 	encoder := gob.NewEncoder(&result)
-	err := encoder.Encode(toTxData(transaction))
+	err := encoder.Encode(toTransactionData(transaction))
 	if err != nil {
 		return nil, fmt.Errorf("serializing transaction to gob: %s", err)
 	}
@@ -27,7 +27,7 @@ func (*transactionGobEncoder) EncodeTransaction(transaction *entity.Transaction)
 }
 
 func (*transactionGobEncoder) DecodeTransaction(input []byte) (*entity.Transaction, error) {
-	var data txData
+	var data Transaction
 
 	decoder := gob.NewDecoder(bytes.NewReader(input))
 	err := decoder.Decode(&data)
@@ -35,13 +35,13 @@ func (*transactionGobEncoder) DecodeTransaction(input []byte) (*entity.Transacti
 		return nil, fmt.Errorf("deserializing transaction from gob '%s': %s", input, err)
 	}
 
-	return fromTxData(&data)
+	return fromTransactionData(&data)
 }
 
 func (*transactionGobEncoder) EncodeOutput(output *entity.Output) ([]byte, error) {
 	var result bytes.Buffer
 	encoder := gob.NewEncoder(&result)
-	err := encoder.Encode(toTxOutputData(output))
+	err := encoder.Encode(toOutputData(output))
 	if err != nil {
 		return nil, fmt.Errorf("serializing transaction output to gob: %s", err)
 	}
@@ -50,7 +50,7 @@ func (*transactionGobEncoder) EncodeOutput(output *entity.Output) ([]byte, error
 }
 
 func (*transactionGobEncoder) DecodeOutput(input []byte) (*entity.Output, error) {
-	var data txOutputData
+	var data Output
 
 	decoder := gob.NewDecoder(bytes.NewReader(input))
 	err := decoder.Decode(&data)
@@ -58,13 +58,13 @@ func (*transactionGobEncoder) DecodeOutput(input []byte) (*entity.Output, error)
 		return nil, fmt.Errorf("deserializing transaction output from gob '%s': %s", input, err)
 	}
 
-	return fromTxOutputData(&data), nil
+	return fromOutputData(&data), nil
 }
 
 func (*transactionGobEncoder) EncodeSignedInput(input *entity.SignedInput) ([]byte, error) {
 	var result bytes.Buffer
 	encoder := gob.NewEncoder(&result)
-	err := encoder.Encode(toTxSignedInputData(input))
+	err := encoder.Encode(toSignedInputData(input))
 	if err != nil {
 		return nil, fmt.Errorf("serializing transaction signed input to gob: %s", err)
 	}
@@ -73,7 +73,7 @@ func (*transactionGobEncoder) EncodeSignedInput(input *entity.SignedInput) ([]by
 }
 
 func (*transactionGobEncoder) DecodeSignedInput(input []byte) (*entity.SignedInput, error) {
-	var data txSignedInputData
+	var data SignedInput
 
 	decoder := gob.NewDecoder(bytes.NewReader(input))
 	err := decoder.Decode(&data)
@@ -81,13 +81,13 @@ func (*transactionGobEncoder) DecodeSignedInput(input []byte) (*entity.SignedInp
 		return nil, fmt.Errorf("deserializing transaction signed input from gob '%s': %s", input, err)
 	}
 
-	return fromTxSignedInputData(&data)
+	return fromSignedInputData(&data)
 }
 
 func (*transactionGobEncoder) EncodeUnsignedInput(input *entity.UnsignedInput) ([]byte, error) {
 	var result bytes.Buffer
 	encoder := gob.NewEncoder(&result)
-	err := encoder.Encode(toTxUnsignedInputData(input))
+	err := encoder.Encode(toUnsignedInputData(input))
 	if err != nil {
 		return nil, fmt.Errorf("serializing transaction unsigned input to gob: %s", err)
 	}
@@ -96,7 +96,7 @@ func (*transactionGobEncoder) EncodeUnsignedInput(input *entity.UnsignedInput) (
 }
 
 func (*transactionGobEncoder) DecodeUnsignedInput(input []byte) (*entity.UnsignedInput, error) {
-	var data txUnsignedInputData
+	var data UnsignedInput
 
 	decoder := gob.NewDecoder(bytes.NewReader(input))
 	err := decoder.Decode(&data)
@@ -104,5 +104,5 @@ func (*transactionGobEncoder) DecodeUnsignedInput(input []byte) (*entity.Unsigne
 		return nil, fmt.Errorf("deserializing transaction unsigned input from gob '%s': %s", input, err)
 	}
 
-	return fromTxUnsignedInputData(&data)
+	return fromUnsignedInputData(&data)
 }

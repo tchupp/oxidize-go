@@ -1,0 +1,46 @@
+syntax = "proto2";
+
+package encoding;
+
+message Block {
+    required BlockHeader header = 1;
+    repeated Transaction transactions = 2;
+    required bytes hash = 3;
+    required uint64 nonce = 4;
+}
+
+message BlockHeader {
+    required uint64 index = 1;
+    required bytes previousHash = 2;
+    required uint64 timestamp = 3;
+    required bytes transactionsHash = 4;
+}
+
+message Transaction {
+    required bytes id = 1;
+    repeated SignedInput inputs = 2;
+    repeated Output outputs = 3;
+    required bytes secret = 4;
+}
+
+message Output {
+    required uint32 index = 1;
+    required uint32 value = 2;
+    required bytes publicKeyHash = 3;
+}
+
+message OutputReference {
+    required bytes id = 1;
+    required Output output = 2;
+}
+
+message SignedInput {
+    required OutputReference reference = 1;
+    required bytes publicKey = 2;
+    required bytes signature = 3;
+}
+
+message UnsignedInput {
+    required OutputReference reference = 1;
+    required bytes publicKey = 2;
+}
