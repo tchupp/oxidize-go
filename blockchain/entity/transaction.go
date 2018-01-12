@@ -2,12 +2,11 @@ package entity
 
 import (
 	"crypto/rand"
+	"crypto/sha256"
 	"fmt"
+	"log"
 	"strconv"
 	"strings"
-	"crypto/sha256"
-	"encoding/hex"
-	"log"
 )
 
 const subsidy = 10
@@ -15,7 +14,7 @@ const secretLength = 32
 
 type (
 	Transaction struct {
-		ID      TransactionId
+		ID      *Hash
 		Inputs  []*SignedInput
 		Outputs []*Output
 		Secret  []byte
@@ -24,7 +23,7 @@ type (
 	Transactions []*Transaction
 
 	OutputReference struct {
-		ID     TransactionId
+		ID     *Hash
 		Output *Output
 	}
 )
@@ -75,34 +74,14 @@ func generateSecret() []byte {
 	return secret
 }
 
-type TransactionId [sha256.Size]byte
-
-func TxIdFromString(newId string) TransactionId {
-	decoded, _ := hex.DecodeString(newId)
-
-	return TxIdFromBytes(decoded)
-}
-
-func TxIdFromBytes(newId []byte) TransactionId {
-	var id TransactionId
-	copy(id[:], newId[:sha256.Size])
-	return id
-}
-
-func (txId TransactionId) String() string {
-	return hex.EncodeToString(txId[:])
-}
-
-func (txId TransactionId) Slice() []byte {
-	return txId[:]
-}
-
-func calculateTransactionId(inputs []*SignedInput, outputs []*Output, secret []byte, encoder TransactionEncoder) TransactionId {
-	return sha256.Sum256(serializeTxData(inputs, outputs, secret, encoder))
+func calculateTransactionId(inputs []*SignedInput, outputs []*Output, secret []byte, encoder TransactionEncoder) *Hash {
+	hash := Hash(sha256.Sum256(serializeTxData(inputs, outputs, secret, encoder)))
+	return &hash
 }
 
 func serializeTxData(inputs []*SignedInput, outputs []*Output, secret []byte, encoder TransactionEncoder) []byte {
 	transaction := &Transaction{
+		ID:      &EmptyHash,
 		Inputs:  inputs,
 		Outputs: outputs,
 		Secret:  secret,

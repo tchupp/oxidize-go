@@ -1,20 +1,20 @@
 package txsigning
 
 import (
+	"log"
 	"testing"
-	"encoding/hex"
-	"crypto/sha256"
 
 	"github.com/tclchiam/block_n_go/blockchain/entity"
 	"github.com/tclchiam/block_n_go/blockchain/entity/encoding"
 	"github.com/tclchiam/block_n_go/wallet"
 )
 
-func buildTransactionId(newId string) entity.TransactionId {
-	decoded, _ := hex.DecodeString(newId)
+func buildTransactionId(newId string) *entity.Hash {
+	id, err := entity.NewHashFromString(newId)
+	if err != nil {
+		log.Panic(err)
+	}
 
-	var id entity.TransactionId
-	copy(id[:], decoded[:sha256.Size])
 	return id
 }
 

@@ -5,7 +5,6 @@ import (
 	"encoding/binary"
 	"math/big"
 
-	"github.com/tclchiam/block_n_go/blockchain/chainhash"
 	"github.com/tclchiam/block_n_go/blockchain/entity"
 )
 
@@ -18,7 +17,7 @@ var (
 	target = big.NewInt(1).Lsh(big.NewInt(1), uint(hashLength-targetBits))
 )
 
-func CalculateHash(header *entity.BlockHeader, nonce uint64) chainhash.Hash {
+func CalculateHash(header *entity.BlockHeader, nonce uint64) entity.Hash {
 	rawBlockContents := [][]byte{
 		header.PreviousHash.Slice(),
 		header.TransactionsHash.Slice(),
@@ -26,7 +25,7 @@ func CalculateHash(header *entity.BlockHeader, nonce uint64) chainhash.Hash {
 		intToHex(nonce),
 	}
 	rawBlockData := bytes.Join(rawBlockContents, []byte(nil))
-	return chainhash.CalculateHash(rawBlockData)
+	return calculateHash(rawBlockData)
 }
 
 func Valid(block *entity.Block) bool {
@@ -35,7 +34,7 @@ func Valid(block *entity.Block) bool {
 	return new(big.Int).SetBytes(hash.Slice()).Cmp(target) == -1
 }
 
-func HashValid(hash chainhash.Hash) bool {
+func HashValid(hash entity.Hash) bool {
 	return new(big.Int).SetBytes(hash.Slice()).Cmp(target) == -1
 }
 

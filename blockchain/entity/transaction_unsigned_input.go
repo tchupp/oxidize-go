@@ -11,7 +11,7 @@ type UnsignedInput struct {
 	PublicKey       *crypto.PublicKey
 }
 
-func NewUnsignedInput(outputTransactionId TransactionId, output *Output, senderPublicKey *crypto.PublicKey) *UnsignedInput {
+func NewUnsignedInput(outputTransactionId *Hash, output *Output, senderPublicKey *crypto.PublicKey) *UnsignedInput {
 	reference := &OutputReference{ID: outputTransactionId, Output: output}
 
 	return &UnsignedInput{

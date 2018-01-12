@@ -2,7 +2,6 @@ package boltdb
 
 import (
 	"github.com/boltdb/bolt"
-	"github.com/tclchiam/block_n_go/blockchain/chainhash"
 	"github.com/tclchiam/block_n_go/blockchain/entity"
 )
 
@@ -29,7 +28,7 @@ func (r *blockBoltRepository) Head() (head *entity.Block, err error) {
 	return head, err
 }
 
-func (r *blockBoltRepository) Block(hash *chainhash.Hash) (block *entity.Block, err error) {
+func (r *blockBoltRepository) Block(hash *entity.Hash) (block *entity.Block, err error) {
 	err = r.db.View(func(tx *bolt.Tx) error {
 		bucket, err := bucket(tx, blocksBucketName)
 		if err != nil {

@@ -1,4 +1,4 @@
-package chainhash
+package mining
 
 import (
 	"fmt"
@@ -46,10 +46,10 @@ func TestHashFuncs_Single(t *testing.T) {
 
 	// Ensure the hash function which returns a Hash returns the expected result
 	for _, test := range tests {
-		hash := CalculateHash([]byte(test.in))
+		hash := calculateHash([]byte(test.in))
 		h := fmt.Sprintf("%x", hash.Slice())
 		if h != test.out {
-			t.Errorf("CalculateHash(%q) = %s, want %s", test.in, h, test.out)
+			t.Errorf("calculateHash(%q) = %s, want %s", test.in, h, test.out)
 		}
 	}
 }

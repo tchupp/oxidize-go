@@ -1,10 +1,10 @@
 package encoding
 
 import (
+	"fmt"
+
 	"github.com/tclchiam/block_n_go/blockchain/entity"
 	"github.com/golang/protobuf/proto"
-	"github.com/tclchiam/block_n_go/blockchain/chainhash"
-	"fmt"
 )
 
 func toBlockData(block *entity.Block) *Block {
@@ -37,7 +37,7 @@ func fromBlockData(block *Block) (*entity.Block, error) {
 		return nil, err
 	}
 
-	hash, err := chainhash.NewHash(block.GetHash())
+	hash, err := entity.NewHash(block.GetHash())
 	if err != nil {
 		return nil, err
 	}
@@ -64,12 +64,12 @@ func toBlockHeaderData(header *entity.BlockHeader) *BlockHeader {
 }
 
 func fromBlockHeaderData(block *BlockHeader) (*entity.BlockHeader, error) {
-	previousHash, err := chainhash.NewHash(block.GetPreviousHash())
+	previousHash, err := entity.NewHash(block.GetPreviousHash())
 	if err != nil {
 		return nil, fmt.Errorf("parsing previous hash: %s", err)
 	}
 
-	transactionsHash, err := chainhash.NewHash(block.GetTransactionsHash())
+	transactionsHash, err := entity.NewHash(block.GetTransactionsHash())
 	if err != nil {
 		return nil, fmt.Errorf("parsing transactions hash: %s", err)
 	}

@@ -1,4 +1,4 @@
-package chainhash
+package entity
 
 import (
 	"bytes"
@@ -9,7 +9,7 @@ import (
 
 // mainNetGenesisHash is the hash of the first block in the block chain for the
 // main network (genesis block).
-var mainNetGenesisHash = Hash([HashSize]byte{
+var mainNetGenesisHash = Hash([hashLength]byte{
 	0x00, 0x00, 0x00, 0x00, 0x00, 0x19, 0xd6, 0x68,
 	0x9c, 0x08, 0x5a, 0xe1, 0x65, 0x83, 0x1e, 0x93,
 	0x4f, 0xf7, 0x63, 0xae, 0x46, 0xa2, 0xa6, 0xc1,
@@ -19,9 +19,9 @@ var mainNetGenesisHash = Hash([HashSize]byte{
 func TestHash(t *testing.T) {
 	// Hash of block 234439.
 	blockHashStr := "014a0810ac680a3eb3f82edc878cea25ec41d6b790744e5daeef"
-	blockHash, err := NewHashFromStr(blockHashStr)
+	blockHash, err := NewHashFromString(blockHashStr)
 	if err != nil {
-		t.Errorf("NewHashFromStr: %v", err)
+		t.Errorf("NewHashFromString: %v", err)
 	}
 
 	// Hash of block 234440 as byte slice.
@@ -38,8 +38,8 @@ func TestHash(t *testing.T) {
 	}
 
 	// Ensure proper size.
-	if len(hash) != HashSize {
-		t.Errorf("NewHash: hash length mismatch - got: %v, want: %v", len(hash), HashSize)
+	if len(hash) != hashLength {
+		t.Errorf("NewHash: hash length mismatch - got: %v, want: %v", len(hash), hashLength)
 	}
 
 	// Ensure contents match.
@@ -76,7 +76,7 @@ func TestHash(t *testing.T) {
 	}
 
 	// Invalid size for NewHash.
-	invalidHash := make([]byte, HashSize+1)
+	invalidHash := make([]byte, hashLength+1)
 	_, err = NewHash(invalidHash)
 	if err == nil {
 		t.Errorf("NewHash: failed to received expected err - got: nil")
@@ -87,7 +87,7 @@ func TestHash(t *testing.T) {
 func TestHashString(t *testing.T) {
 	// Block 100000 hash.
 	wantStr := "000000000003ba27aa200b1cecaad478d2b00432346c3f1f3986da1afd33e506"
-	hash := Hash([HashSize]byte{
+	hash := Hash([hashLength]byte{
 		0x00, 0x00, 0x00, 0x00, 0x00, 0x03, 0xba, 0x27,
 		0xaa, 0x20, 0x0b, 0x1c, 0xec, 0xaa, 0xd4, 0x78,
 		0xd2, 0xb0, 0x04, 0x32, 0x34, 0x6c, 0x3f, 0x1f,
@@ -100,8 +100,8 @@ func TestHashString(t *testing.T) {
 	}
 }
 
-// TestNewHashFromStr executes tests against the NewHashFromStr function.
-func TestNewHashFromStr(t *testing.T) {
+// TestNewHashFromString executes tests against the NewHashFromString function.
+func TestNewHashFromString(t *testing.T) {
 	tests := []struct {
 		in   string
 		want Hash
@@ -131,11 +131,11 @@ func TestNewHashFromStr(t *testing.T) {
 		// Single digit hash.
 		{
 			"1",
-			Hash([HashSize]byte{
-				0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+			Hash([hashLength]byte{
 				0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
 				0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
 				0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+				0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01,
 			}),
 			nil,
 		},
@@ -143,20 +143,25 @@ func TestNewHashFromStr(t *testing.T) {
 		// Block 203707 with stripped leading zeros.
 		{
 			"3264bc2ac36a60840790ba1d475d01367e7c723da941069e9dc",
-			Hash([HashSize]byte{
-				0xdc, 0xe9, 0x69, 0x10, 0x94, 0xda, 0x23, 0xc7,
-				0xe7, 0x67, 0x13, 0xd0, 0x75, 0xd4, 0xa1, 0x0b,
-				0x79, 0x40, 0x08, 0xa6, 0x36, 0xac, 0xc2, 0x4b,
-				0x26, 0x03, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+			Hash([hashLength]byte{
+				0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x03, 0x26,
+				0x4b, 0xc2, 0xac, 0x36, 0xa6, 0x08, 0x40, 0x79,
+				0x0b, 0xa1, 0xd4, 0x75, 0xd0, 0x13, 0x67, 0xe7,
+				0xc7, 0x23, 0xda, 0x94, 0x10, 0x69, 0xe9, 0xdc,
 			}),
 			nil,
 		},
 
 		// Hash string that is too long.
 		{
-			"01234567890123456789012345678901234567890123456789012345678912345",
-			Hash{},
-			ErrHashStrSize,
+			"012345678901234567890123456789012345678901234567890123456789012345",
+			[hashLength]byte{
+				0x01, 0x23, 0x45, 0x67, 0x89, 0x01, 0x23, 0x45,
+				0x67, 0x89, 0x01, 0x23, 0x45, 0x67, 0x89, 0x01,
+				0x23, 0x45, 0x67, 0x89, 0x01, 0x23, 0x45, 0x67,
+				0x89, 0x01, 0x23, 0x45, 0x67, 0x89, 0x01, 0x23,
+			},
+			nil,
 		},
 
 		// Hash string that is contains non-hex chars.
@@ -170,22 +175,21 @@ func TestNewHashFromStr(t *testing.T) {
 	t.Logf("Running %d tests", len(tests))
 
 	for index, testParams := range tests {
-		err := hashFromStrTestSuite(testParams.in, testParams.want, testParams.err, index)
-		if err != nil {
+		if err := hashFromStrTestSuite(testParams.in, testParams.want, testParams.err, index); err != nil {
 			t.Error(err)
 		}
 	}
 }
 
 func hashFromStrTestSuite(input string, expectedResult Hash, expectedError error, index int) error {
-	const unexpectedErrStr = "NewHashFromStr #%d failed to detect expected error - got: %v want: %v"
-	const unexpectedResultStr = "NewHashFromStr #%d got: %v want: %v"
+	const unwantedErrStr = "NewHashFromString #%d failed to detect expected error - got: %v want: %v"
+	const unexpectedResultStr = "NewHashFromString #%d got: %v want: %v"
 
-	result, expectedError := NewHashFromStr(input)
+	result, actualError := NewHashFromString(input)
 
-	if expectedError != expectedError {
-		return fmt.Errorf(unexpectedErrStr, index, expectedError, expectedError)
-	} else if expectedError != nil {
+	if actualError != expectedError {
+		return fmt.Errorf(unwantedErrStr, index, actualError, expectedError)
+	} else if actualError != nil {
 		return nil
 	} else if !expectedResult.IsEqual(result) {
 		return fmt.Errorf(unexpectedResultStr, index, result, &expectedResult)

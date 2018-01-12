@@ -1,30 +1,29 @@
 package entity
 
 import (
-	"fmt"
-	"time"
-	"strings"
-
-	"github.com/tclchiam/block_n_go/blockchain/chainhash"
 	"bytes"
+	"crypto/sha256"
+	"fmt"
+	"strings"
+	"time"
 )
 
 type BlockHeader struct {
 	Index            uint64
-	PreviousHash     *chainhash.Hash
+	PreviousHash     *Hash
 	Timestamp        uint64
-	TransactionsHash *chainhash.Hash
+	TransactionsHash *Hash
 }
 
 func NewGenesisBlockHeader(transactions Transactions) *BlockHeader {
-	return NewBlockHeaderNow(0, &chainhash.EmptyHash, transactions)
+	return NewBlockHeaderNow(0, &EmptyHash, transactions)
 }
 
-func NewBlockHeaderNow(index uint64, previousHash *chainhash.Hash, transactions Transactions) *BlockHeader {
+func NewBlockHeaderNow(index uint64, previousHash *Hash, transactions Transactions) *BlockHeader {
 	return NewBlockHeader(index, previousHash, transactions, uint64(time.Now().Unix()))
 }
 
-func NewBlockHeader(index uint64, previousHash *chainhash.Hash, transactions Transactions, timestamp uint64) *BlockHeader {
+func NewBlockHeader(index uint64, previousHash *Hash, transactions Transactions, timestamp uint64) *BlockHeader {
 	transactionsHash := hashTransactions(transactions)
 
 	return &BlockHeader{
@@ -64,12 +63,12 @@ func (header *BlockHeader) IsEqual(other *BlockHeader) bool {
 	return true
 }
 
-func hashTransactions(transactions Transactions) chainhash.Hash {
+func hashTransactions(transactions Transactions) Hash {
 	var transactionHashes [][]byte
 
 	for _, transaction := range transactions {
 		transactionHashes = append(transactionHashes, transaction.ID.Slice())
 	}
 
-	return chainhash.CalculateHash(bytes.Join(transactionHashes, []byte{}))
+	return Hash(sha256.Sum256(bytes.Join(transactionHashes, []byte{})))
 }

@@ -43,8 +43,13 @@ func fromTransactionData(transaction *Transaction) (*entity.Transaction, error) 
 		outputs = append(outputs, data)
 	}
 
+	id, err := entity.NewHash(transaction.GetId())
+	if err != nil {
+		return nil, err
+	}
+
 	return &entity.Transaction{
-		ID:      entity.TxIdFromBytes(transaction.GetId()),
+		ID:      id,
 		Inputs:  inputs,
 		Outputs: outputs,
 		Secret:  transaction.GetSecret(),
@@ -70,8 +75,13 @@ func fromSignedInputData(input *SignedInput) (*entity.SignedInput, error) {
 		return nil, err
 	}
 
+	outputReference, err := fromOutputReferenceData(input.GetReference())
+	if err != nil {
+		return nil, err
+	}
+
 	return &entity.SignedInput{
-		OutputReference: fromOutputReferenceData(input.GetReference()),
+		OutputReference: outputReference,
 		PublicKey:       publicKey,
 		Signature:       signature,
 	}, nil
@@ -90,8 +100,13 @@ func fromUnsignedInputData(input *UnsignedInput) (*entity.UnsignedInput, error) 
 		return nil, err
 	}
 
+	outputReference, err := fromOutputReferenceData(input.GetReference())
+	if err != nil {
+		return nil, err
+	}
+
 	return &entity.UnsignedInput{
-		OutputReference: fromOutputReferenceData(input.GetReference()),
+		OutputReference: outputReference,
 		PublicKey:       publicKey,
 	}, nil
 }
@@ -103,11 +118,16 @@ func toOutputReferenceData(reference *entity.OutputReference) *OutputReference {
 	}
 }
 
-func fromOutputReferenceData(reference *OutputReference) *entity.OutputReference {
-	return &entity.OutputReference{
-		ID:     entity.TxIdFromBytes(reference.GetId()),
-		Output: fromOutputData(reference.GetOutput()),
+func fromOutputReferenceData(reference *OutputReference) (*entity.OutputReference, error) {
+	id, err := entity.NewHash(reference.GetId())
+	if err != nil {
+		return nil, err
 	}
+
+	return &entity.OutputReference{
+		ID:     id,
+		Output: fromOutputData(reference.GetOutput()),
+	}, nil
 }
 
 func toOutputData(output *entity.Output) *Output {

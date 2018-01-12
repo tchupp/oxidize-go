@@ -7,7 +7,6 @@ import (
 	"github.com/boltdb/bolt"
 	"github.com/google/go-cmp/cmp"
 	"github.com/tclchiam/block_n_go/wallet"
-	"github.com/tclchiam/block_n_go/blockchain/chainhash"
 	"github.com/tclchiam/block_n_go/blockchain/entity"
 	"github.com/tclchiam/block_n_go/blockchain/entity/encoding"
 )
@@ -26,8 +25,8 @@ func TestBlockRepository_SaveBlock(t *testing.T) {
 	transactions := entity.Transactions{entity.NewCoinbaseTx(address, encoding.TransactionProtoEncoder())}
 
 	const previousIndex = 5
-	previousHash, _ := chainhash.NewHashFromStr("0000f65fe866ab6f810b13a5d864f96cb16ad22e2e931b861f80d870f2e32df7")
-	hash, _ := chainhash.NewHashFromStr("00007eaa535b8894e8815f57d317c3bb14ab598417fe4ddd8d37d65c189f85fe")
+	previousHash, _ := entity.NewHashFromString("0000f65fe866ab6f810b13a5d864f96cb16ad22e2e931b861f80d870f2e32df7")
+	hash, _ := entity.NewHashFromString("00007eaa535b8894e8815f57d317c3bb14ab598417fe4ddd8d37d65c189f85fe")
 
 	blockToSave := entity.NewBlock(
 		entity.NewBlockHeader(previousIndex+1, previousHash, transactions, 18920304),

@@ -1,17 +1,14 @@
 package entity
 
 import (
-	"bytes"
 	"fmt"
 	"strings"
-
-	"github.com/tclchiam/block_n_go/blockchain/chainhash"
 )
 
 type Block struct {
 	header       *BlockHeader
 	transactions Transactions
-	hash         *chainhash.Hash
+	hash         *Hash
 	nonce        uint64
 }
 
@@ -41,10 +38,6 @@ func (block *Block) String() string {
 	return strings.Join(lines, "\n")
 }
 
-func (block *Block) IsGenesisBlock() bool {
-	return bytes.Compare(block.PreviousHash().Slice(), chainhash.EmptyHash.Slice()) == 0
-}
-
 func (block *Block) IsEqual(other *Block) bool {
 	if !block.header.IsEqual(other.header) {
 		return false
@@ -59,10 +52,12 @@ func (block *Block) IsEqual(other *Block) bool {
 	return true
 }
 
-func (block *Block) Index() uint64                 { return block.header.Index }
-func (block *Block) PreviousHash() *chainhash.Hash { return block.header.PreviousHash }
-func (block *Block) Timestamp() uint64             { return block.header.Timestamp }
-func (block *Block) Header() *BlockHeader          { return block.header }
-func (block *Block) Transactions() Transactions    { return block.transactions }
-func (block *Block) Hash() *chainhash.Hash         { return block.hash }
-func (block *Block) Nonce() uint64                 { return block.nonce }
+func (block *Block) Index() uint64              { return block.header.Index }
+func (block *Block) PreviousHash() *Hash        { return block.header.PreviousHash }
+func (block *Block) Timestamp() uint64          { return block.header.Timestamp }
+func (block *Block) Header() *BlockHeader       { return block.header }
+func (block *Block) Transactions() Transactions { return block.transactions }
+func (block *Block) Hash() *Hash                { return block.hash }
+func (block *Block) Nonce() uint64              { return block.nonce }
+
+func (block *Block) IsGenesisBlock() bool { return block.PreviousHash().IsEmpty() }
