@@ -23,7 +23,6 @@ func main() {
 	if err != nil {
 		log.Panic(err)
 	}
-	defer blockRepository.Close()
 	defer boltdb.DeleteBlockchain(blockchainName)
 
 	bc, err := blockchain.Open(blockRepository, proofofwork.NewDefaultMiner(), owner.GetAddress())

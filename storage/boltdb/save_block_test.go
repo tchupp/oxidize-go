@@ -20,7 +20,7 @@ func TestBlockRepository_SaveBlock(t *testing.T) {
 	if err != nil {
 		t.Fatalf("creating block repository: %s", err)
 	}
-	defer closeAndDeleteDB(blockRepository.(*blockBoltRepository), t)
+	defer deleteDB(testBlockchainName, t)
 
 	transactions := entity.Transactions{entity.NewCoinbaseTx(address, encoding.TransactionProtoEncoder())}
 
@@ -39,7 +39,12 @@ func TestBlockRepository_SaveBlock(t *testing.T) {
 		t.Fatalf("SaveBlock failed: %s", err)
 	}
 
-	newBlock, err := readLatestBlock(blockRepository.(*blockBoltRepository).db, blocksBucketName, blockEncoder)
+	db, err := openDB(testBlockchainName)
+	if err != nil {
+		t.Fatalf("opening database: %s", err)
+	}
+
+	newBlock, err := readLatestBlock(db, blocksBucketName, blockEncoder)
 	if err != nil {
 		t.Fatalf("error: %s", err)
 	}

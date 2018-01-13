@@ -10,6 +10,4 @@ type BlockRepository interface {
 	Block(hash *entity.Hash) (*entity.Block, error)
 
 	SaveBlock(*entity.Block) error
-
-	Close() error
 }

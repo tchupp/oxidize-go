@@ -6,7 +6,13 @@ import (
 )
 
 func (r *blockBoltRepository) Head() (head *entity.Block, err error) {
-	err = r.db.View(func(tx *bolt.Tx) error {
+	db, err := openDB(r.name)
+	if err != nil {
+		return nil, err
+	}
+	defer db.Close()
+
+	err = db.View(func(tx *bolt.Tx) error {
 		bucket, err := bucket(tx, blocksBucketName)
 		if err != nil {
 			return err
@@ -29,7 +35,13 @@ func (r *blockBoltRepository) Head() (head *entity.Block, err error) {
 }
 
 func (r *blockBoltRepository) Block(hash *entity.Hash) (block *entity.Block, err error) {
-	err = r.db.View(func(tx *bolt.Tx) error {
+	db, err := openDB(r.name)
+	if err != nil {
+		return nil, err
+	}
+	defer db.Close()
+
+	err = db.View(func(tx *bolt.Tx) error {
 		bucket, err := bucket(tx, blocksBucketName)
 		if err != nil {
 			return err

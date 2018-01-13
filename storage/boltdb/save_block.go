@@ -8,7 +8,13 @@ import (
 )
 
 func (r *blockBoltRepository) SaveBlock(block *entity.Block) error {
-	err := r.db.Update(func(tx *bolt.Tx) error {
+	db, err := openDB(r.name)
+	if err != nil {
+		return err
+	}
+	defer db.Close()
+
+	err = db.Update(func(tx *bolt.Tx) error {
 		bucket, err := bucket(tx, blocksBucketName)
 		if err != nil {
 			return err
