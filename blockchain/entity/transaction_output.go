@@ -1,10 +1,10 @@
 package entity
 
 import (
-	"github.com/tclchiam/block_n_go/wallet"
 	"bytes"
 	"fmt"
 	"strings"
+	"github.com/tclchiam/block_n_go/identity"
 )
 
 type Output struct {
@@ -13,10 +13,8 @@ type Output struct {
 	PublicKeyHash []byte
 }
 
-func NewOutput(value uint32, address string) *Output {
-	publicKeyHash, _ := wallet.AddressToPublicKeyHash(address)
-
-	return &Output{Value: value, PublicKeyHash: publicKeyHash}
+func NewOutput(value uint32, address *identity.Address) *Output {
+	return &Output{Value: value, PublicKeyHash: address.PublicKeyHash()}
 }
 
 func (output *Output) String() string {
@@ -30,13 +28,8 @@ func (output *Output) String() string {
 	return strings.Join(lines, "\n")
 }
 
-func (output *Output) IsLockedWithKey(address string) bool {
-	publicKeyHash, err := wallet.AddressToPublicKeyHash(address)
-	if err != nil {
-		return false
-	}
-
-	return bytes.Compare(output.PublicKeyHash, publicKeyHash) == 0
+func (output *Output) IsLockedWithKey(address *identity.Address) bool {
+	return bytes.Compare(output.PublicKeyHash, address.PublicKeyHash()) == 0
 }
 
 func (output *Output) IsEqual(other *Output) bool {

@@ -3,7 +3,10 @@ package crypto
 import (
 	"crypto/ecdsa"
 	"crypto/elliptic"
+	"crypto/sha256"
 	"math/big"
+
+	"golang.org/x/crypto/ripemd160"
 )
 
 type PublicKey ecdsa.PublicKey
@@ -22,6 +25,14 @@ func (p *PublicKey) Verify(hash []byte, signature *Signature) bool {
 
 func (p *PublicKey) Serialize() []byte {
 	return append(p.X.Bytes(), p.Y.Bytes()...)
+}
+
+func (p *PublicKey) Hash() []byte {
+	publicSHA256 := sha256.Sum256(p.Serialize())
+
+	hashImpl := ripemd160.New()
+	hashImpl.Write(publicSHA256[:])
+	return hashImpl.Sum(nil)
 }
 
 func DeserializePublicKey(input []byte) (*PublicKey, error) {

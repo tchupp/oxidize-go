@@ -4,6 +4,7 @@ import (
 	"github.com/tclchiam/block_n_go/blockchain/engine/iter"
 	"github.com/tclchiam/block_n_go/blockchain/entity"
 	"github.com/tclchiam/block_n_go/storage"
+	"github.com/tclchiam/block_n_go/identity"
 	"github.com/imdario/mergo"
 )
 
@@ -15,7 +16,7 @@ func NewCrawlerEngine(repository storage.BlockRepository) Engine {
 	return &utxoCrawlerEngine{repository: repository}
 }
 
-func (engine *utxoCrawlerEngine) FindUnspentOutputs(address string) (*TransactionOutputSet, error) {
+func (engine *utxoCrawlerEngine) FindUnspentOutputs(address *identity.Address) (*TransactionOutputSet, error) {
 	spentOutputs := make(map[string][]*entity.Output)
 	outputsForAddress := NewTransactionSet()
 
@@ -42,7 +43,7 @@ func isUnspent(spentOutputs map[string][]*entity.Output) func(transaction *entit
 	}
 }
 
-func findSpentOutputs(transaction *entity.Transaction, address string) map[string][]*entity.Output {
+func findSpentOutputs(transaction *entity.Transaction, address *identity.Address) map[string][]*entity.Output {
 	spent := make(map[string][]*entity.Output)
 	if transaction.IsCoinbase() {
 		return spent
@@ -60,16 +61,9 @@ func findSpentOutputs(transaction *entity.Transaction, address string) map[strin
 		Reduce(spent, addToUnspent).(map[string][]*entity.Output)
 }
 
-func findOutputsForAddress(transaction *entity.Transaction, address string) *TransactionOutputSet {
+func findOutputsForAddress(transaction *entity.Transaction, address *identity.Address) *TransactionOutputSet {
 	addToTxSet := func(res interface{}, output *entity.Output) interface{} {
 		return res.(*TransactionOutputSet).Add(transaction, output)
-	}
-
-	outputs := NewTransactionSet()
-	for _, output := range transaction.Outputs {
-		if output.IsLockedWithKey(address) {
-			outputs = outputs.Add(transaction, output)
-		}
 	}
 
 	return entity.NewOutputs(transaction.Outputs).

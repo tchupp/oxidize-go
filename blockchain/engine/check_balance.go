@@ -3,9 +3,10 @@ package engine
 import (
 	"github.com/tclchiam/block_n_go/blockchain/engine/utxo"
 	"github.com/tclchiam/block_n_go/blockchain/entity"
+	"github.com/tclchiam/block_n_go/identity"
 )
 
-func ReadBalance(address string, engine utxo.Engine) (uint32, error) {
+func ReadBalance(address *identity.Address, engine utxo.Engine) (uint32, error) {
 	unspentOutputs, err := engine.FindUnspentOutputs(address)
 	if err != nil {
 		return 0, err

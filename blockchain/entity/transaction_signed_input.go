@@ -2,11 +2,11 @@ package entity
 
 import (
 	"bytes"
-
-	"github.com/tclchiam/block_n_go/wallet"
-	"github.com/tclchiam/block_n_go/crypto"
 	"fmt"
 	"strings"
+
+	"github.com/tclchiam/block_n_go/crypto"
+	"github.com/tclchiam/block_n_go/identity"
 )
 
 type SignedInput struct {
@@ -33,13 +33,9 @@ func (input *SignedInput) String() string {
 	return strings.Join(lines, "\n")
 }
 
-func (input *SignedInput) SpentBy(address string) bool {
-	publicKeyHash, err := wallet.AddressToPublicKeyHash(address)
-	if err != nil {
-		return false
-	}
-
-	lockingHash := wallet.HashPubKey(input.PublicKey)
+func (input *SignedInput) SpentBy(address *identity.Address) bool {
+	publicKeyHash := address.PublicKeyHash()
+	lockingHash := input.PublicKey.Hash()
 
 	return bytes.Compare(lockingHash, publicKeyHash) == 0
 }

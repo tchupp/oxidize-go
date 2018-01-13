@@ -9,6 +9,7 @@ import (
 	"github.com/tclchiam/block_n_go/mining"
 	"github.com/tclchiam/block_n_go/wallet"
 	"github.com/tclchiam/block_n_go/blockchain/engine/utxo"
+	"github.com/tclchiam/block_n_go/identity"
 )
 
 type Blockchain struct {
@@ -17,7 +18,7 @@ type Blockchain struct {
 	utxoEngine      utxo.Engine
 }
 
-func Open(repository storage.BlockRepository, miner mining.Miner, ownerAddress string) (*Blockchain, error) {
+func Open(repository storage.BlockRepository, miner mining.Miner, owner *identity.Address) (*Blockchain, error) {
 	exists, err := genesisBlockExists(repository)
 	if err != nil {
 		return nil, err
@@ -26,7 +27,7 @@ func Open(repository storage.BlockRepository, miner mining.Miner, ownerAddress s
 	if !exists {
 		transactionEncoder := encoding.TransactionProtoEncoder()
 
-		transactions := entity.Transactions{entity.NewCoinbaseTx(ownerAddress, transactionEncoder)}
+		transactions := entity.Transactions{entity.NewCoinbaseTx(owner, transactionEncoder)}
 		header := entity.NewGenesisBlockHeader(transactions)
 		solution := miner.MineBlock(header)
 
@@ -58,7 +59,7 @@ func (bc *Blockchain) ForEachBlock(consume func(*entity.Block)) error {
 	return iter.ForEachBlock(bc.blockRepository, consume)
 }
 
-func (bc *Blockchain) ReadBalance(address string) (uint32, error) {
+func (bc *Blockchain) ReadBalance(address *identity.Address) (uint32, error) {
 	return engine.ReadBalance(address, bc.utxoEngine)
 }
 

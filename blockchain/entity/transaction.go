@@ -7,6 +7,8 @@ import (
 	"log"
 	"strconv"
 	"strings"
+
+	"github.com/tclchiam/block_n_go/identity"
 )
 
 const subsidy = 10
@@ -50,9 +52,9 @@ func (tx *Transaction) String() string {
 	return strings.Join(lines, "\n")
 }
 
-func NewCoinbaseTx(coinbaseAddress string, encoder TransactionEncoder) *Transaction {
+func NewCoinbaseTx(coinbase *identity.Address, encoder TransactionEncoder) *Transaction {
 	var inputs []*SignedInput
-	outputs := []*Output{NewOutput(subsidy, coinbaseAddress)}
+	outputs := []*Output{NewOutput(subsidy, coinbase)}
 
 	return NewTx(inputs, outputs, encoder)
 }

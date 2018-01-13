@@ -6,13 +6,13 @@ import (
 
 	"github.com/boltdb/bolt"
 	"github.com/google/go-cmp/cmp"
-	"github.com/tclchiam/block_n_go/wallet"
 	"github.com/tclchiam/block_n_go/blockchain/entity"
 	"github.com/tclchiam/block_n_go/blockchain/entity/encoding"
+	"github.com/tclchiam/block_n_go/identity"
 )
 
 func TestBlockRepository_SaveBlock(t *testing.T) {
-	address := wallet.NewWallet().GetAddress()
+	address := identity.RandomAddress()
 	const testBlockchainName = "test"
 
 	blockEncoder := encoding.NewBlockGobEncoder()
