@@ -1,9 +1,8 @@
 package crypto
 
 import (
-	"math/big"
 	"crypto/ecdsa"
-	"fmt"
+	"math/big"
 )
 
 type Signature struct {
@@ -20,7 +19,7 @@ func (sig *Signature) IsEqual(otherSig *Signature) bool {
 }
 
 func (sig *Signature) String() string {
-	return fmt.Sprintf("%x%x", sig.R, sig.S)
+	return string(sig.Serialize())
 }
 
 func (sig *Signature) Serialize() []byte {
