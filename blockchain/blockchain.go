@@ -18,20 +18,14 @@ type Blockchain struct {
 	utxoEngine      utxo.Engine
 }
 
-func Open(repository storage.BlockRepository, miner mining.Miner, owner *identity.Address) (*Blockchain, error) {
+func Open(repository storage.BlockRepository, miner mining.Miner) (*Blockchain, error) {
 	exists, err := genesisBlockExists(repository)
 	if err != nil {
 		return nil, err
 	}
 
 	if !exists {
-		transactionEncoder := encoding.TransactionProtoEncoder()
-
-		transactions := entity.Transactions{entity.NewCoinbaseTx(owner, transactionEncoder)}
-		header := entity.NewGenesisBlockHeader(transactions)
-		solution := miner.MineBlock(header)
-
-		err := repository.SaveBlock(entity.NewBlock(header, solution, transactions))
+		err := repository.SaveBlock(entity.DefaultGenesisBlock())
 		if err != nil {
 			return nil, err
 		}
@@ -61,6 +55,22 @@ func (bc *Blockchain) ForEachBlock(consume func(*entity.Block)) error {
 
 func (bc *Blockchain) ReadBalance(address *identity.Address) (uint32, error) {
 	return engine.ReadBalance(address, bc.utxoEngine)
+}
+
+func (bc *Blockchain) GetLatestHeader() (*entity.BlockHeader, error) {
+	head, err := bc.blockRepository.Head()
+	if err != nil {
+		return nil, err
+	}
+	return head.Header(), nil
+}
+
+func (bc *Blockchain) GetHeader(hash *entity.Hash) (*entity.BlockHeader, error) {
+	head, err := bc.blockRepository.Block(hash)
+	if err != nil {
+		return nil, err
+	}
+	return head.Header(), nil
 }
 
 func (bc *Blockchain) Send(sender, receiver, coinbase *wallet.Wallet, expense uint32) error {

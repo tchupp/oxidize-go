@@ -11,7 +11,7 @@ import (
 )
 
 func MineBlock(transactions entity.Transactions, miner mining.Miner, repository storage.BlockRepository) (*entity.Block, error) {
-	headBlock, err := repository.Head()
+	parent, err := repository.Head()
 	if err != nil {
 		return nil, err
 	}
@@ -24,7 +24,5 @@ func MineBlock(transactions entity.Transactions, miner mining.Miner, repository 
 		}
 	}
 
-	newBlockHeader := entity.NewBlockHeaderNow(headBlock.Index()+1, headBlock.Hash(), transactions)
-	solution := miner.MineBlock(newBlockHeader)
-	return entity.NewBlock(newBlockHeader, solution, transactions), nil
+	return miner.MineBlock(parent, transactions), nil
 }

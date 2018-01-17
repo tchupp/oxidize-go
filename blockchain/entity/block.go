@@ -8,16 +8,12 @@ import (
 type Block struct {
 	header       *BlockHeader
 	transactions Transactions
-	hash         *Hash
-	nonce        uint64
 }
 
-func NewBlock(header *BlockHeader, solution *BlockSolution, transactions Transactions) *Block {
+func NewBlock(header *BlockHeader, transactions Transactions) *Block {
 	return &Block{
 		header:       header,
 		transactions: transactions,
-		hash:         solution.Hash,
-		nonce:        solution.Nonce,
 	}
 }
 
@@ -57,7 +53,8 @@ func (block *Block) PreviousHash() *Hash        { return block.header.PreviousHa
 func (block *Block) Timestamp() uint64          { return block.header.Timestamp }
 func (block *Block) Header() *BlockHeader       { return block.header }
 func (block *Block) Transactions() Transactions { return block.transactions }
-func (block *Block) Hash() *Hash                { return block.hash }
-func (block *Block) Nonce() uint64              { return block.nonce }
+func (block *Block) TransactionsHash() *Hash    { return block.header.TransactionsHash }
+func (block *Block) Hash() *Hash                { return block.header.Hash }
+func (block *Block) Nonce() uint64              { return block.header.Nonce }
 
 func (block *Block) IsGenesisBlock() bool { return block.PreviousHash().IsEmpty() }

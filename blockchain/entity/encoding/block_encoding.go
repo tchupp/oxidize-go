@@ -16,8 +16,6 @@ func toBlockData(block *entity.Block) *Block {
 	return &Block{
 		Header:       toBlockHeaderData(block.Header()),
 		Transactions: transactions,
-		Hash:         block.Hash().Slice(),
-		Nonce:        proto.Uint64(block.Nonce()),
 	}
 }
 
@@ -37,19 +35,8 @@ func fromBlockData(block *Block) (*entity.Block, error) {
 		return nil, err
 	}
 
-	hash, err := entity.NewHash(block.GetHash())
-	if err != nil {
-		return nil, err
-	}
-
-	solution := &entity.BlockSolution{
-		Hash:  hash,
-		Nonce: block.GetNonce(),
-	}
-
 	return entity.NewBlock(
 		header,
-		solution,
 		transactions,
 	), nil
 }
@@ -60,24 +47,33 @@ func toBlockHeaderData(header *entity.BlockHeader) *BlockHeader {
 		PreviousHash:     header.PreviousHash.Slice(),
 		Timestamp:        proto.Uint64(header.Timestamp),
 		TransactionsHash: header.TransactionsHash.Slice(),
+		Nonce:            proto.Uint64(header.Nonce),
+		Hash:             header.Hash.Slice(),
 	}
 }
 
-func fromBlockHeaderData(block *BlockHeader) (*entity.BlockHeader, error) {
-	previousHash, err := entity.NewHash(block.GetPreviousHash())
+func fromBlockHeaderData(header *BlockHeader) (*entity.BlockHeader, error) {
+	previousHash, err := entity.NewHash(header.GetPreviousHash())
 	if err != nil {
 		return nil, fmt.Errorf("parsing previous hash: %s", err)
 	}
 
-	transactionsHash, err := entity.NewHash(block.GetTransactionsHash())
+	transactionsHash, err := entity.NewHash(header.GetTransactionsHash())
 	if err != nil {
 		return nil, fmt.Errorf("parsing transactions hash: %s", err)
 	}
 
+	hash, err := entity.NewHash(header.GetHash())
+	if err != nil {
+		return nil, fmt.Errorf("parsing block hash: %s", err)
+	}
+
 	return &entity.BlockHeader{
-		Index:            block.GetIndex(),
+		Index:            header.GetIndex(),
 		PreviousHash:     previousHash,
-		Timestamp:        block.GetTimestamp(),
+		Timestamp:        header.GetTimestamp(),
 		TransactionsHash: transactionsHash,
+		Nonce:            header.GetNonce(),
+		Hash:             hash,
 	}, nil
 }

@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"log"
+	"math"
 
 	"github.com/tclchiam/block_n_go/blockchain"
 	"github.com/tclchiam/block_n_go/blockchain/entity"
@@ -10,6 +11,8 @@ import (
 	"github.com/tclchiam/block_n_go/mining/proofofwork"
 	"github.com/tclchiam/block_n_go/storage/boltdb"
 	"github.com/tclchiam/block_n_go/wallet"
+	"github.com/tclchiam/block_n_go/identity"
+	"github.com/tclchiam/block_n_go/mining"
 )
 
 func main() {
@@ -19,13 +22,19 @@ func main() {
 
 	fmt.Printf("Owner: '%s', receiver: '%s'\n\n", owner.GetAddress(), receiver.GetAddress())
 
+	miner := proofofwork.NewDefaultMiner()
 	blockRepository, err := boltdb.NewBlockRepository(blockchainName, encoding.NewBlockGobEncoder())
 	if err != nil {
 		log.Panic(err)
 	}
 	defer boltdb.DeleteBlockchain(blockchainName)
 
-	bc, err := blockchain.Open(blockRepository, proofofwork.NewDefaultMiner(), owner.GetAddress())
+	genesisBlock := buildGenesisBlock(owner.GetAddress(), miner)
+	if err = blockRepository.SaveBlock(genesisBlock); err != nil {
+		log.Panic(err)
+	}
+
+	bc, err := blockchain.Open(blockRepository, miner)
 	if err != nil {
 		log.Panic(err)
 	}
@@ -57,4 +66,13 @@ func main() {
 		log.Panic(err)
 	}
 	fmt.Printf("Balance of '%s': %d\n\n", receiver.GetAddress(), balance)
+}
+
+func buildGenesisBlock(owner *identity.Address, miner mining.Miner) *entity.Block {
+	transactionEncoder := encoding.TransactionProtoEncoder()
+
+	header := entity.NewBlockHeader(math.MaxUint64, nil, nil, 0, 0, &entity.EmptyHash)
+	transactions := entity.Transactions{entity.NewCoinbaseTx(owner, transactionEncoder)}
+	parent := entity.NewBlock(header, transactions)
+	return miner.MineBlock(parent, transactions)
 }

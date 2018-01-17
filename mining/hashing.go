@@ -17,24 +17,48 @@ var (
 	target = big.NewInt(1).Lsh(big.NewInt(1), uint(hashLength-targetBits))
 )
 
-func CalculateHash(header *entity.BlockHeader, nonce uint64) entity.Hash {
+type BlockHashingInput struct {
+	Index            uint64
+	PreviousHash     *entity.Hash
+	Timestamp        uint64
+	TransactionsHash *entity.Hash
+}
+
+func CalculateBlockHash(input *BlockHashingInput, nonce uint64) *entity.Hash {
 	rawBlockContents := [][]byte{
-		header.PreviousHash.Slice(),
-		header.TransactionsHash.Slice(),
-		intToHex(header.Timestamp),
+		input.PreviousHash.Slice(),
+		input.TransactionsHash.Slice(),
+		intToHex(input.Timestamp),
 		intToHex(nonce),
 	}
 	rawBlockData := bytes.Join(rawBlockContents, []byte(nil))
-	return calculateHash(rawBlockData)
+	hash := calculateHash(rawBlockData)
+	return &hash
 }
 
-func Valid(block *entity.Block) bool {
-	hash := CalculateHash(block.Header(), block.Nonce())
-
-	return new(big.Int).SetBytes(hash.Slice()).Cmp(target) == -1
+func CalculateHeaderHash(header *entity.BlockHeader) *entity.Hash {
+	input := &BlockHashingInput{
+		Index:            header.Index,
+		PreviousHash:     header.PreviousHash,
+		Timestamp:        header.Timestamp,
+		TransactionsHash: header.TransactionsHash,
+	}
+	return CalculateBlockHash(input, header.Nonce)
 }
 
-func HashValid(hash entity.Hash) bool {
+func CalculateTransactionsHash(transactions entity.Transactions) *entity.Hash {
+	var transactionHashes [][]byte
+
+	for _, transaction := range transactions {
+		transactionHashes = append(transactionHashes, transaction.ID.Slice())
+	}
+
+	rawTransactionData := bytes.Join(transactionHashes, []byte{})
+	hash := calculateHash(rawTransactionData)
+	return &hash
+}
+
+func HashValid(hash *entity.Hash) bool {
 	return new(big.Int).SetBytes(hash.Slice()).Cmp(target) == -1
 }
 

@@ -1,11 +1,8 @@
 package entity
 
 import (
-	"bytes"
-	"crypto/sha256"
 	"fmt"
 	"strings"
-	"time"
 )
 
 type BlockHeader struct {
@@ -13,24 +10,18 @@ type BlockHeader struct {
 	PreviousHash     *Hash
 	Timestamp        uint64
 	TransactionsHash *Hash
+	Nonce            uint64
+	Hash             *Hash
 }
 
-func NewGenesisBlockHeader(transactions Transactions) *BlockHeader {
-	return NewBlockHeaderNow(0, &EmptyHash, transactions)
-}
-
-func NewBlockHeaderNow(index uint64, previousHash *Hash, transactions Transactions) *BlockHeader {
-	return NewBlockHeader(index, previousHash, transactions, uint64(time.Now().Unix()))
-}
-
-func NewBlockHeader(index uint64, previousHash *Hash, transactions Transactions, timestamp uint64) *BlockHeader {
-	transactionsHash := hashTransactions(transactions)
-
+func NewBlockHeader(index uint64, previousHash *Hash, transactionsHash *Hash, timestamp uint64, nonce uint64, hash *Hash) *BlockHeader {
 	return &BlockHeader{
 		Index:            index,
 		PreviousHash:     previousHash,
 		Timestamp:        timestamp,
-		TransactionsHash: &transactionsHash,
+		TransactionsHash: transactionsHash,
+		Nonce:            nonce,
+		Hash:             hash,
 	}
 }
 
@@ -61,14 +52,4 @@ func (header *BlockHeader) IsEqual(other *BlockHeader) bool {
 	}
 
 	return true
-}
-
-func hashTransactions(transactions Transactions) Hash {
-	var transactionHashes [][]byte
-
-	for _, transaction := range transactions {
-		transactionHashes = append(transactionHashes, transaction.ID.Slice())
-	}
-
-	return Hash(sha256.Sum256(bytes.Join(transactionHashes, []byte{})))
 }

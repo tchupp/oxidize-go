@@ -5,8 +5,6 @@ package encoding;
 message Block {
     required BlockHeader header = 1;
     repeated Transaction transactions = 2;
-    required bytes hash = 3;
-    required uint64 nonce = 4;
 }
 
 message BlockHeader {
@@ -14,6 +12,8 @@ message BlockHeader {
     required bytes previousHash = 2;
     required uint64 timestamp = 3;
     required bytes transactionsHash = 4;
+    required uint64 nonce = 5;
+    required bytes hash = 6;
 }
 
 message Transaction {
