@@ -9,6 +9,7 @@ import (
 	"github.com/tclchiam/block_n_go/blockchain/entity"
 	"github.com/tclchiam/block_n_go/blockchain/entity/encoding"
 	"github.com/tclchiam/block_n_go/identity"
+	"github.com/tclchiam/block_n_go/mining"
 )
 
 func TestBlockRepository_SaveBlock(t *testing.T) {
@@ -25,12 +26,11 @@ func TestBlockRepository_SaveBlock(t *testing.T) {
 	transactions := entity.Transactions{entity.NewCoinbaseTx(address, encoding.TransactionProtoEncoder())}
 
 	const previousIndex = 5
-	previousHash, _ := entity.NewHashFromString("0000f65fe866ab6f810b13a5d864f96cb16ad22e2e931b861f80d870f2e32df7")
-	hash, _ := entity.NewHashFromString("00007eaa535b8894e8815f57d317c3bb14ab598417fe4ddd8d37d65c189f85fe")
+	previousHash := entity.NewHashOrPanic("0000f65fe866ab6f810b13a5d864f96cb16ad22e2e931b861f80d870f2e32df7")
+	hash := entity.NewHashOrPanic("00007eaa535b8894e8815f57d317c3bb14ab598417fe4ddd8d37d65c189f85fe")
 
 	blockToSave := entity.NewBlock(
-		entity.NewBlockHeader(previousIndex+1, previousHash, transactions, 18920304),
-		&entity.BlockSolution{Nonce: 38385, Hash: hash},
+		entity.NewBlockHeader(previousIndex+1, previousHash, mining.CalculateTransactionsHash(transactions), 18920304, 38385, hash),
 		transactions,
 	)
 
@@ -50,7 +50,7 @@ func TestBlockRepository_SaveBlock(t *testing.T) {
 	}
 
 	if !newBlock.PreviousHash().IsEqual(previousHash) {
-		t.Fatalf("New block has bad PreviousHash, expected [%s], but was [%s]", previousHash, newBlock.PreviousHash)
+		t.Fatalf("New block has bad PreviousHash, expected [%s], but was [%s]", previousHash, newBlock.PreviousHash())
 	}
 	if newBlock.Index() != previousIndex+1 {
 		t.Fatalf("New block has bad Index, expected [%s], but was [%s]", previousIndex+1, newBlock.Index())

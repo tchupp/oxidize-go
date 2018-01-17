@@ -4,6 +4,7 @@ import (
 	"crypto/sha256"
 	"encoding/hex"
 	"fmt"
+	"log"
 )
 
 const (
@@ -56,6 +57,14 @@ func NewHashFromString(hash string) (*Hash, error) {
 		bytes = append([]byte{0}, bytes...)
 	}
 
-	result, err := NewHash(bytes)
-	return result, err
+	return NewHash(bytes)
+}
+
+func NewHashOrPanic(newHash string) *Hash {
+	hash, err := NewHashFromString(newHash)
+	if err != nil {
+		log.Panic(err)
+	}
+
+	return hash
 }

@@ -19,10 +19,7 @@ var mainNetGenesisHash = Hash([hashLength]byte{
 func TestHash(t *testing.T) {
 	// Hash of block 234439.
 	blockHashStr := "014a0810ac680a3eb3f82edc878cea25ec41d6b790744e5daeef"
-	blockHash, err := NewHashFromString(blockHashStr)
-	if err != nil {
-		t.Errorf("NewHashFromString: %v", err)
-	}
+	blockHash := NewHashOrPanic(blockHashStr)
 
 	// Hash of block 234440 as byte slice.
 	buf := []byte{
