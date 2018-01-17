@@ -21,26 +21,15 @@ func BuildExpenseTransaction(sender, receiver *identity.Address, expense uint32,
 		return nil, fmt.Errorf("account '%s' does not have enough to send '%d', due to balance '%d'", sender, expense, balance)
 	}
 
-	liquidBalance := uint32(0)
-	takeMinimumToMeetExpense := func(_ *entity.Transaction, output *entity.Output) bool {
-		take := liquidBalance < expense
-		if take {
-			liquidBalance += output.Value
-		}
-		return take
-	}
-
-	inputs := unspentOutputs.
-		Filter(takeMinimumToMeetExpense).
-		Reduce(entity.EmptyUnsignedInputs(nil), buildInputs(sender)).(entity.UnsignedInputs)
-
 	finalizedOutputs := entity.EmptyOutputs().
 		Add(entity.NewOutput(expense, receiver)).
-		Add(entity.NewOutput(liquidBalance-expense, sender)).
+		Add(entity.NewOutput(balance-expense, sender)).
 		Filter(func(output *entity.Output) bool { return output.Value != 0 }).
 		Reduce(make([]*entity.Output, 0), collectOutputs).([]*entity.Output)
 
-	signedInputs := inputs.Reduce(make([]*entity.SignedInput, 0), signInputs(finalizedOutputs, sender)).([]*entity.SignedInput)
+	signedInputs := unspentOutputs.
+		Reduce(entity.EmptyUnsignedInputs(nil), buildInputs(sender)).(entity.UnsignedInputs).
+		Reduce(make([]*entity.SignedInput, 0), signInputs(finalizedOutputs, sender)).([]*entity.SignedInput)
 
 	return entity.NewTx(signedInputs, finalizedOutputs, encoding.TransactionProtoEncoder()), nil
 }
