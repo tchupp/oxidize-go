@@ -3,12 +3,11 @@ package blockchain
 import (
 	"github.com/tclchiam/block_n_go/blockchain/engine"
 	"github.com/tclchiam/block_n_go/blockchain/engine/iter"
+	"github.com/tclchiam/block_n_go/blockchain/engine/utxo"
 	"github.com/tclchiam/block_n_go/blockchain/entity"
 	"github.com/tclchiam/block_n_go/blockchain/entity/encoding"
 	"github.com/tclchiam/block_n_go/storage"
 	"github.com/tclchiam/block_n_go/mining"
-	"github.com/tclchiam/block_n_go/wallet"
-	"github.com/tclchiam/block_n_go/blockchain/engine/utxo"
 	"github.com/tclchiam/block_n_go/identity"
 )
 
@@ -73,12 +72,12 @@ func (bc *Blockchain) GetHeader(hash *entity.Hash) (*entity.BlockHeader, error) 
 	return head.Header(), nil
 }
 
-func (bc *Blockchain) Send(sender, receiver, coinbase *wallet.Wallet, expense uint32) error {
+func (bc *Blockchain) Send(sender, receiver, coinbase *identity.Address, expense uint32) error {
 	expenseTransaction, err := engine.BuildExpenseTransaction(sender, receiver, expense, bc.utxoEngine)
 	if err != nil {
 		return err
 	}
-	rewardTransaction := entity.NewCoinbaseTx(coinbase.GetAddress(), encoding.TransactionProtoEncoder())
+	rewardTransaction := entity.NewCoinbaseTx(coinbase, encoding.TransactionProtoEncoder())
 
 	newBlock, err := engine.MineBlock([]*entity.Transaction{expenseTransaction, rewardTransaction}, bc.miner, bc.blockRepository)
 	if err != nil {

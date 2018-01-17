@@ -69,7 +69,12 @@ func (a *Address) Base58() string {
 	return base58.Encode(bytes.Join(input, []byte{}))
 }
 
-func (a *Address) String() string        { return a.Base58() }
-func (a *Address) Version() byte         { return a.version }
-func (a *Address) PublicKeyHash() []byte { return a.publicKeyHash }
-func (a *Address) Checksum() []byte      { return a.checksum }
+func (a *Address) Sign(data []byte) (*crypto.Signature, error) {
+	return a.privateKey.Sign(data)
+}
+
+func (a *Address) String() string               { return a.Base58() }
+func (a *Address) Version() byte                { return a.version }
+func (a *Address) PublicKey() *crypto.PublicKey { return a.publicKey }
+func (a *Address) PublicKeyHash() []byte        { return a.publicKeyHash }
+func (a *Address) Checksum() []byte             { return a.checksum }

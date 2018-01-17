@@ -10,17 +10,16 @@ import (
 	"github.com/tclchiam/block_n_go/blockchain/entity/encoding"
 	"github.com/tclchiam/block_n_go/mining/proofofwork"
 	"github.com/tclchiam/block_n_go/storage/boltdb"
-	"github.com/tclchiam/block_n_go/wallet"
 	"github.com/tclchiam/block_n_go/identity"
 	"github.com/tclchiam/block_n_go/mining"
 )
 
 func main() {
-	owner := wallet.NewWallet()
-	receiver := wallet.NewWallet()
+	owner := identity.RandomAddress()
+	receiver := identity.RandomAddress()
 	const blockchainName = "reactions"
 
-	fmt.Printf("Owner: '%s', receiver: '%s'\n\n", owner.GetAddress(), receiver.GetAddress())
+	fmt.Printf("Owner: '%s', receiver: '%s'\n\n", owner, receiver)
 
 	miner := proofofwork.NewDefaultMiner()
 	blockRepository, err := boltdb.NewBlockRepository(blockchainName, encoding.NewBlockGobEncoder())
@@ -29,7 +28,7 @@ func main() {
 	}
 	defer boltdb.DeleteBlockchain(blockchainName)
 
-	genesisBlock := buildGenesisBlock(owner.GetAddress(), miner)
+	genesisBlock := buildGenesisBlock(owner, miner)
 	if err = blockRepository.SaveBlock(genesisBlock); err != nil {
 		log.Panic(err)
 	}
@@ -55,17 +54,17 @@ func main() {
 		log.Panic(err)
 	}
 
-	balance, err := bc.ReadBalance(owner.GetAddress())
+	balance, err := bc.ReadBalance(owner)
 	if err != nil {
 		log.Panic(err)
 	}
-	fmt.Printf("Balance of '%s': %d\n\n", owner.GetAddress(), balance)
+	fmt.Printf("Balance of '%s': %d\n\n", owner, balance)
 
-	balance, err = bc.ReadBalance(receiver.GetAddress())
+	balance, err = bc.ReadBalance(receiver)
 	if err != nil {
 		log.Panic(err)
 	}
-	fmt.Printf("Balance of '%s': %d\n\n", receiver.GetAddress(), balance)
+	fmt.Printf("Balance of '%s': %d\n\n", receiver, balance)
 }
 
 func buildGenesisBlock(owner *identity.Address, miner mining.Miner) *entity.Block {

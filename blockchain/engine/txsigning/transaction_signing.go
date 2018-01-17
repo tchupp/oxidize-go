@@ -5,11 +5,12 @@ import (
 
 	"github.com/tclchiam/block_n_go/crypto"
 	"github.com/tclchiam/block_n_go/blockchain/entity"
+	"github.com/tclchiam/block_n_go/identity"
 )
 
-func GenerateSignature(input *entity.UnsignedInput, outputs []*entity.Output, privateKey *crypto.PrivateKey, encoder entity.TransactionEncoder) *crypto.Signature {
+func GenerateSignature(input *entity.UnsignedInput, outputs []*entity.Output, sender *identity.Address, encoder entity.TransactionEncoder) *crypto.Signature {
 	signatureData := serializeSignatureData(input, outputs, encoder)
-	signature, err := privateKey.Sign(signatureData)
+	signature, err := sender.Sign(signatureData)
 	if err != nil {
 		log.Panic(err)
 	}

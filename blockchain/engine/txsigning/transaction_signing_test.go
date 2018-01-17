@@ -5,7 +5,7 @@ import (
 
 	"github.com/tclchiam/block_n_go/blockchain/entity"
 	"github.com/tclchiam/block_n_go/blockchain/entity/encoding"
-	"github.com/tclchiam/block_n_go/wallet"
+	"github.com/tclchiam/block_n_go/identity"
 )
 
 func serializeSignatureTestData(input *entity.UnsignedInput, outputs []*entity.Output, encoder entity.TransactionEncoder) ([]byte, error) {
@@ -29,7 +29,7 @@ func serializeSignatureTestData(input *entity.UnsignedInput, outputs []*entity.O
 }
 
 func TestGenerateInputSignature(t *testing.T) {
-	identity := wallet.NewWallet()
+	sender := identity.RandomAddress()
 
 	tests := []struct {
 		input   *entity.UnsignedInput
@@ -41,7 +41,7 @@ func TestGenerateInputSignature(t *testing.T) {
 					ID:     entity.NewHashOrPanic("b0093d332b4c5bbb5f3c4aa2c9ada8632f9efb2489799a74c55168f3487ec256"),
 					Output: &entity.Output{Index: 1, Value: 3, PublicKeyHash: []byte("52a530c258e53e04116f66d9cae093d0a38950a5"),},
 				},
-				PublicKey: identity.PublicKey,
+				PublicKey: sender.PublicKey(),
 			},
 			outputs: []*entity.Output{
 				{Index: 0, Value: 10, PublicKeyHash: []byte("65633924d71fb5244d89afe45aabfaf512cfd148")},
@@ -53,7 +53,7 @@ func TestGenerateInputSignature(t *testing.T) {
 					ID:     entity.NewHashOrPanic("caf99368d2abd229d6ff7ec5abdbfdfc7c0b2a2938f23fcb5965a30b4d70ebf8"),
 					Output: &entity.Output{Index: 5, Value: 18, PublicKeyHash: []byte("31d6128eb6fbb09e477640ed59252e44c779639f"),},
 				},
-				PublicKey: identity.PublicKey,
+				PublicKey: sender.PublicKey(),
 			},
 			outputs: []*entity.Output{
 				{Index: 0, Value: 4, PublicKeyHash: []byte("31d6128eb6fbb09e477640ed59252e44c779639f")},
@@ -73,10 +73,10 @@ func TestGenerateInputSignature(t *testing.T) {
 			continue
 		}
 
-		signature := GenerateSignature(testParams.input, testParams.outputs, identity.PrivateKey, encoding.TransactionProtoEncoder())
+		signature := GenerateSignature(testParams.input, testParams.outputs, sender, encoding.TransactionProtoEncoder())
 
 		signedInput := entity.NewSignedInput(testParams.input, signature)
-		testVerifyResult := identity.PublicKey.Verify(signatureData, signature)
+		testVerifyResult := sender.PublicKey().Verify(signatureData, signature)
 		actualVerifyResult := VerifySignature(signedInput, testParams.outputs, encoding.TransactionProtoEncoder())
 
 		if !testVerifyResult {

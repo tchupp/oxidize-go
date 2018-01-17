@@ -10,23 +10,22 @@ import (
 	"github.com/tclchiam/block_n_go/blockchain/entity/encoding"
 	"github.com/tclchiam/block_n_go/mining/proofofwork"
 	"github.com/tclchiam/block_n_go/storage/boltdb"
-	"github.com/tclchiam/block_n_go/wallet"
 	"github.com/tclchiam/block_n_go/identity"
 	"github.com/tclchiam/block_n_go/blockchain/entity"
 	"github.com/tclchiam/block_n_go/mining"
 )
 
 func TestBlockchain_Workflow(t *testing.T) {
-	owner := wallet.NewWallet()
-	actor1 := wallet.NewWallet()
-	actor2 := wallet.NewWallet()
-	actor3 := wallet.NewWallet()
-	actor4 := wallet.NewWallet()
+	owner := identity.RandomAddress()
+	actor1 := identity.RandomAddress()
+	actor2 := identity.RandomAddress()
+	actor3 := identity.RandomAddress()
+	actor4 := identity.RandomAddress()
 
 	t.Run("Sending: expense < balance", func(t *testing.T) {
 		const name = "test1"
 
-		bc := setupBlockchain(t, name, owner.GetAddress())
+		bc := setupBlockchain(t, name, owner)
 		defer boltdb.DeleteBlockchain(name)
 
 		err := bc.Send(owner, actor1, owner, 3)
@@ -41,7 +40,7 @@ func TestBlockchain_Workflow(t *testing.T) {
 	t.Run("Sending: expense == balance", func(t *testing.T) {
 		const name = "test2"
 
-		bc := setupBlockchain(t, name, owner.GetAddress())
+		bc := setupBlockchain(t, name, owner)
 		defer boltdb.DeleteBlockchain(name)
 
 		err := bc.Send(owner, actor1, owner, 10)
@@ -56,7 +55,7 @@ func TestBlockchain_Workflow(t *testing.T) {
 	t.Run("Sending: expense > balance", func(t *testing.T) {
 		const name = "test3"
 
-		bc := setupBlockchain(t, name, owner.GetAddress())
+		bc := setupBlockchain(t, name, owner)
 		defer boltdb.DeleteBlockchain(name)
 
 		err := bc.Send(owner, actor1, owner, 13)
@@ -64,7 +63,7 @@ func TestBlockchain_Workflow(t *testing.T) {
 			t.Fatalf("expected error")
 		}
 
-		expectedMessage := fmt.Sprintf("account '%s' does not have enough to send '13', due to balance '10'", owner.GetAddress())
+		expectedMessage := fmt.Sprintf("account '%s' does not have enough to send '13', due to balance '10'", owner)
 		if !strings.Contains(err.Error(), expectedMessage) {
 			t.Fatalf("Expected string to contain: \"%s\", was '%s'", expectedMessage, err.Error())
 		}
@@ -76,7 +75,7 @@ func TestBlockchain_Workflow(t *testing.T) {
 	t.Run("Sending: many", func(t *testing.T) {
 		const name = "test4"
 
-		bc := setupBlockchain(t, name, owner.GetAddress())
+		bc := setupBlockchain(t, name, owner)
 		defer boltdb.DeleteBlockchain(name)
 
 		err := bc.Send(owner, actor1, owner, 1)
@@ -125,8 +124,7 @@ func TestBlockchain_Workflow(t *testing.T) {
 	})
 }
 
-func verifyBalance(t *testing.T, bc *blockchain.Blockchain, wallet *wallet.Wallet, expectedBalance uint32) {
-	address := wallet.GetAddress()
+func verifyBalance(t *testing.T, bc *blockchain.Blockchain, address *identity.Address, expectedBalance uint32) {
 	balance, err := bc.ReadBalance(address)
 
 	if err != nil {

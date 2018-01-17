@@ -7,21 +7,18 @@ import (
 	"github.com/tclchiam/block_n_go/blockchain/engine/txsigning"
 	"github.com/tclchiam/block_n_go/blockchain/engine/utxo"
 	"github.com/tclchiam/block_n_go/blockchain/entity"
-	"github.com/tclchiam/block_n_go/crypto"
-	"github.com/tclchiam/block_n_go/wallet"
+	"github.com/tclchiam/block_n_go/identity"
 )
 
-func BuildExpenseTransaction(sender, receiver *wallet.Wallet, expense uint32, engine utxo.Engine) (*entity.Transaction, error) {
-	senderAddress := sender.GetAddress()
-
-	unspentOutputs, err := engine.FindUnspentOutputs(senderAddress)
+func BuildExpenseTransaction(sender, receiver *identity.Address, expense uint32, engine utxo.Engine) (*entity.Transaction, error) {
+	unspentOutputs, err := engine.FindUnspentOutputs(sender)
 	if err != nil {
 		return nil, err
 	}
 
 	balance := calculateBalance(unspentOutputs)
 	if balance < expense {
-		return nil, fmt.Errorf("account '%s' does not have enough to send '%d', due to balance '%d'", senderAddress, expense, balance)
+		return nil, fmt.Errorf("account '%s' does not have enough to send '%d', due to balance '%d'", sender, expense, balance)
 	}
 
 	liquidBalance := uint32(0)
@@ -35,31 +32,29 @@ func BuildExpenseTransaction(sender, receiver *wallet.Wallet, expense uint32, en
 
 	inputs := unspentOutputs.
 		Filter(takeMinimumToMeetExpense).
-		Reduce(entity.EmptyUnsignedInputs(nil), buildInputs(sender.PublicKey)).(entity.UnsignedInputs)
+		Reduce(entity.EmptyUnsignedInputs(nil), buildInputs(sender)).(entity.UnsignedInputs)
 
-	outputs := entity.EmptyOutputs().
-		Add(entity.NewOutput(expense, receiver.GetAddress()))
+	finalizedOutputs := entity.EmptyOutputs().
+		Add(entity.NewOutput(expense, receiver)).
+		Add(entity.NewOutput(liquidBalance-expense, sender)).
+		Filter(func(output *entity.Output) bool { return output.Value != 0 }).
+		Reduce(make([]*entity.Output, 0), collectOutputs).([]*entity.Output)
 
-	if liquidBalance-expense > 0 {
-		outputs = outputs.Add(entity.NewOutput(liquidBalance-expense, senderAddress))
-	}
-
-	finalizedOutputs := outputs.Reduce(make([]*entity.Output, 0), collectOutputs).([]*entity.Output)
-	signedInputs := inputs.Reduce(make([]*entity.SignedInput, 0), signInputs(finalizedOutputs, sender.PrivateKey)).([]*entity.SignedInput)
+	signedInputs := inputs.Reduce(make([]*entity.SignedInput, 0), signInputs(finalizedOutputs, sender)).([]*entity.SignedInput)
 
 	return entity.NewTx(signedInputs, finalizedOutputs, encoding.TransactionProtoEncoder()), nil
 }
 
-func buildInputs(publicKey *crypto.PublicKey) func(res interface{}, transaction *entity.Transaction, output *entity.Output) interface{} {
+func buildInputs(sender *identity.Address) func(res interface{}, transaction *entity.Transaction, output *entity.Output) interface{} {
 	return func(res interface{}, transaction *entity.Transaction, output *entity.Output) interface{} {
-		input := entity.NewUnsignedInput(transaction.ID, output, publicKey)
+		input := entity.NewUnsignedInput(transaction.ID, output, sender.PublicKey())
 		return res.(entity.UnsignedInputs).Add(input)
 	}
 }
 
-func signInputs(outputs []*entity.Output, privateKey *crypto.PrivateKey) func(res interface{}, input *entity.UnsignedInput) interface{} {
+func signInputs(outputs []*entity.Output, sender *identity.Address) func(res interface{}, input *entity.UnsignedInput) interface{} {
 	return func(res interface{}, input *entity.UnsignedInput) interface{} {
-		signature := txsigning.GenerateSignature(input, outputs, privateKey, encoding.TransactionProtoEncoder())
+		signature := txsigning.GenerateSignature(input, outputs, sender, encoding.TransactionProtoEncoder())
 		return append(res.([]*entity.SignedInput), entity.NewSignedInput(input, signature))
 	}
 }

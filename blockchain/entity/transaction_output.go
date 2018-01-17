@@ -13,8 +13,8 @@ type Output struct {
 	PublicKeyHash []byte
 }
 
-func NewOutput(value uint32, address *identity.Address) *Output {
-	return &Output{Value: value, PublicKeyHash: address.PublicKeyHash()}
+func NewOutput(value uint32, sender *identity.Address) *Output {
+	return &Output{Value: value, PublicKeyHash: sender.PublicKeyHash()}
 }
 
 func (output *Output) String() string {
