@@ -50,6 +50,12 @@ func (header *BlockHeader) IsEqual(other *BlockHeader) bool {
 	if !header.TransactionsHash.IsEqual(other.TransactionsHash) {
 		return false
 	}
+	if header.Nonce != other.Nonce {
+		return false
+	}
+	if !header.Hash.IsEqual(other.Hash) {
+		return false
+	}
 
 	return true
 }

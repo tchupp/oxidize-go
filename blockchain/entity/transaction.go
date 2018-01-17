@@ -7,6 +7,7 @@ import (
 	"log"
 	"strconv"
 	"strings"
+	"sort"
 
 	"github.com/tclchiam/block_n_go/identity"
 )
@@ -94,4 +95,36 @@ func serializeTxData(inputs []*SignedInput, outputs []*Output, secret []byte, en
 		log.Panic(err)
 	}
 	return encoded
+}
+
+func (txs Transactions) Len() int           { return len(txs) }
+func (txs Transactions) Swap(i, j int)      { txs[i], txs[j] = txs[j], txs[i] }
+func (txs Transactions) Less(i, j int) bool { return txs[i].ID.Cmp(txs[j].ID) == -1 }
+
+func (txs Transactions) Sort() Transactions {
+	copies := append(Transactions(nil), txs...)
+	sort.Sort(copies)
+	return copies
+}
+
+func (txs Transactions) IsEqual(other Transactions) bool {
+	if txs == nil && other == nil {
+		return true
+	}
+	if txs == nil || other == nil {
+		return false
+	}
+	if len(txs) != len(other) {
+		return false
+	}
+
+	other = other.Sort()
+	self := txs.Sort()
+	for i := 0; i < self.Len(); i++ {
+		if !self[i].ID.IsEqual(other[i].ID) {
+			return false
+		}
+	}
+
+	return true
 }

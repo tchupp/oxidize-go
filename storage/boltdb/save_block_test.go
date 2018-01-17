@@ -49,15 +49,6 @@ func TestBlockRepository_SaveBlock(t *testing.T) {
 		t.Fatalf("error: %s", err)
 	}
 
-	if !newBlock.PreviousHash().IsEqual(previousHash) {
-		t.Fatalf("New block has bad PreviousHash, expected [%s], but was [%s]", previousHash, newBlock.PreviousHash())
-	}
-	if newBlock.Index() != previousIndex+1 {
-		t.Fatalf("New block has bad Index, expected [%s], but was [%s]", previousIndex+1, newBlock.Index())
-	}
-	if !cmp.Equal(newBlock.Transactions(), transactions) {
-		t.Fatalf("New block has bad Transactions, %s", cmp.Diff(newBlock.Transactions(), transactions))
-	}
 	if !blockToSave.IsEqual(newBlock) {
 		t.Fatalf("Resulting block does not equal the latest block: %s", cmp.Diff(blockToSave, newBlock))
 	}

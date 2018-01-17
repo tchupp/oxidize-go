@@ -38,10 +38,7 @@ func (block *Block) IsEqual(other *Block) bool {
 	if !block.header.IsEqual(other.header) {
 		return false
 	}
-	if !block.Hash().IsEqual(other.Hash()) {
-		return false
-	}
-	if block.Nonce() != other.Nonce() {
+	if !block.Transactions().IsEqual(other.Transactions()) {
 		return false
 	}
 

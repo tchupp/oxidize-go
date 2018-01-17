@@ -5,6 +5,7 @@ import (
 	"encoding/hex"
 	"fmt"
 	"log"
+	"bytes"
 )
 
 const (
@@ -16,9 +17,10 @@ type Hash [hashLength]byte
 
 var EmptyHash = Hash{}
 
-func (hash Hash) String() string { return hex.EncodeToString(hash[:]) }
-func (hash Hash) Slice() []byte  { return hash[:] }
-func (hash Hash) IsEmpty() bool  { return hash == EmptyHash }
+func (hash Hash) String() string      { return hex.EncodeToString(hash[:]) }
+func (hash Hash) Slice() []byte       { return hash[:] }
+func (hash Hash) IsEmpty() bool       { return hash == EmptyHash }
+func (hash Hash) Cmp(other *Hash) int { return bytes.Compare(hash.Slice(), other.Slice()) }
 
 func (hash *Hash) IsEqual(target *Hash) bool {
 	if hash == nil && target == nil {
@@ -48,16 +50,16 @@ func NewHashFromString(hash string) (*Hash, error) {
 		hash = "0" + hash
 	}
 
-	bytes, err := hex.DecodeString(hash)
+	b, err := hex.DecodeString(hash)
 	if err != nil {
 		return nil, err
 	}
 
-	for len(bytes) < hashLength {
-		bytes = append([]byte{0}, bytes...)
+	for len(b) < hashLength {
+		b = append([]byte{0}, b...)
 	}
 
-	return NewHash(bytes)
+	return NewHash(b)
 }
 
 func NewHashOrPanic(newHash string) *Hash {
