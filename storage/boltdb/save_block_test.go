@@ -13,7 +13,7 @@ import (
 )
 
 func TestBlockRepository_SaveBlock(t *testing.T) {
-	address := identity.RandomAddress()
+	randomIdentity := identity.RandomIdentity()
 	const testBlockchainName = "test"
 
 	blockEncoder := encoding.NewBlockGobEncoder()
@@ -23,7 +23,7 @@ func TestBlockRepository_SaveBlock(t *testing.T) {
 	}
 	defer deleteDB(testBlockchainName, t)
 
-	transactions := entity.Transactions{entity.NewCoinbaseTx(address, encoding.TransactionProtoEncoder())}
+	transactions := entity.Transactions{entity.NewCoinbaseTx(randomIdentity, encoding.TransactionProtoEncoder())}
 
 	const previousIndex = 5
 	previousHash := entity.NewHashOrPanic("0000f65fe866ab6f810b13a5d864f96cb16ad22e2e931b861f80d870f2e32df7")

@@ -15,8 +15,8 @@ import (
 )
 
 func main() {
-	owner := identity.RandomAddress()
-	receiver := identity.RandomAddress()
+	owner := identity.RandomIdentity()
+	receiver := identity.RandomIdentity()
 	const blockchainName = "reactions"
 
 	fmt.Printf("Owner: '%s', receiver: '%s'\n\n", owner, receiver)
@@ -67,7 +67,7 @@ func main() {
 	fmt.Printf("Balance of '%s': %d\n\n", receiver, balance)
 }
 
-func buildGenesisBlock(owner *identity.Address, miner mining.Miner) *entity.Block {
+func buildGenesisBlock(owner *identity.Identity, miner mining.Miner) *entity.Block {
 	transactionEncoder := encoding.TransactionProtoEncoder()
 
 	header := entity.NewBlockHeader(math.MaxUint64, nil, nil, 0, 0, &entity.EmptyHash)

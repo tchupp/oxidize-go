@@ -52,8 +52,8 @@ func (bc *Blockchain) ForEachBlock(consume func(*entity.Block)) error {
 	return iter.ForEachBlock(bc.blockRepository, consume)
 }
 
-func (bc *Blockchain) ReadBalance(address *identity.Address) (uint32, error) {
-	return engine.ReadBalance(address, bc.utxoEngine)
+func (bc *Blockchain) ReadBalance(identity *identity.Identity) (uint32, error) {
+	return engine.ReadBalance(identity, bc.utxoEngine)
 }
 
 func (bc *Blockchain) GetLatestHeader() (*entity.BlockHeader, error) {
@@ -72,14 +72,14 @@ func (bc *Blockchain) GetHeader(hash *entity.Hash) (*entity.BlockHeader, error) 
 	return head.Header(), nil
 }
 
-func (bc *Blockchain) Send(sender, receiver, coinbase *identity.Address, expense uint32) error {
-	expenseTransaction, err := engine.BuildExpenseTransaction(sender, receiver, expense, bc.utxoEngine)
+func (bc *Blockchain) Send(spender, receiver, coinbase *identity.Identity, expense uint32) error {
+	expenseTransaction, err := engine.BuildExpenseTransaction(spender, receiver, expense, bc.utxoEngine)
 	if err != nil {
 		return err
 	}
 	rewardTransaction := entity.NewCoinbaseTx(coinbase, encoding.TransactionProtoEncoder())
 
-	newBlock, err := engine.MineBlock([]*entity.Transaction{expenseTransaction, rewardTransaction}, bc.miner, bc.blockRepository)
+	newBlock, err := engine.MineBlock(entity.Transactions{expenseTransaction, rewardTransaction}, bc.miner, bc.blockRepository)
 	if err != nil {
 		return err
 	}

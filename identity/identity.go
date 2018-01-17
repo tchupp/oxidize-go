@@ -14,7 +14,7 @@ const (
 	checksumLength = 4
 )
 
-type Address struct {
+type Identity struct {
 	version       byte
 	publicKeyHash []byte
 	checksum      []byte
@@ -23,17 +23,17 @@ type Address struct {
 	privateKey *crypto.PrivateKey
 }
 
-func RandomAddress() *Address {
+func RandomIdentity() *Identity {
 	publicKey := crypto.NewP256PrivateKey()
-	return NewAddress(publicKey)
+	return NewIdentity(publicKey)
 }
 
-func NewAddress(privateKey *crypto.PrivateKey) *Address {
+func NewIdentity(privateKey *crypto.PrivateKey) *Identity {
 	publicKey := privateKey.PubKey()
 	publicKeyHash := hashPublicKey(publicKey)
 	checksum := checksum(publicKeyHash)
 
-	return &Address{
+	return &Identity{
 		version:       version,
 		publicKeyHash: publicKeyHash,
 		checksum:      checksum,
@@ -60,7 +60,7 @@ func checksum(publicKeyHash []byte) []byte {
 	return secondSHA[:checksumLength]
 }
 
-func (a *Address) Base58() string {
+func (a *Identity) Address() string {
 	input := [][]byte{
 		{version},
 		a.publicKeyHash,
@@ -69,12 +69,13 @@ func (a *Address) Base58() string {
 	return base58.Encode(bytes.Join(input, []byte{}))
 }
 
-func (a *Address) Sign(data []byte) (*crypto.Signature, error) {
+func (a *Identity) Sign(data []byte) (*crypto.Signature, error) {
 	return a.privateKey.Sign(data)
 }
 
-func (a *Address) String() string               { return a.Base58() }
-func (a *Address) Version() byte                { return a.version }
-func (a *Address) PublicKey() *crypto.PublicKey { return a.publicKey }
-func (a *Address) PublicKeyHash() []byte        { return a.publicKeyHash }
-func (a *Address) Checksum() []byte             { return a.checksum }
+func (a *Identity) String() string                 { return a.Address() }
+func (a *Identity) Version() byte                  { return a.version }
+func (a *Identity) PrivateKey() *crypto.PrivateKey { return a.privateKey }
+func (a *Identity) PublicKey() *crypto.PublicKey   { return a.publicKey }
+func (a *Identity) PublicKeyHash() []byte          { return a.publicKeyHash }
+func (a *Identity) Checksum() []byte               { return a.checksum }

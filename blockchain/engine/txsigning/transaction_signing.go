@@ -8,9 +8,9 @@ import (
 	"github.com/tclchiam/block_n_go/identity"
 )
 
-func GenerateSignature(input *entity.UnsignedInput, outputs []*entity.Output, sender *identity.Address, encoder entity.TransactionEncoder) *crypto.Signature {
+func GenerateSignature(input *entity.UnsignedInput, outputs []*entity.Output, spender *identity.Identity, encoder entity.TransactionEncoder) *crypto.Signature {
 	signatureData := serializeSignatureData(input, outputs, encoder)
-	signature, err := sender.Sign(signatureData)
+	signature, err := spender.Sign(signatureData)
 	if err != nil {
 		log.Panic(err)
 	}

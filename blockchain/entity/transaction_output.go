@@ -13,8 +13,8 @@ type Output struct {
 	PublicKeyHash []byte
 }
 
-func NewOutput(value uint32, sender *identity.Address) *Output {
-	return &Output{Value: value, PublicKeyHash: sender.PublicKeyHash()}
+func NewOutput(value uint32, spender *identity.Identity) *Output {
+	return &Output{Value: value, PublicKeyHash: spender.PublicKeyHash()}
 }
 
 func (output *Output) String() string {
@@ -28,8 +28,8 @@ func (output *Output) String() string {
 	return strings.Join(lines, "\n")
 }
 
-func (output *Output) IsLockedWithKey(address *identity.Address) bool {
-	return bytes.Compare(output.PublicKeyHash, address.PublicKeyHash()) == 0
+func (output *Output) ReceivedBy(receiver *identity.Identity) bool {
+	return bytes.Compare(output.PublicKeyHash, receiver.PublicKeyHash()) == 0
 }
 
 func (output *Output) IsEqual(other *Output) bool {

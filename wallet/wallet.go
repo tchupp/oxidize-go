@@ -9,7 +9,7 @@ type Wallet struct {
 	PrivateKey *crypto.PrivateKey
 	PublicKey  *crypto.PublicKey
 
-	address *identity.Address
+	identity *identity.Identity
 }
 
 func NewWallet() *Wallet {
@@ -21,13 +21,13 @@ func newWallet(privateKey *crypto.PrivateKey) *Wallet {
 	return &Wallet{PrivateKey: privateKey, PublicKey: privateKey.PubKey()}
 }
 
-func (w *Wallet) GetAddress() *identity.Address {
-	if w.address != nil {
-		return w.address
+func (w *Wallet) GetAddress() *identity.Identity {
+	if w.identity != nil {
+		return w.identity
 	}
 
-	w.address = identity.NewAddress(w.PrivateKey)
-	return w.address
+	w.identity = identity.NewIdentity(w.PrivateKey)
+	return w.identity
 }
 
 func (w *Wallet) String() string {

@@ -33,8 +33,8 @@ func (input *SignedInput) String() string {
 	return strings.Join(lines, "\n")
 }
 
-func (input *SignedInput) SpentBy(address *identity.Address) bool {
-	publicKeyHash := address.PublicKeyHash()
+func (input *SignedInput) SpentBy(spender *identity.Identity) bool {
+	publicKeyHash := spender.PublicKeyHash()
 	lockingHash := input.PublicKey.Hash()
 
 	return bytes.Compare(lockingHash, publicKeyHash) == 0

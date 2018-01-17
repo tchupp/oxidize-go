@@ -52,7 +52,7 @@ func (tx *Transaction) String() string {
 	return strings.Join(lines, "\n")
 }
 
-func NewCoinbaseTx(coinbase *identity.Address, encoder TransactionEncoder) *Transaction {
+func NewCoinbaseTx(coinbase *identity.Identity, encoder TransactionEncoder) *Transaction {
 	var inputs []*SignedInput
 	outputs := []*Output{NewOutput(subsidy, coinbase)}
 

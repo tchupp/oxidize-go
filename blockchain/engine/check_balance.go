@@ -6,8 +6,8 @@ import (
 	"github.com/tclchiam/block_n_go/identity"
 )
 
-func ReadBalance(address *identity.Address, engine utxo.Engine) (uint32, error) {
-	unspentOutputs, err := engine.FindUnspentOutputs(address)
+func ReadBalance(identity *identity.Identity, engine utxo.Engine) (uint32, error) {
+	unspentOutputs, err := engine.FindUnspentOutputs(identity)
 	if err != nil {
 		return 0, err
 	}

@@ -16,11 +16,11 @@ import (
 )
 
 func TestBlockchain_Workflow(t *testing.T) {
-	owner := identity.RandomAddress()
-	actor1 := identity.RandomAddress()
-	actor2 := identity.RandomAddress()
-	actor3 := identity.RandomAddress()
-	actor4 := identity.RandomAddress()
+	owner := identity.RandomIdentity()
+	actor1 := identity.RandomIdentity()
+	actor2 := identity.RandomIdentity()
+	actor3 := identity.RandomIdentity()
+	actor4 := identity.RandomIdentity()
 
 	t.Run("Sending: expense < balance", func(t *testing.T) {
 		const name = "test1"
@@ -124,18 +124,18 @@ func TestBlockchain_Workflow(t *testing.T) {
 	})
 }
 
-func verifyBalance(t *testing.T, bc *blockchain.Blockchain, address *identity.Address, expectedBalance uint32) {
-	balance, err := bc.ReadBalance(address)
+func verifyBalance(t *testing.T, bc *blockchain.Blockchain, spender *identity.Identity, expectedBalance uint32) {
+	balance, err := bc.ReadBalance(spender)
 
 	if err != nil {
-		t.Fatalf("reading balance for '%x' %s", address, err)
+		t.Fatalf("reading balance for '%x' %s", spender, err)
 	}
 	if balance != expectedBalance {
-		t.Fatalf("expected balance for '%x' to be [%d], was: [%d]", address, expectedBalance, balance)
+		t.Fatalf("expected balance for '%x' to be [%d], was: [%d]", spender, expectedBalance, balance)
 	}
 }
 
-func setupBlockchain(t *testing.T, name string, owner *identity.Address) *blockchain.Blockchain {
+func setupBlockchain(t *testing.T, name string, owner *identity.Identity) *blockchain.Blockchain {
 	blockRepository, err := boltdb.NewBlockRepository(name, encoding.NewBlockGobEncoder())
 	if err != nil {
 		t.Fatalf("failed to create block repository: %s", err)
@@ -155,7 +155,7 @@ func setupBlockchain(t *testing.T, name string, owner *identity.Address) *blockc
 	return bc
 }
 
-func buildGenesisBlock(owner *identity.Address, miner mining.Miner) *entity.Block {
+func buildGenesisBlock(owner *identity.Identity, miner mining.Miner) *entity.Block {
 	transactionEncoder := encoding.TransactionProtoEncoder()
 
 	header := entity.NewBlockHeader(math.MaxUint64, nil, nil, 0, 0, &entity.EmptyHash)
