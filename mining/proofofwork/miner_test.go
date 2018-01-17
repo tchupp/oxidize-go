@@ -4,7 +4,7 @@ import (
 	"testing"
 
 	"github.com/tclchiam/block_n_go/blockchain/entity"
-	"github.com/tclchiam/block_n_go/mining"
+	"github.com/tclchiam/block_n_go/identity"
 )
 
 var (
@@ -22,42 +22,17 @@ var (
 		Index:            0,
 		PreviousHash:     &entity.EmptyHash,
 		Timestamp:        timestamp,
-		TransactionsHash: mining.CalculateTransactionsHash(transactions),
+		TransactionsHash: &entity.EmptyHash,
 		Nonce:            9330,
 		Hash:             entity.NewHashOrPanic("00008623b2c8806d056cb4ab9a5c3a57d9f36c017aa6c40fed5767249dcd10a8"),
 	}
 	parent = entity.NewBlock(header, transactions)
+
+	coinbase = identity.RandomIdentity()
 )
 
-func BenchmarkNewDefaultMiner(b *testing.B) {
-	miner := NewDefaultMiner().(*miner)
-
-	b.ResetTimer()
-	for n := 0; n < b.N; n++ {
-		miner.mineBlock(parent, transactions, timestamp)
-	}
-}
-
-func BenchmarkNewMiner_2(b *testing.B) {
-	miner := NewMiner(2).(*miner)
-
-	b.ResetTimer()
-	for n := 0; n < b.N; n++ {
-		miner.mineBlock(parent, transactions, timestamp)
-	}
-}
-
-func BenchmarkNewMiner_4(b *testing.B) {
-	miner := NewMiner(4).(*miner)
-
-	b.ResetTimer()
-	for n := 0; n < b.N; n++ {
-		miner.mineBlock(parent, transactions, timestamp)
-	}
-}
-
 func BenchmarkNewMiner_8(b *testing.B) {
-	miner := NewMiner(8).(*miner)
+	miner := NewMiner(8, coinbase).(*miner)
 
 	b.ResetTimer()
 	for n := 0; n < b.N; n++ {
@@ -66,7 +41,7 @@ func BenchmarkNewMiner_8(b *testing.B) {
 }
 
 func BenchmarkNewMiner_16(b *testing.B) {
-	miner := NewMiner(16).(*miner)
+	miner := NewMiner(16, coinbase).(*miner)
 
 	b.ResetTimer()
 	for n := 0; n < b.N; n++ {
@@ -75,7 +50,43 @@ func BenchmarkNewMiner_16(b *testing.B) {
 }
 
 func BenchmarkNewMiner_32(b *testing.B) {
-	miner := NewMiner(32).(*miner)
+	miner := NewMiner(32, coinbase).(*miner)
+
+	b.ResetTimer()
+	for n := 0; n < b.N; n++ {
+		miner.mineBlock(parent, transactions, timestamp)
+	}
+}
+
+func BenchmarkNewMiner_64(b *testing.B) {
+	miner := NewMiner(64, coinbase).(*miner)
+
+	b.ResetTimer()
+	for n := 0; n < b.N; n++ {
+		miner.mineBlock(parent, transactions, timestamp)
+	}
+}
+
+func BenchmarkNewMiner_128(b *testing.B) {
+	miner := NewMiner(128, coinbase).(*miner)
+
+	b.ResetTimer()
+	for n := 0; n < b.N; n++ {
+		miner.mineBlock(parent, transactions, timestamp)
+	}
+}
+
+func BenchmarkNewMiner_256(b *testing.B) {
+	miner := NewMiner(256, coinbase).(*miner)
+
+	b.ResetTimer()
+	for n := 0; n < b.N; n++ {
+		miner.mineBlock(parent, transactions, timestamp)
+	}
+}
+
+func BenchmarkNewDefaultMiner(b *testing.B) {
+	miner := NewDefaultMiner(coinbase).(*miner)
 
 	b.ResetTimer()
 	for n := 0; n < b.N; n++ {

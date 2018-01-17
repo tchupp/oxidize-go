@@ -19,16 +19,16 @@ func main() {
 	receiver := identity.RandomIdentity()
 	const blockchainName = "reactions"
 
-	fmt.Printf("Owner: '%s', receiver: '%s'\n\n", owner, receiver)
+	fmt.Printf("Owner: '%s', receiver: '%s'\n", owner, receiver)
 
-	miner := proofofwork.NewDefaultMiner()
+	miner := proofofwork.NewDefaultMiner(owner)
 	blockRepository, err := boltdb.NewBlockRepository(blockchainName, encoding.NewBlockGobEncoder())
 	if err != nil {
 		log.Panic(err)
 	}
 	defer boltdb.DeleteBlockchain(blockchainName)
 
-	genesisBlock := buildGenesisBlock(owner, miner)
+	genesisBlock := buildGenesisBlock(miner)
 	if err = blockRepository.SaveBlock(genesisBlock); err != nil {
 		log.Panic(err)
 	}
@@ -67,11 +67,9 @@ func main() {
 	fmt.Printf("Balance of '%s': %d\n\n", receiver, balance)
 }
 
-func buildGenesisBlock(owner *identity.Identity, miner mining.Miner) *entity.Block {
-	transactionEncoder := encoding.TransactionProtoEncoder()
-
+func buildGenesisBlock(miner mining.Miner) *entity.Block {
 	header := entity.NewBlockHeader(math.MaxUint64, nil, nil, 0, 0, &entity.EmptyHash)
-	transactions := entity.Transactions{entity.NewCoinbaseTx(owner, transactionEncoder)}
-	parent := entity.NewBlock(header, transactions)
-	return miner.MineBlock(parent, transactions)
+	parent := entity.NewBlock(header, entity.Transactions{})
+
+	return miner.MineBlock(parent, entity.Transactions{})
 }

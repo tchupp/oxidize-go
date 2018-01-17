@@ -5,7 +5,6 @@ import (
 	"github.com/tclchiam/block_n_go/blockchain/engine/iter"
 	"github.com/tclchiam/block_n_go/blockchain/engine/utxo"
 	"github.com/tclchiam/block_n_go/blockchain/entity"
-	"github.com/tclchiam/block_n_go/blockchain/entity/encoding"
 	"github.com/tclchiam/block_n_go/storage"
 	"github.com/tclchiam/block_n_go/mining"
 	"github.com/tclchiam/block_n_go/identity"
@@ -77,9 +76,8 @@ func (bc *Blockchain) Send(spender, receiver, coinbase *identity.Identity, expen
 	if err != nil {
 		return err
 	}
-	rewardTransaction := entity.NewCoinbaseTx(coinbase, encoding.TransactionProtoEncoder())
 
-	newBlock, err := engine.MineBlock(entity.Transactions{expenseTransaction, rewardTransaction}, bc.miner, bc.blockRepository)
+	newBlock, err := engine.MineBlock(entity.Transactions{expenseTransaction}, bc.miner, bc.blockRepository)
 	if err != nil {
 		return err
 	}

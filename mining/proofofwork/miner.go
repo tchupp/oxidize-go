@@ -7,6 +7,8 @@ import (
 	"time"
 
 	"github.com/tclchiam/block_n_go/blockchain/entity"
+	"github.com/tclchiam/block_n_go/blockchain/entity/encoding"
+	"github.com/tclchiam/block_n_go/identity"
 	"github.com/tclchiam/block_n_go/mining"
 )
 
@@ -19,19 +21,23 @@ var (
 )
 
 type miner struct {
-	workerCount uint
+	workerCount        uint
+	coinbase           *identity.Identity
+	transactionEncoder entity.TransactionEncoder
 }
 
-func NewMiner(workerCount uint) mining.Miner {
-	return &miner{workerCount: workerCount}
+func NewMiner(workerCount uint, coinbase *identity.Identity) mining.Miner {
+	return &miner{workerCount: workerCount, coinbase: coinbase, transactionEncoder: encoding.TransactionProtoEncoder()}
 }
 
-func NewDefaultMiner() mining.Miner {
-	return NewMiner(defaultWorkerCount)
+func NewDefaultMiner(coinbase *identity.Identity) mining.Miner {
+	return NewMiner(defaultWorkerCount, coinbase)
 }
 
 func (miner *miner) MineBlock(parent *entity.Block, transactions entity.Transactions) (*entity.Block) {
-	return miner.mineBlock(parent, transactions, uint64(time.Now().Unix()))
+	reward := entity.NewCoinbaseTx(miner.coinbase, miner.transactionEncoder)
+
+	return miner.mineBlock(parent, transactions.Add(reward), uint64(time.Now().Unix()))
 }
 
 func (miner *miner) mineBlock(parent *entity.Block, transactions entity.Transactions, now uint64) (*entity.Block) {
@@ -48,11 +54,9 @@ func (miner *miner) mineBlock(parent *entity.Block, transactions entity.Transact
 	nonces := make(chan uint64, miner.workerCount)
 	defer close(nonces)
 
-	go func() {
-		for workerNum := uint(0); workerNum < miner.workerCount; workerNum++ {
-			go worker(work, nonces, solutions)
-		}
-	}()
+	for workerNum := uint(0); workerNum < miner.workerCount; workerNum++ {
+		go worker(work, nonces, solutions)
+	}
 
 	for nonce := uint64(0); nonce < maxNonce; nonce++ {
 		select {

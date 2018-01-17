@@ -140,9 +140,9 @@ func setupBlockchain(t *testing.T, name string, owner *identity.Identity) *block
 	if err != nil {
 		t.Fatalf("failed to create block repository: %s", err)
 	}
-	miner := proofofwork.NewDefaultMiner()
+	miner := proofofwork.NewDefaultMiner(owner)
 
-	genesisBlock := buildGenesisBlock(owner, miner)
+	genesisBlock := buildGenesisBlock(miner)
 	if err = blockRepository.SaveBlock(genesisBlock); err != nil {
 		t.Fatalf("saving genesis block: %s", err)
 	}
@@ -155,11 +155,9 @@ func setupBlockchain(t *testing.T, name string, owner *identity.Identity) *block
 	return bc
 }
 
-func buildGenesisBlock(owner *identity.Identity, miner mining.Miner) *entity.Block {
-	transactionEncoder := encoding.TransactionProtoEncoder()
-
+func buildGenesisBlock(miner mining.Miner) *entity.Block {
 	header := entity.NewBlockHeader(math.MaxUint64, nil, nil, 0, 0, &entity.EmptyHash)
-	transactions := entity.Transactions{entity.NewCoinbaseTx(owner, transactionEncoder)}
-	parent := entity.NewBlock(header, transactions)
-	return miner.MineBlock(parent, transactions)
+	parent := entity.NewBlock(header, entity.Transactions{})
+
+	return miner.MineBlock(parent, entity.Transactions{})
 }
