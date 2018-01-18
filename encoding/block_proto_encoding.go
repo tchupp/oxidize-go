@@ -15,7 +15,7 @@ func BlockProtoEncoder() entity.BlockEncoder {
 }
 
 func (*blockProtoEncoder) EncodeBlock(block *entity.Block) ([]byte, error) {
-	message := toBlockData(block)
+	message := ToWireBlock(block)
 
 	data, err := proto.Marshal(message)
 	if err != nil {
@@ -33,5 +33,5 @@ func (*blockProtoEncoder) DecodeBlock(input []byte) (*entity.Block, error) {
 		return nil, fmt.Errorf("deserializing block from protobuf '%s': %s", input, err)
 	}
 
-	return fromBlockData(message)
+	return FromWireBlock(message)
 }

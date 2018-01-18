@@ -7,22 +7,22 @@ import (
 	"github.com/golang/protobuf/proto"
 )
 
-func toBlockData(block *entity.Block) *Block {
+func ToWireBlock(block *entity.Block) *Block {
 	var transactions []*Transaction
 	for _, transaction := range block.Transactions() {
-		transactions = append(transactions, toTransactionData(transaction))
+		transactions = append(transactions, ToWireTransaction(transaction))
 	}
 
 	return &Block{
-		Header:       toBlockHeaderData(block.Header()),
+		Header:       ToWireBlockHeader(block.Header()),
 		Transactions: transactions,
 	}
 }
 
-func fromBlockData(block *Block) (*entity.Block, error) {
+func FromWireBlock(block *Block) (*entity.Block, error) {
 	var transactions []*entity.Transaction
 	for _, txData := range block.Transactions {
-		transaction, err := fromTransactionData(txData)
+		transaction, err := FromWireTransaction(txData)
 		if err != nil {
 			return nil, err
 		}
@@ -30,7 +30,7 @@ func fromBlockData(block *Block) (*entity.Block, error) {
 		transactions = append(transactions, transaction)
 	}
 
-	header, err := fromBlockHeaderData(block.Header)
+	header, err := FromWireBlockHeader(block.Header)
 	if err != nil {
 		return nil, err
 	}
@@ -41,7 +41,7 @@ func fromBlockData(block *Block) (*entity.Block, error) {
 	), nil
 }
 
-func toBlockHeaderData(header *entity.BlockHeader) *BlockHeader {
+func ToWireBlockHeader(header *entity.BlockHeader) *BlockHeader {
 	return &BlockHeader{
 		Index:            proto.Uint64(header.Index),
 		PreviousHash:     header.PreviousHash.Slice(),
@@ -52,7 +52,7 @@ func toBlockHeaderData(header *entity.BlockHeader) *BlockHeader {
 	}
 }
 
-func fromBlockHeaderData(header *BlockHeader) (*entity.BlockHeader, error) {
+func FromWireBlockHeader(header *BlockHeader) (*entity.BlockHeader, error) {
 	previousHash, err := entity.NewHash(header.GetPreviousHash())
 	if err != nil {
 		return nil, fmt.Errorf("parsing previous hash: %s", err)

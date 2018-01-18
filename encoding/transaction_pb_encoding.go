@@ -16,7 +16,7 @@ func TransactionProtoEncoder() entity.TransactionEncoder {
 }
 
 func (*transactionProtoEncoder) EncodeTransaction(transaction *entity.Transaction) ([]byte, error) {
-	message := toTransactionData(transaction)
+	message := ToWireTransaction(transaction)
 	data, err := proto.Marshal(message)
 	if err != nil {
 		return nil, fmt.Errorf("serializing transaction to protobuf: %s", err)
@@ -33,11 +33,11 @@ func (*transactionProtoEncoder) DecodeTransaction(input []byte) (*entity.Transac
 		return nil, fmt.Errorf("deserializing transaction from protobuf '%s': %s", input, err)
 	}
 
-	return fromTransactionData(message)
+	return FromWireTransaction(message)
 }
 
 func (*transactionProtoEncoder) EncodeOutput(output *entity.Output) ([]byte, error) {
-	message := toOutputData(output)
+	message := ToWireOutput(output)
 
 	data, err := proto.Marshal(message)
 	if err != nil {
@@ -55,11 +55,11 @@ func (*transactionProtoEncoder) DecodeOutput(input []byte) (*entity.Output, erro
 		return nil, fmt.Errorf("deserializing transaction output from protobuf '%s': %s", input, err)
 	}
 
-	return fromOutputData(message), nil
+	return FromWireOutput(message), nil
 }
 
 func (*transactionProtoEncoder) EncodeSignedInput(input *entity.SignedInput) ([]byte, error) {
-	message := toSignedInputData(input)
+	message := ToWireSignedInput(input)
 
 	data, err := proto.Marshal(message)
 	if err != nil {
@@ -77,11 +77,11 @@ func (*transactionProtoEncoder) DecodeSignedInput(input []byte) (*entity.SignedI
 		return nil, fmt.Errorf("deserializing transaction signed input from protobuf '%s': %s", input, err)
 	}
 
-	return fromSignedInputData(message)
+	return FromWireSignedInput(message)
 }
 
 func (*transactionProtoEncoder) EncodeUnsignedInput(input *entity.UnsignedInput) ([]byte, error) {
-	message := toUnsignedInputData(input)
+	message := ToWireUnsignedInput(input)
 
 	data, err := proto.Marshal(message)
 	if err != nil {
@@ -99,5 +99,5 @@ func (*transactionProtoEncoder) DecodeUnsignedInput(input []byte) (*entity.Unsig
 		return nil, fmt.Errorf("deserializing transaction unsigned input from protobuf '%s': %s", input, err)
 	}
 
-	return fromUnsignedInputData(message)
+	return FromWireUnsignedInput(message)
 }

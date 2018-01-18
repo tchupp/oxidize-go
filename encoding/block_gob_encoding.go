@@ -18,7 +18,7 @@ func BlockGobEncoder() entity.BlockEncoder {
 func (*blockGobEncoder) EncodeBlock(block *entity.Block) ([]byte, error) {
 	var result bytes.Buffer
 	encoder := gob.NewEncoder(&result)
-	err := encoder.Encode(toBlockData(block))
+	err := encoder.Encode(ToWireBlock(block))
 	if err != nil {
 		return nil, fmt.Errorf("serializing block to gob: %s", err)
 	}
@@ -35,5 +35,5 @@ func (*blockGobEncoder) DecodeBlock(input []byte) (*entity.Block, error) {
 		return nil, fmt.Errorf("deserializing block from gob '%s': %s", input, err)
 	}
 
-	return fromBlockData(&data)
+	return FromWireBlock(&data)
 }

@@ -6,16 +6,16 @@ import (
 	"github.com/golang/protobuf/proto"
 )
 
-func toTransactionData(transaction *entity.Transaction) *Transaction {
+func ToWireTransaction(transaction *entity.Transaction) *Transaction {
 	var inputs []*SignedInput
 	for _, input := range transaction.Inputs {
-		data := toSignedInputData(input)
+		data := ToWireSignedInput(input)
 		inputs = append(inputs, data)
 	}
 
 	var outputs []*Output
 	for _, output := range transaction.Outputs {
-		data := toOutputData(output)
+		data := ToWireOutput(output)
 		outputs = append(outputs, data)
 	}
 
@@ -27,10 +27,10 @@ func toTransactionData(transaction *entity.Transaction) *Transaction {
 	}
 }
 
-func fromTransactionData(transaction *Transaction) (*entity.Transaction, error) {
+func FromWireTransaction(transaction *Transaction) (*entity.Transaction, error) {
 	var inputs []*entity.SignedInput
 	for _, input := range transaction.GetInputs() {
-		data, err := fromSignedInputData(input)
+		data, err := FromWireSignedInput(input)
 		if err != nil {
 			return nil, err
 		}
@@ -39,7 +39,7 @@ func fromTransactionData(transaction *Transaction) (*entity.Transaction, error) 
 
 	var outputs []*entity.Output
 	for _, output := range transaction.GetOutputs() {
-		data := fromOutputData(output)
+		data := FromWireOutput(output)
 		outputs = append(outputs, data)
 	}
 
@@ -56,15 +56,15 @@ func fromTransactionData(transaction *Transaction) (*entity.Transaction, error) 
 	}, nil
 }
 
-func toSignedInputData(input *entity.SignedInput) *SignedInput {
+func ToWireSignedInput(input *entity.SignedInput) *SignedInput {
 	return &SignedInput{
-		Reference: toOutputReferenceData(input.OutputReference),
+		Reference: ToWireOutputReference(input.OutputReference),
 		Signature: input.Signature.Serialize(),
 		PublicKey: input.PublicKey.Serialize(),
 	}
 }
 
-func fromSignedInputData(input *SignedInput) (*entity.SignedInput, error) {
+func FromWireSignedInput(input *SignedInput) (*entity.SignedInput, error) {
 	publicKey, err := crypto.DeserializePublicKey(input.GetPublicKey())
 	if err != nil {
 		return nil, err
@@ -75,7 +75,7 @@ func fromSignedInputData(input *SignedInput) (*entity.SignedInput, error) {
 		return nil, err
 	}
 
-	outputReference, err := fromOutputReferenceData(input.GetReference())
+	outputReference, err := FromOutputReference(input.GetReference())
 	if err != nil {
 		return nil, err
 	}
@@ -87,20 +87,20 @@ func fromSignedInputData(input *SignedInput) (*entity.SignedInput, error) {
 	}, nil
 }
 
-func toUnsignedInputData(input *entity.UnsignedInput) *UnsignedInput {
+func ToWireUnsignedInput(input *entity.UnsignedInput) *UnsignedInput {
 	return &UnsignedInput{
-		Reference: toOutputReferenceData(input.OutputReference),
+		Reference: ToWireOutputReference(input.OutputReference),
 		PublicKey: input.PublicKey.Serialize(),
 	}
 }
 
-func fromUnsignedInputData(input *UnsignedInput) (*entity.UnsignedInput, error) {
+func FromWireUnsignedInput(input *UnsignedInput) (*entity.UnsignedInput, error) {
 	publicKey, err := crypto.DeserializePublicKey(input.GetPublicKey())
 	if err != nil {
 		return nil, err
 	}
 
-	outputReference, err := fromOutputReferenceData(input.GetReference())
+	outputReference, err := FromOutputReference(input.GetReference())
 	if err != nil {
 		return nil, err
 	}
@@ -111,14 +111,14 @@ func fromUnsignedInputData(input *UnsignedInput) (*entity.UnsignedInput, error) 
 	}, nil
 }
 
-func toOutputReferenceData(reference *entity.OutputReference) *OutputReference {
+func ToWireOutputReference(reference *entity.OutputReference) *OutputReference {
 	return &OutputReference{
 		Id:     reference.ID.Slice(),
-		Output: toOutputData(reference.Output),
+		Output: ToWireOutput(reference.Output),
 	}
 }
 
-func fromOutputReferenceData(reference *OutputReference) (*entity.OutputReference, error) {
+func FromOutputReference(reference *OutputReference) (*entity.OutputReference, error) {
 	id, err := entity.NewHash(reference.GetId())
 	if err != nil {
 		return nil, err
@@ -126,11 +126,11 @@ func fromOutputReferenceData(reference *OutputReference) (*entity.OutputReferenc
 
 	return &entity.OutputReference{
 		ID:     id,
-		Output: fromOutputData(reference.GetOutput()),
+		Output: FromWireOutput(reference.GetOutput()),
 	}, nil
 }
 
-func toOutputData(output *entity.Output) *Output {
+func ToWireOutput(output *entity.Output) *Output {
 	return &Output{
 		Index:         proto.Uint32(output.Index),
 		Value:         proto.Uint32(output.Value),
@@ -138,7 +138,7 @@ func toOutputData(output *entity.Output) *Output {
 	}
 }
 
-func fromOutputData(output *Output) *entity.Output {
+func FromWireOutput(output *Output) *entity.Output {
 	return &entity.Output{
 		Index:         output.GetIndex(),
 		Value:         output.GetValue(),
