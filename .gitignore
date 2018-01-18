@@ -52,3 +52,6 @@ fabric.properties
 
 # Bolt
 *.db
+
+# Glide
+/vendor

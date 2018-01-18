@@ -1,0 +1,20 @@
+package: github.com/tclchiam/block_n_go
+import:
+- package: github.com/boltdb/bolt
+  version: v1.3.1
+- package: github.com/golang/protobuf
+  subpackages:
+  - proto
+- package: github.com/imdario/mergo
+  version: 0.3.0
+- package: github.com/mr-tron/base58
+  subpackages:
+  - base58
+- package: golang.org/x/crypto
+  subpackages:
+  - ripemd160
+testImport:
+- package: github.com/google/go-cmp
+  version: v0.1.0
+  subpackages:
+  - cmp

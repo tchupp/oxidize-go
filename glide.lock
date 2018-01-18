@@ -1,0 +1,73 @@
+hash: 6c7adb4b9da214faf1dd02750d5fe0ef4497fea81d2f75f28424c4bc7f8b967c
+updated: 2018-01-17T21:53:19.108878-05:00
+imports:
+- name: github.com/boltdb/bolt
+  version: 2f1ce7a837dcb8da3ec595b1dac9d0632f0f99e8
+- name: github.com/gogo/protobuf
+  version: 160de10b2537169b5ae3e7e221d28269ef40d311
+  subpackages:
+  - proto
+- name: github.com/golang/protobuf
+  version: fec3b39b059c0f88fa6b20f5ed012b1aa203a8b4
+  subpackages:
+  - proto
+  - ptypes/any
+- name: github.com/imdario/mergo
+  version: f1ac5984e69fed03e0574a92f70c59f132616ea2
+- name: github.com/mr-tron/base58
+  version: c1bdf7c52f59d6685ca597b9955a443ff95eeee6
+  subpackages:
+  - base58
+- name: golang.org/x/crypto
+  version: 122d919ec1efcfb58483215da23f815853e24b81
+  subpackages:
+  - ripemd160
+- name: golang.org/x/net
+  version: 8663ed5da4fd087c3cfb99a996e628b72e2f0948
+  subpackages:
+  - context
+  - http2
+  - http2/hpack
+  - idna
+  - internal/timeseries
+  - lex/httplex
+  - trace
+- name: golang.org/x/sys
+  version: cd2c276457edda6df7fb04895d3fd6a6add42926
+  subpackages:
+  - unix
+- name: golang.org/x/text
+  version: 6353ef0f924300eea566d3438817aa4d3374817e
+  subpackages:
+  - secure/bidirule
+  - transform
+  - unicode/bidi
+  - unicode/norm
+- name: google.golang.org/genproto
+  version: 411e09b969b1170a9f0c467558eb4c4c110d9c77
+  subpackages:
+  - googleapis/rpc/status
+- name: google.golang.org/grpc
+  version: b15215fb911b24a5d61d57feec4233d610530464
+  subpackages:
+  - codes
+  - credentials
+  - grpclb/grpc_lb_v1
+  - grpclog
+  - internal
+  - keepalive
+  - metadata
+  - naming
+  - peer
+  - stats
+  - status
+  - tap
+  - transport
+testImports:
+- name: github.com/google/go-cmp
+  version: 8099a9787ce5dc5984ed879a3bda47dc730a8e97
+  subpackages:
+  - cmp
+  - cmp/internal/diff
+  - cmp/internal/function
+  - cmp/internal/value
