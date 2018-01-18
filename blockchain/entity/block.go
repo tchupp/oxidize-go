@@ -10,6 +10,8 @@ type Block struct {
 	transactions Transactions
 }
 
+type Blocks []*Block
+
 func NewBlock(header *BlockHeader, transactions Transactions) *Block {
 	return &Block{
 		header:       header,

@@ -16,24 +16,28 @@ type Blockchain struct {
 	utxoEngine      utxo.Engine
 }
 
-func Open(repository storage.BlockRepository, miner mining.Miner) (*Blockchain, error) {
+func Open(repository storage.BlockRepository, miner mining.Miner) (blockchain *Blockchain, err error) {
+	blockchain = &Blockchain{
+		blockRepository: repository,
+		miner:           miner,
+		utxoEngine:      utxo.NewCrawlerEngine(repository),
+	}
+
 	exists, err := genesisBlockExists(repository)
 	if err != nil {
 		return nil, err
 	}
 
-	if !exists {
-		err := repository.SaveBlock(entity.DefaultGenesisBlock())
-		if err != nil {
-			return nil, err
-		}
+	if exists {
+		return blockchain, nil
 	}
 
-	return &Blockchain{
-		blockRepository: repository,
-		miner:           miner,
-		utxoEngine:      utxo.NewCrawlerEngine(repository),
-	}, nil
+	err = repository.SaveBlock(entity.DefaultGenesisBlock())
+	if err != nil {
+		return nil, err
+	}
+
+	return blockchain, nil
 }
 
 func genesisBlockExists(repository storage.BlockRepository) (bool, error) {
@@ -55,7 +59,7 @@ func (bc *Blockchain) ReadBalance(identity *identity.Identity) (uint32, error) {
 	return engine.ReadBalance(identity, bc.utxoEngine)
 }
 
-func (bc *Blockchain) GetLatestHeader() (*entity.BlockHeader, error) {
+func (bc *Blockchain) GetBestHeader() (*entity.BlockHeader, error) {
 	head, err := bc.blockRepository.Head()
 	if err != nil {
 		return nil, err

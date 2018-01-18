@@ -30,9 +30,11 @@ func (header BlockHeader) String() string {
 
 	lines = append(lines, fmt.Sprintf("\n============ BlockHeader ============"))
 	lines = append(lines, fmt.Sprintf("Index: %x", header.Index))
-	lines = append(lines, fmt.Sprintf("PreviousHash: %x", header.PreviousHash.Slice()))
+	lines = append(lines, fmt.Sprintf("PreviousHash: %s", header.PreviousHash))
 	lines = append(lines, fmt.Sprintf("Timestamp: %d", header.Timestamp))
-	lines = append(lines, fmt.Sprintf("TransactionsHash: %x", header.TransactionsHash))
+	lines = append(lines, fmt.Sprintf("TransactionsHash: %s", header.TransactionsHash))
+	lines = append(lines, fmt.Sprintf("Nonce: %d", header.Nonce))
+	lines = append(lines, fmt.Sprintf("Hash: %s", header.Hash))
 
 	return strings.Join(lines, "\n")
 }

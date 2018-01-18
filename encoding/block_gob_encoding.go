@@ -11,7 +11,7 @@ type blockGobEncoder struct{}
 
 var blockGobEncoderInstance blockGobEncoder
 
-func NewBlockGobEncoder() entity.BlockEncoder {
+func BlockGobEncoder() entity.BlockEncoder {
 	return &blockGobEncoderInstance
 }
 

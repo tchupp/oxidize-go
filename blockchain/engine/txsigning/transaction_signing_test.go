@@ -4,7 +4,7 @@ import (
 	"testing"
 
 	"github.com/tclchiam/block_n_go/blockchain/entity"
-	"github.com/tclchiam/block_n_go/blockchain/entity/encoding"
+	"github.com/tclchiam/block_n_go/encoding"
 	"github.com/tclchiam/block_n_go/identity"
 )
 

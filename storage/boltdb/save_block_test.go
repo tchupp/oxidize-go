@@ -7,7 +7,7 @@ import (
 	"github.com/boltdb/bolt"
 	"github.com/google/go-cmp/cmp"
 	"github.com/tclchiam/block_n_go/blockchain/entity"
-	"github.com/tclchiam/block_n_go/blockchain/entity/encoding"
+	"github.com/tclchiam/block_n_go/encoding"
 	"github.com/tclchiam/block_n_go/identity"
 	"github.com/tclchiam/block_n_go/mining"
 )
@@ -16,7 +16,7 @@ func TestBlockRepository_SaveBlock(t *testing.T) {
 	randomIdentity := identity.RandomIdentity()
 	const testBlockchainName = "test"
 
-	blockEncoder := encoding.NewBlockGobEncoder()
+	blockEncoder := encoding.BlockProtoEncoder()
 	blockRepository, err := NewBlockRepository(testBlockchainName, blockEncoder)
 	if err != nil {
 		t.Fatalf("creating block repository: %s", err)

@@ -7,7 +7,7 @@ import (
 	"testing"
 
 	"github.com/tclchiam/block_n_go/blockchain"
-	"github.com/tclchiam/block_n_go/blockchain/entity/encoding"
+	"github.com/tclchiam/block_n_go/encoding"
 	"github.com/tclchiam/block_n_go/mining/proofofwork"
 	"github.com/tclchiam/block_n_go/storage/boltdb"
 	"github.com/tclchiam/block_n_go/identity"
@@ -136,7 +136,7 @@ func verifyBalance(t *testing.T, bc *blockchain.Blockchain, spender *identity.Id
 }
 
 func setupBlockchain(t *testing.T, name string, owner *identity.Identity) *blockchain.Blockchain {
-	blockRepository, err := boltdb.NewBlockRepository(name, encoding.NewBlockGobEncoder())
+	blockRepository, err := boltdb.NewBlockRepository(name, encoding.BlockProtoEncoder())
 	if err != nil {
 		t.Fatalf("failed to create block repository: %s", err)
 	}

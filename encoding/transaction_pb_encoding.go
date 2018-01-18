@@ -7,15 +7,15 @@ import (
 	"github.com/golang/protobuf/proto"
 )
 
-type transactionPbEncoder struct{}
+type transactionProtoEncoder struct{}
 
-var transactionPbEncoderInstance transactionPbEncoder
+var transactionProtoEncoderInstance transactionProtoEncoder
 
 func TransactionProtoEncoder() entity.TransactionEncoder {
-	return &transactionPbEncoderInstance
+	return &transactionProtoEncoderInstance
 }
 
-func (*transactionPbEncoder) EncodeTransaction(transaction *entity.Transaction) ([]byte, error) {
+func (*transactionProtoEncoder) EncodeTransaction(transaction *entity.Transaction) ([]byte, error) {
 	message := toTransactionData(transaction)
 	data, err := proto.Marshal(message)
 	if err != nil {
@@ -25,7 +25,7 @@ func (*transactionPbEncoder) EncodeTransaction(transaction *entity.Transaction) 
 	return data, nil
 }
 
-func (*transactionPbEncoder) DecodeTransaction(input []byte) (*entity.Transaction, error) {
+func (*transactionProtoEncoder) DecodeTransaction(input []byte) (*entity.Transaction, error) {
 	message := &Transaction{}
 
 	err := proto.Unmarshal(input, message)
@@ -36,7 +36,7 @@ func (*transactionPbEncoder) DecodeTransaction(input []byte) (*entity.Transactio
 	return fromTransactionData(message)
 }
 
-func (*transactionPbEncoder) EncodeOutput(output *entity.Output) ([]byte, error) {
+func (*transactionProtoEncoder) EncodeOutput(output *entity.Output) ([]byte, error) {
 	message := toOutputData(output)
 
 	data, err := proto.Marshal(message)
@@ -47,7 +47,7 @@ func (*transactionPbEncoder) EncodeOutput(output *entity.Output) ([]byte, error)
 	return data, nil
 }
 
-func (*transactionPbEncoder) DecodeOutput(input []byte) (*entity.Output, error) {
+func (*transactionProtoEncoder) DecodeOutput(input []byte) (*entity.Output, error) {
 	message := &Output{}
 
 	err := proto.Unmarshal(input, message)
@@ -58,7 +58,7 @@ func (*transactionPbEncoder) DecodeOutput(input []byte) (*entity.Output, error) 
 	return fromOutputData(message), nil
 }
 
-func (*transactionPbEncoder) EncodeSignedInput(input *entity.SignedInput) ([]byte, error) {
+func (*transactionProtoEncoder) EncodeSignedInput(input *entity.SignedInput) ([]byte, error) {
 	message := toSignedInputData(input)
 
 	data, err := proto.Marshal(message)
@@ -69,7 +69,7 @@ func (*transactionPbEncoder) EncodeSignedInput(input *entity.SignedInput) ([]byt
 	return data, nil
 }
 
-func (*transactionPbEncoder) DecodeSignedInput(input []byte) (*entity.SignedInput, error) {
+func (*transactionProtoEncoder) DecodeSignedInput(input []byte) (*entity.SignedInput, error) {
 	message := &SignedInput{}
 
 	err := proto.Unmarshal(input, message)
@@ -80,7 +80,7 @@ func (*transactionPbEncoder) DecodeSignedInput(input []byte) (*entity.SignedInpu
 	return fromSignedInputData(message)
 }
 
-func (*transactionPbEncoder) EncodeUnsignedInput(input *entity.UnsignedInput) ([]byte, error) {
+func (*transactionProtoEncoder) EncodeUnsignedInput(input *entity.UnsignedInput) ([]byte, error) {
 	message := toUnsignedInputData(input)
 
 	data, err := proto.Marshal(message)
@@ -91,7 +91,7 @@ func (*transactionPbEncoder) EncodeUnsignedInput(input *entity.UnsignedInput) ([
 	return data, nil
 }
 
-func (*transactionPbEncoder) DecodeUnsignedInput(input []byte) (*entity.UnsignedInput, error) {
+func (*transactionProtoEncoder) DecodeUnsignedInput(input []byte) (*entity.UnsignedInput, error) {
 	message := &UnsignedInput{}
 
 	err := proto.Unmarshal(input, message)

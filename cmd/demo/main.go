@@ -7,7 +7,7 @@ import (
 
 	"github.com/tclchiam/block_n_go/blockchain"
 	"github.com/tclchiam/block_n_go/blockchain/entity"
-	"github.com/tclchiam/block_n_go/blockchain/entity/encoding"
+	"github.com/tclchiam/block_n_go/encoding"
 	"github.com/tclchiam/block_n_go/mining/proofofwork"
 	"github.com/tclchiam/block_n_go/storage/boltdb"
 	"github.com/tclchiam/block_n_go/identity"
@@ -22,7 +22,7 @@ func main() {
 	fmt.Printf("Owner: '%s', receiver: '%s'\n", owner, receiver)
 
 	miner := proofofwork.NewDefaultMiner(owner)
-	blockRepository, err := boltdb.NewBlockRepository(blockchainName, encoding.NewBlockGobEncoder())
+	blockRepository, err := boltdb.NewBlockRepository(blockchainName, encoding.BlockProtoEncoder())
 	if err != nil {
 		log.Panic(err)
 	}

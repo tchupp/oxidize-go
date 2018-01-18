@@ -1,6 +1,7 @@
 syntax = "proto2";
 
-package encoding;
+package entities;
+option go_package = "encoding";
 
 message Block {
     required BlockHeader header = 1;

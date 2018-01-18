@@ -5,7 +5,8 @@ main() {
     fail "missing protoc binary (you need to install protoc and put it in \$PATH)"
   fi
 
-  protoc --go_out=. *.proto
+  # Entities
+  protoc --go_out=. encoding/entities.proto
 }
 
 main
