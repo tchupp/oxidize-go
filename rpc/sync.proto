@@ -1,0 +1,28 @@
+syntax = "proto2";
+
+package rpc;
+option go_package = "rpc";
+
+import "encoding/entities.proto";
+
+service SyncService {
+    rpc GetBestHeader (GetBestHeaderRequest) returns (GetBestHeaderResponse);
+    rpc GetHeaders (GetHeadersRequest) returns (GetHeadersResponse);
+}
+
+message GetBestHeaderRequest {
+}
+
+message GetBestHeaderResponse {
+    required entities.BlockHeader header = 1;
+}
+
+message GetHeadersRequest {
+    required bytes latestHash = 1;
+    required uint64 latestIndex = 2;
+}
+
+message GetHeadersResponse {
+    required uint32 headerCount = 1;
+    repeated entities.BlockHeader headers = 2;
+}
