@@ -77,3 +77,17 @@ func FromWireBlockHeader(header *BlockHeader) (*entity.BlockHeader, error) {
 		Hash:             hash,
 	}, nil
 }
+
+func FromWireBlockHeaders(headers []*BlockHeader) (entity.BlockHeaders, error) {
+	var blockHeaders entity.BlockHeaders
+	for _, header := range headers {
+		blockHeader, err := FromWireBlockHeader(header)
+		if err != nil {
+			return nil, err
+		}
+
+		blockHeaders = blockHeaders.Add(blockHeader)
+	}
+
+	return blockHeaders, nil
+}

@@ -14,6 +14,8 @@ type BlockHeader struct {
 	Hash             *Hash
 }
 
+type BlockHeaders []*BlockHeader
+
 func NewBlockHeader(index uint64, previousHash *Hash, transactionsHash *Hash, timestamp uint64, nonce uint64, hash *Hash) *BlockHeader {
 	return &BlockHeader{
 		Index:            index,
@@ -60,4 +62,16 @@ func (header *BlockHeader) IsEqual(other *BlockHeader) bool {
 	}
 
 	return true
+}
+
+func (headers BlockHeaders) Add(header *BlockHeader) BlockHeaders {
+	return append(headers, header)
+}
+
+func (headers BlockHeaders) Hashes() []*Hash {
+	var hashes []*Hash
+	for _, header := range headers {
+		hashes = append(hashes, header.Hash)
+	}
+	return hashes
 }
