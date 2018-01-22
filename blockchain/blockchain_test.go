@@ -7,12 +7,11 @@ import (
 	"testing"
 
 	"github.com/tclchiam/block_n_go/blockchain"
-	"github.com/tclchiam/block_n_go/encoding"
-	"github.com/tclchiam/block_n_go/mining/proofofwork"
-	"github.com/tclchiam/block_n_go/storage/boltdb"
-	"github.com/tclchiam/block_n_go/identity"
 	"github.com/tclchiam/block_n_go/blockchain/entity"
+	"github.com/tclchiam/block_n_go/identity"
 	"github.com/tclchiam/block_n_go/mining"
+	"github.com/tclchiam/block_n_go/mining/proofofwork"
+	"github.com/tclchiam/block_n_go/storage/memdb"
 )
 
 func TestBlockchain_Workflow(t *testing.T) {
@@ -23,10 +22,7 @@ func TestBlockchain_Workflow(t *testing.T) {
 	actor4 := identity.RandomIdentity()
 
 	t.Run("Sending: expense < balance", func(t *testing.T) {
-		const name = "test1"
-
-		bc := setupBlockchain(t, name, owner)
-		defer boltdb.DeleteBlockchain(name)
+		bc := setupBlockchain(t, owner)
 
 		err := bc.Send(owner, actor1, owner, 3)
 		if err != nil {
@@ -38,10 +34,7 @@ func TestBlockchain_Workflow(t *testing.T) {
 	})
 
 	t.Run("Sending: expense == balance", func(t *testing.T) {
-		const name = "test2"
-
-		bc := setupBlockchain(t, name, owner)
-		defer boltdb.DeleteBlockchain(name)
+		bc := setupBlockchain(t, owner)
 
 		err := bc.Send(owner, actor1, owner, 10)
 		if err != nil {
@@ -53,10 +46,7 @@ func TestBlockchain_Workflow(t *testing.T) {
 	})
 
 	t.Run("Sending: expense > balance", func(t *testing.T) {
-		const name = "test3"
-
-		bc := setupBlockchain(t, name, owner)
-		defer boltdb.DeleteBlockchain(name)
+		bc := setupBlockchain(t, owner)
 
 		err := bc.Send(owner, actor1, owner, 13)
 		if err == nil {
@@ -73,10 +63,7 @@ func TestBlockchain_Workflow(t *testing.T) {
 	})
 
 	t.Run("Sending: many", func(t *testing.T) {
-		const name = "test4"
-
-		bc := setupBlockchain(t, name, owner)
-		defer boltdb.DeleteBlockchain(name)
+		bc := setupBlockchain(t, owner)
 
 		err := bc.Send(owner, actor1, owner, 1)
 		if err != nil {
@@ -135,15 +122,12 @@ func verifyBalance(t *testing.T, bc *blockchain.Blockchain, spender *identity.Id
 	}
 }
 
-func setupBlockchain(t *testing.T, name string, owner *identity.Identity) *blockchain.Blockchain {
-	blockRepository, err := boltdb.NewBlockRepository(name, encoding.BlockProtoEncoder())
-	if err != nil {
-		t.Fatalf("failed to create block repository: %s", err)
-	}
+func setupBlockchain(t *testing.T, owner *identity.Identity) *blockchain.Blockchain {
+	blockRepository := memdb.NewBlockRepository()
 	miner := proofofwork.NewDefaultMiner(owner)
 
 	genesisBlock := buildGenesisBlock(miner)
-	if err = blockRepository.SaveBlock(genesisBlock); err != nil {
+	if err := blockRepository.SaveBlock(genesisBlock); err != nil {
 		t.Fatalf("saving genesis block: %s", err)
 	}
 
