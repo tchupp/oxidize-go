@@ -17,7 +17,7 @@ type SyncClient interface {
 }
 
 type syncClient struct {
-	client     rpc.SyncServiceClient
+	client rpc.SyncServiceClient
 }
 
 func NewSyncClient(conn *grpc.ClientConn) SyncClient {
@@ -50,7 +50,7 @@ func (c *syncClient) GetBestHeader() (*entity.BlockHeader, error) {
 		return nil, err
 	}
 
-	requestLogger.Debug("successfully received headers")
+	requestLogger.Debug("successfully received header")
 	return headers, nil
 }
 
@@ -77,10 +77,10 @@ func (c *syncClient) GetHeaders(latestHash *entity.Hash, latestIndex uint64) (en
 	requestLogger := log.WithFields(log.Fields{"request": "GetHeaders", "latestHash": latestHash, "latestIndex": latestIndex})
 	headers, err := doRequest()
 	if err != nil {
-		requestLogger.Warnf("error requesting header: %s", err)
+		requestLogger.Warnf("error: %s", err)
 		return nil, err
 	}
 
-	requestLogger.Debug("successfully received headers")
+	requestLogger.Debug("success")
 	return headers, nil
 }
