@@ -1,0 +1,22 @@
+syntax = "proto2";
+
+package rpc;
+option go_package = "rpc";
+
+service DiscoveryService {
+    rpc Ping (PingRequest) returns (PingResponse);
+    rpc Version (VersionRequest) returns (VersionResponse);
+}
+
+message PingRequest {
+}
+message PingResponse {
+}
+
+message VersionRequest {
+}
+
+message VersionResponse {
+    required bytes latestHash = 1;
+    required uint64 latestIndex = 2;
+}
