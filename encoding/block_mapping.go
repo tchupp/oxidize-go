@@ -78,16 +78,25 @@ func FromWireBlockHeader(header *BlockHeader) (*entity.BlockHeader, error) {
 	}, nil
 }
 
-func FromWireBlockHeaders(headers []*BlockHeader) (entity.BlockHeaders, error) {
-	var blockHeaders entity.BlockHeaders
+func ToWireBlockHeaders(headers entity.BlockHeaders) ([]*BlockHeader) {
+	var wireHeaders []*BlockHeader
 	for _, header := range headers {
-		blockHeader, err := FromWireBlockHeader(header)
+		wireHeaders = append(wireHeaders, ToWireBlockHeader(header))
+	}
+
+	return wireHeaders
+}
+
+func FromWireBlockHeaders(wireHeaders []*BlockHeader) (entity.BlockHeaders, error) {
+	var headers entity.BlockHeaders
+	for _, wireHeader := range wireHeaders {
+		blockHeader, err := FromWireBlockHeader(wireHeader)
 		if err != nil {
 			return nil, err
 		}
 
-		blockHeaders = blockHeaders.Add(blockHeader)
+		headers = headers.Add(blockHeader)
 	}
 
-	return blockHeaders, nil
+	return headers, nil
 }

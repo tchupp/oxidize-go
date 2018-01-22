@@ -15,7 +15,7 @@ func WrapWithLogger(inner Node) Node {
 
 func (n *loggingNodeDecorator) AddPeer(address string) error {
 	if err := n.inner.AddPeer(address); err != nil {
-		log.Warnf("unable to add peer '%s': %s", address, err)
+		log.WithError(err).Warnf("unable to add peer '%s'", address)
 		return err
 	}
 	log.Debugf("added peer: %s", address)

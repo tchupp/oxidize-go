@@ -46,7 +46,7 @@ func (c *syncClient) GetBestHeader() (*entity.BlockHeader, error) {
 	requestLogger := log.WithFields(log.Fields{"request": "GetBestHeader"})
 	headers, err := doRequest()
 	if err != nil {
-		requestLogger.Warnf("error requesting header: %s", err)
+		requestLogger.WithError(err).Warnf("error")
 		return nil, err
 	}
 
@@ -77,7 +77,7 @@ func (c *syncClient) GetHeaders(latestHash *entity.Hash, latestIndex uint64) (en
 	requestLogger := log.WithFields(log.Fields{"request": "GetHeaders", "latestHash": latestHash, "latestIndex": latestIndex})
 	headers, err := doRequest()
 	if err != nil {
-		requestLogger.Warnf("error: %s", err)
+		requestLogger.WithError(err).Warnf("error")
 		return nil, err
 	}
 

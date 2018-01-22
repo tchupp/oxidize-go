@@ -36,7 +36,7 @@ func (c *discoveryClient) Ping() error {
 	requestLogger := log.WithFields(log.Fields{"request": "Ping"})
 	err := doRequest()
 	if err != nil {
-		requestLogger.Warnf("error: %s", err)
+		requestLogger.WithError(err).Warnf("error")
 		return err
 	}
 
@@ -65,7 +65,7 @@ func (c *discoveryClient) Version() (*entity.Hash, error) {
 	requestLogger := log.WithFields(log.Fields{"request": "Version"})
 	hash, err := doRequest()
 	if err != nil {
-		requestLogger.Warnf("error: %s", err)
+		requestLogger.WithError(err).Warnf("error")
 		return nil, err
 	}
 

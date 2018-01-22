@@ -24,7 +24,7 @@ func (s *Server) RegisterDiscoveryServer(service DiscoveryServiceServer) {
 	RegisterDiscoveryServiceServer(s.server, service)
 }
 
-func (s *Server) Start() {
+func (s *Server) Serve() {
 	log.WithField("addr", s.listener.Addr()).Debug("starting server")
 	go s.server.Serve(s.listener)
 }
