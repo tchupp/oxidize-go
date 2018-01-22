@@ -20,12 +20,16 @@ func (s *Server) RegisterSyncServer(service SyncServiceServer) {
 	RegisterSyncServiceServer(s.server, service)
 }
 
+func (s *Server) RegisterDiscoveryServer(service DiscoveryServiceServer) {
+	RegisterDiscoveryServiceServer(s.server, service)
+}
+
 func (s *Server) Start() {
-	log.Debugf("starting server on: %s", s.listener.Addr())
+	log.WithField("addr", s.listener.Addr()).Debug("starting server")
 	go s.server.Serve(s.listener)
 }
 
 func (s *Server) Shutdown() error {
-	log.Debugf("shutting down server on: %s", s.listener.Addr())
+	log.WithField("addr", s.listener.Addr()).Debug("shutting down server")
 	return s.listener.Close()
 }
