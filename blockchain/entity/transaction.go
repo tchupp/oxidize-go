@@ -4,7 +4,7 @@ import (
 	"crypto/rand"
 	"crypto/sha256"
 	"fmt"
-	"log"
+	log "github.com/sirupsen/logrus"
 	"strconv"
 	"strings"
 	"sort"

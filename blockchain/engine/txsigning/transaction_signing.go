@@ -1,7 +1,7 @@
 package txsigning
 
 import (
-	"log"
+	log "github.com/sirupsen/logrus"
 
 	"github.com/tclchiam/block_n_go/crypto"
 	"github.com/tclchiam/block_n_go/blockchain/entity"

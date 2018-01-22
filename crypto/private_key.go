@@ -1,7 +1,7 @@
 package crypto
 
 import (
-	"log"
+	log "github.com/sirupsen/logrus"
 
 	"crypto/ecdsa"
 	"crypto/elliptic"

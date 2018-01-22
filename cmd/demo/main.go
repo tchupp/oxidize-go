@@ -2,7 +2,7 @@ package main
 
 import (
 	"fmt"
-	"log"
+	log "github.com/sirupsen/logrus"
 	"math"
 
 	"github.com/tclchiam/block_n_go/blockchain"
