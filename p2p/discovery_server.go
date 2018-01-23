@@ -1,10 +1,11 @@
 package p2p
 
 import (
-	"google.golang.org/grpc/status"
-	"google.golang.org/grpc/codes"
-	"github.com/golang/protobuf/proto"
 	"golang.org/x/net/context"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
+
+	"github.com/golang/protobuf/proto"
 	"github.com/tclchiam/block_n_go/rpc"
 	"github.com/tclchiam/block_n_go/blockchain/entity"
 )

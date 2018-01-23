@@ -25,3 +25,14 @@ func (n *loggingNodeDecorator) AddPeer(address string) error {
 func (n *loggingNodeDecorator) ActivePeers() p2p.Peers {
 	return n.inner.ActivePeers()
 }
+
+func (n *loggingNodeDecorator) Serve() {
+	n.inner.Serve()
+}
+
+func (n *loggingNodeDecorator) Shutdown() error {
+	if err := n.inner.Shutdown(); err != nil {
+		log.WithError(err).Warn("error shutting down server")
+	}
+	return nil
+}

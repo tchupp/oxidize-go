@@ -20,3 +20,12 @@ type Peers []*Peer
 func (peers Peers) Add(peer *Peer) Peers {
 	return append(peers, peer)
 }
+
+func (peers Peers) ContainsAddress(address string) bool {
+	for _, peer := range peers {
+		if peer.Address == address {
+			return true
+		}
+	}
+	return false
+}
