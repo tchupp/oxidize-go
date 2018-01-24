@@ -25,11 +25,11 @@ func TestBaseNode_AddPeer(t *testing.T) {
 		t.Fatalf("starting listener: %s", err)
 	}
 
-	node1 := NewNode(bc, rpc.NewConnectionManager(), rpc.NewServer(lis))
+	node1 := NewNode(bc, rpc.NewServer(lis))
 	node1.Serve()
 	defer node1.Shutdown()
 
-	node2 := NewNode(bc, rpc.NewConnectionManager(), rpc.NewServer(nil))
+	node2 := NewNode(bc, rpc.NewServer(nil))
 
 	if len(node2.ActivePeers()) != 0 {
 		t.Fatalf("incorrect starting peer count. got - %d, wanted  - %d", len(node2.ActivePeers()), 0)
@@ -59,7 +59,7 @@ func TestBaseNode_AddPeer_TargetIsOffline(t *testing.T) {
 		t.Fatalf("opening blockchain: %s", err)
 	}
 
-	node := NewNode(bc, rpc.NewConnectionManager(), rpc.NewServer(nil))
+	node := NewNode(bc, rpc.NewServer(nil))
 
 	if len(node.ActivePeers()) != 0 {
 		t.Fatalf("incorrect starting peer count. got - %d, wanted  - %d", len(node.ActivePeers()), 0)

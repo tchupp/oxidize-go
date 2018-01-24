@@ -8,18 +8,24 @@ import (
 	"google.golang.org/grpc"
 )
 
-type ConnectionManager struct {
+type ConnectionManager interface {
+	OpenConnection(address string) (*grpc.ClientConn, error)
+	GetConnection(address string) (*grpc.ClientConn, error)
+	CloseConnection(address string) error
+}
+
+type connectionManager struct {
 	cache map[string]*grpc.ClientConn
 	lock  sync.RWMutex
 }
 
-func NewConnectionManager() *ConnectionManager {
-	return &ConnectionManager{
+func NewConnectionManager() ConnectionManager {
+	return &connectionManager{
 		cache: make(map[string]*grpc.ClientConn),
 	}
 }
 
-func (c *ConnectionManager) OpenConnection(address string) (*grpc.ClientConn, error) {
+func (c *connectionManager) OpenConnection(address string) (*grpc.ClientConn, error) {
 	conn, err := startInsecureConnection(address)
 	if err != nil {
 		return nil, err
@@ -32,7 +38,7 @@ func (c *ConnectionManager) OpenConnection(address string) (*grpc.ClientConn, er
 	return conn, nil
 }
 
-func (c *ConnectionManager) GetConnection(address string) (*grpc.ClientConn, error) {
+func (c *connectionManager) GetConnection(address string) (*grpc.ClientConn, error) {
 	c.lock.RLock()
 	conn := c.cache[address]
 	c.lock.RUnlock()
@@ -43,7 +49,7 @@ func (c *ConnectionManager) GetConnection(address string) (*grpc.ClientConn, err
 	return conn, nil
 }
 
-func (c *ConnectionManager) CloseConnection(address string) error {
+func (c *connectionManager) CloseConnection(address string) error {
 	c.lock.Lock()
 	defer c.lock.Unlock()
 

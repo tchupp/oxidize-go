@@ -3,7 +3,6 @@ package blockrpc
 import (
 	"net"
 	"testing"
-	"time"
 	"google.golang.org/grpc"
 
 	"github.com/tclchiam/block_n_go/blockchain"
