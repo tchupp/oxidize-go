@@ -17,7 +17,7 @@ func TestSyncServer_GetBestHeader(t *testing.T) {
 		t.Fatalf("opening blockchain: %s", err)
 	}
 
-	actualHeader, err := bc.GetBestHeader()
+	expectedHeader, err := bc.GetBestHeader()
 	if err != nil {
 		t.Fatalf("getting best header with blockchain: %s", err)
 	}
@@ -31,7 +31,7 @@ func TestSyncServer_GetBestHeader(t *testing.T) {
 	server.RegisterSyncServer(NewSyncServer(bc))
 	server.Serve()
 
-	conn, err := grpc.Dial(lis.Addr().String(), grpc.WithTimeout(500*time.Millisecond), grpc.WithInsecure())
+	conn, err := grpc.Dial(lis.Addr().String(), grpc.WithInsecure())
 	if err != nil {
 		t.Fatalf("dialing server: %s", err)
 	}
@@ -43,7 +43,7 @@ func TestSyncServer_GetBestHeader(t *testing.T) {
 		t.Fatalf("dialing server: %s", err)
 	}
 
-	if !header.IsEqual(actualHeader) {
-		t.Errorf("headers don't match. got - %s, wanted - %s", header, actualHeader)
+	if !header.IsEqual(expectedHeader) {
+		t.Errorf("headers don't match. got - %s, wanted - %s", header, expectedHeader)
 	}
 }
