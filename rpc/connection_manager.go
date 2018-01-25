@@ -1,7 +1,6 @@
 package rpc
 
 import (
-	"fmt"
 	"sync"
 	"time"
 
@@ -10,7 +9,7 @@ import (
 
 type ConnectionManager interface {
 	OpenConnection(address string) (*grpc.ClientConn, error)
-	GetConnection(address string) (*grpc.ClientConn, error)
+	GetConnection(address string) (*grpc.ClientConn)
 	CloseConnection(address string) error
 }
 
@@ -38,15 +37,12 @@ func (c *connectionManager) OpenConnection(address string) (*grpc.ClientConn, er
 	return conn, nil
 }
 
-func (c *connectionManager) GetConnection(address string) (*grpc.ClientConn, error) {
+func (c *connectionManager) GetConnection(address string) (*grpc.ClientConn) {
 	c.lock.RLock()
 	conn := c.cache[address]
 	c.lock.RUnlock()
 
-	if conn == nil {
-		return nil, fmt.Errorf("connection not open for address: '%s'", address)
-	}
-	return conn, nil
+	return conn
 }
 
 func (c *connectionManager) CloseConnection(address string) error {

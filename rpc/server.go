@@ -29,7 +29,7 @@ func (s *Server) Serve() {
 	go s.server.Serve(s.listener)
 }
 
-func (s *Server) Shutdown() error {
+func (s *Server) Shutdown() {
 	log.WithField("addr", s.listener.Addr()).Debug("shutting down server")
-	return s.listener.Close()
+	s.server.GracefulStop()
 }

@@ -20,10 +20,3 @@ func (n *loggingNodeDecorator) AddPeer(address string) error {
 	log.Debugf("added peer: %s", address)
 	return nil
 }
-
-func (n *loggingNodeDecorator) Shutdown() error {
-	if err := n.Node.Shutdown(); err != nil {
-		log.WithError(err).Warn("error shutting down server")
-	}
-	return nil
-}
