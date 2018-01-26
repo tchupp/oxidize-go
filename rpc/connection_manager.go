@@ -5,6 +5,8 @@ import (
 	"time"
 
 	"google.golang.org/grpc"
+	
+	"github.com/grpc-ecosystem/go-grpc-middleware/logging/logrus"
 )
 
 type ConnectionManager interface {
@@ -59,5 +61,10 @@ func (c *connectionManager) CloseConnection(address string) error {
 }
 
 func startInsecureConnection(address string) (*grpc.ClientConn, error) {
-	return grpc.Dial(address, grpc.WithTimeout(500*time.Millisecond), grpc.WithInsecure())
+	return grpc.Dial(address,
+		grpc.WithTimeout(500*time.Millisecond),
+		grpc.WithInsecure(),
+		grpc.WithStreamInterceptor(grpc_logrus.StreamClientInterceptor(logrusEntry)),
+		grpc.WithUnaryInterceptor(grpc_logrus.UnaryClientInterceptor(logrusEntry)),
+	)
 }

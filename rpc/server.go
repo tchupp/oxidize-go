@@ -3,8 +3,11 @@ package rpc
 import (
 	log "github.com/sirupsen/logrus"
 	"net"
-
 	"google.golang.org/grpc"
+
+	"github.com/grpc-ecosystem/go-grpc-middleware"
+	"github.com/grpc-ecosystem/go-grpc-middleware/logging/logrus"
+	"github.com/grpc-ecosystem/go-grpc-middleware/tags"
 )
 
 type Server struct {
@@ -13,7 +16,18 @@ type Server struct {
 }
 
 func NewServer(listener net.Listener) *Server {
-	return &Server{server: grpc.NewServer(), listener: listener}
+	grpcServer := grpc.NewServer(
+		grpc.StreamInterceptor(grpc_middleware.ChainStreamServer(
+			grpc_ctxtags.StreamServerInterceptor(),
+			grpc_logrus.StreamServerInterceptor(logrusEntry),
+		)),
+		grpc.UnaryInterceptor(grpc_middleware.ChainUnaryServer(
+			grpc_ctxtags.UnaryServerInterceptor(),
+			grpc_logrus.UnaryServerInterceptor(logrusEntry),
+		)),
+	)
+
+	return &Server{server: grpcServer, listener: listener}
 }
 
 func (s *Server) RegisterSyncServer(service SyncServiceServer) {
@@ -25,11 +39,11 @@ func (s *Server) RegisterDiscoveryServer(service DiscoveryServiceServer) {
 }
 
 func (s *Server) Serve() {
-	log.WithField("addr", s.listener.Addr()).Debug("starting server")
+	log.WithField("addr", s.listener.Addr()).Info("starting server")
 	go s.server.Serve(s.listener)
 }
 
 func (s *Server) Shutdown() {
-	log.WithField("addr", s.listener.Addr()).Debug("shutting down server")
+	log.WithField("addr", s.listener.Addr()).Info("shutting down server")
 	s.server.GracefulStop()
 }

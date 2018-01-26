@@ -25,57 +25,31 @@ func NewSyncServer(backend syncBackend) rpc.SyncServiceServer {
 }
 
 func (s *syncServer) GetBestHeader(ctx context.Context, req *rpc.GetBestHeaderRequest) (*rpc.GetBestHeaderResponse, error) {
-	handleRequest := func() (*rpc.GetBestHeaderResponse, error) {
-		header, err := s.backend.GetBestHeader()
-		if err != nil {
-			return nil, status.Errorf(codes.Internal, "error finding best header")
-		}
-
-		return &rpc.GetBestHeaderResponse{
-			Header: encoding.ToWireBlockHeader(header),
-		}, nil
-	}
-
-	logger := rpc.LoggerFromContext(ctx)
-
-	response, err := handleRequest()
+	header, err := s.backend.GetBestHeader()
 	if err != nil {
-		logger.WithError(err).Warnf("error finding best header: %s", err)
-		return nil, err
+		return nil, status.Errorf(codes.Internal, "error finding best header: %s", err)
 	}
 
-	logger.Debugf("handled get best header")
-	return response, nil
+	return &rpc.GetBestHeaderResponse{
+		Header: encoding.ToWireBlockHeader(header),
+	}, nil
 }
 
 func (s *syncServer) GetHeaders(ctx context.Context, req *rpc.GetHeadersRequest) (*rpc.GetHeadersResponse, error) {
-	handleRequest := func() (*rpc.GetHeadersResponse, error) {
-		hash, err := entity.NewHash(req.GetLatestHash())
-		if err != nil {
-			return nil, status.Errorf(codes.InvalidArgument, "requested starting header hash '%s' was invalid", req.GetLatestHash())
-		}
-
-		header, err := s.backend.GetHeader(hash)
-		if err != nil {
-			return nil, status.Errorf(codes.NotFound, "requested starting header was not found with hash: '%s'", hash)
-		}
-
-		return &rpc.GetHeadersResponse{
-			HeaderCount: proto.Uint32(1),
-			Headers: []*encoding.BlockHeader{
-				encoding.ToWireBlockHeader(header),
-			},
-		}, nil
-	}
-
-	logger := rpc.LoggerFromContext(ctx).WithField("hash", req.GetLatestHash())
-
-	response, err := handleRequest()
+	hash, err := entity.NewHash(req.GetLatestHash())
 	if err != nil {
-		logger.WithError(err).Warnf("error finding headers: %s", err)
-		return nil, err
+		return nil, status.Errorf(codes.InvalidArgument, "requested starting header hash was invalid: '%s'", req.GetLatestHash())
 	}
 
-	logger.Debugf("handled get headers")
-	return response, nil
+	header, err := s.backend.GetHeader(hash)
+	if err != nil {
+		return nil, status.Errorf(codes.NotFound, "requested starting header was not found with hash: '%s'", hash)
+	}
+
+	return &rpc.GetHeadersResponse{
+		HeaderCount: proto.Uint32(1),
+		Headers: []*encoding.BlockHeader{
+			encoding.ToWireBlockHeader(header),
+		},
+	}, nil
 }

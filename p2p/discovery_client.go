@@ -1,7 +1,6 @@
 package p2p
 
 import (
-	log "github.com/sirupsen/logrus"
 	"golang.org/x/net/context"
 	"google.golang.org/grpc"
 
@@ -25,50 +24,26 @@ func NewDiscoveryClient(conn *grpc.ClientConn) DiscoveryClient {
 }
 
 func (c *discoveryClient) Ping() error {
-	doRequest := func() error {
-		request := &rpc.PingRequest{}
+	request := &rpc.PingRequest{}
 
-		ctx := context.Background()
-		_, err := c.client.Ping(ctx, request)
-		return err
-	}
-
-	requestLogger := log.WithFields(log.Fields{"request": "Ping"})
-	err := doRequest()
-	if err != nil {
-		requestLogger.WithError(err).Warnf("error")
-		return err
-	}
-
-	requestLogger.Debug("success")
-	return nil
+	ctx := context.Background()
+	_, err := c.client.Ping(ctx, request)
+	return err
 }
 
 func (c *discoveryClient) Version() (*entity.Hash, error) {
-	doRequest := func() (*entity.Hash, error) {
-		request := &rpc.VersionRequest{}
+	request := &rpc.VersionRequest{}
 
-		ctx := context.Background()
-		response, err := c.client.Version(ctx, request)
-		if err != nil {
-			return nil, err
-		}
-
-		hash, err := entity.NewHash(response.GetLatestHash())
-		if err != nil {
-			return nil, err
-		}
-
-		return hash, nil
-	}
-
-	requestLogger := log.WithFields(log.Fields{"request": "Version"})
-	hash, err := doRequest()
+	ctx := context.Background()
+	response, err := c.client.Version(ctx, request)
 	if err != nil {
-		requestLogger.WithError(err).Warnf("error")
 		return nil, err
 	}
 
-	requestLogger.Debug("success")
+	hash, err := entity.NewHash(response.GetLatestHash())
+	if err != nil {
+		return nil, err
+	}
+
 	return hash, nil
 }

@@ -1,14 +1,15 @@
 package rpc
 
 import (
-	"golang.org/x/net/context"
-	"github.com/sirupsen/logrus"
-	"google.golang.org/grpc/peer"
+	log "github.com/sirupsen/logrus"
+
+	"github.com/grpc-ecosystem/go-grpc-middleware/logging/logrus"
 )
 
-func LoggerFromContext(ctx context.Context) *logrus.Entry {
-	if p, ok := peer.FromContext(ctx); ok {
-		return logrus.WithField("remote", p.Addr)
-	}
-	return logrus.WithFields(logrus.Fields{})
+var (
+	logrusEntry = log.NewEntry(log.StandardLogger())
+)
+
+func init() {
+	grpc_logrus.ReplaceGrpcLogger(logrusEntry)
 }

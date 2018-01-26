@@ -23,31 +23,17 @@ func NewDiscoveryServer(backend discoveryBackend) rpc.DiscoveryServiceServer {
 }
 
 func (s *discoveryServer) Ping(ctx context.Context, req *rpc.PingRequest) (*rpc.PingResponse, error) {
-	rpc.LoggerFromContext(ctx).Debugf("handled ping")
 	return &rpc.PingResponse{}, nil
 }
 
 func (s *discoveryServer) Version(ctx context.Context, req *rpc.VersionRequest) (*rpc.VersionResponse, error) {
-	handleRequest := func() (*rpc.VersionResponse, error) {
-		header, err := s.backend.GetBestHeader()
-		if err != nil {
-			return nil, status.Errorf(codes.Internal, "error finding best header")
-		}
-
-		return &rpc.VersionResponse{
-			LatestIndex: proto.Uint64(header.Index),
-			LatestHash:  header.Hash.Slice(),
-		}, nil
-	}
-
-	logger := rpc.LoggerFromContext(ctx)
-
-	response, err := handleRequest()
+	header, err := s.backend.GetBestHeader()
 	if err != nil {
-		logger.WithError(err).Warnf("error finding headers: %s", err)
-		return nil, err
+		return nil, status.Errorf(codes.Internal, "error finding best header: %s", err)
 	}
 
-	logger.Debugf("handled version")
-	return response, nil
+	return &rpc.VersionResponse{
+		LatestIndex: proto.Uint64(header.Index),
+		LatestHash:  header.Hash.Slice(),
+	}, nil
 }

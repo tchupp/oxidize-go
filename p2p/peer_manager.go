@@ -35,10 +35,9 @@ func (m *peerManager) AddPeer(address string) error {
 		return err
 	}
 
-	client := NewDiscoveryClient(conn)
-	hash, err := client.Version()
+	hash, err := NewDiscoveryClient(conn).Version()
 	if err != nil {
-		conn.Close()
+		m.connectionManager.CloseConnection(address)
 		return err
 	}
 

@@ -1,7 +1,6 @@
 package blockrpc
 
 import (
-	log "github.com/sirupsen/logrus"
 	"golang.org/x/net/context"
 	"google.golang.org/grpc"
 
@@ -27,60 +26,36 @@ func NewSyncClient(conn *grpc.ClientConn) SyncClient {
 }
 
 func (c *syncClient) GetBestHeader() (*entity.BlockHeader, error) {
-	doRequest := func() (*entity.BlockHeader, error) {
-		request := &rpc.GetBestHeaderRequest{}
+	request := &rpc.GetBestHeaderRequest{}
 
-		ctx := context.Background()
-		response, err := c.client.GetBestHeader(ctx, request)
-		if err != nil {
-			return nil, err
-		}
-
-		header, err := encoding.FromWireBlockHeader(response.GetHeader())
-		if err != nil {
-			return nil, err
-		}
-		return header, nil
-	}
-
-	requestLogger := log.WithFields(log.Fields{"request": "GetBestHeader"})
-	headers, err := doRequest()
+	ctx := context.Background()
+	response, err := c.client.GetBestHeader(ctx, request)
 	if err != nil {
-		requestLogger.WithError(err).Warnf("error")
 		return nil, err
 	}
 
-	requestLogger.Debug("successfully received header")
-	return headers, nil
+	header, err := encoding.FromWireBlockHeader(response.GetHeader())
+	if err != nil {
+		return nil, err
+	}
+	return header, nil
 }
 
 func (c *syncClient) GetHeaders(latestHash *entity.Hash, latestIndex uint64) (entity.BlockHeaders, error) {
-	doRequest := func() (entity.BlockHeaders, error) {
-		request := &rpc.GetHeadersRequest{
-			LatestHash:  latestHash.Slice(),
-			LatestIndex: proto.Uint64(latestIndex),
-		}
-
-		ctx := context.Background()
-		response, err := c.client.GetHeaders(ctx, request)
-		if err != nil {
-			return nil, err
-		}
-
-		headers, err := encoding.FromWireBlockHeaders(response.GetHeaders())
-		if err != nil {
-			return nil, err
-		}
-		return headers, nil
+	request := &rpc.GetHeadersRequest{
+		LatestHash:  latestHash.Slice(),
+		LatestIndex: proto.Uint64(latestIndex),
 	}
 
-	requestLogger := log.WithFields(log.Fields{"request": "GetHeaders", "latestHash": latestHash, "latestIndex": latestIndex})
-	headers, err := doRequest()
+	ctx := context.Background()
+	response, err := c.client.GetHeaders(ctx, request)
 	if err != nil {
-		requestLogger.WithError(err).Warnf("error")
 		return nil, err
 	}
 
-	requestLogger.Debug("success")
+	headers, err := encoding.FromWireBlockHeaders(response.GetHeaders())
+	if err != nil {
+		return nil, err
+	}
 	return headers, nil
 }

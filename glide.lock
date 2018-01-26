@@ -1,27 +1,35 @@
 hash: 6c7adb4b9da214faf1dd02750d5fe0ef4497fea81d2f75f28424c4bc7f8b967c
-updated: 2018-01-17T21:53:19.108878-05:00
+updated: 2018-01-26T12:52:11.409826-05:00
 imports:
 - name: github.com/boltdb/bolt
   version: 2f1ce7a837dcb8da3ec595b1dac9d0632f0f99e8
-- name: github.com/gogo/protobuf
-  version: 160de10b2537169b5ae3e7e221d28269ef40d311
-  subpackages:
-  - proto
 - name: github.com/golang/protobuf
   version: fec3b39b059c0f88fa6b20f5ed012b1aa203a8b4
   subpackages:
+  - jsonpb
   - proto
   - ptypes/any
+  - ptypes/struct
+- name: github.com/grpc-ecosystem/go-grpc-middleware
+  version: d0c54e68681ec7999ac17864470f3bee6521ba2b
+  subpackages:
+  - logging
+  - logging/logrus
+  - tags
+  - tags/logrus
 - name: github.com/imdario/mergo
   version: f1ac5984e69fed03e0574a92f70c59f132616ea2
 - name: github.com/mr-tron/base58
   version: c1bdf7c52f59d6685ca597b9955a443ff95eeee6
   subpackages:
   - base58
+- name: github.com/sirupsen/logrus
+  version: d682213848ed68c0a260ca37d6dd5ace8423f5ba
 - name: golang.org/x/crypto
   version: 122d919ec1efcfb58483215da23f815853e24b81
   subpackages:
   - ripemd160
+  - ssh/terminal
 - name: golang.org/x/net
   version: 8663ed5da4fd087c3cfb99a996e628b72e2f0948
   subpackages:
