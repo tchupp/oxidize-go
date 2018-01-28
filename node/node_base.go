@@ -11,10 +11,10 @@ type baseNode struct {
 	p2p.PeerManager
 	*rpc.Server
 
-	bc *blockchain.Blockchain
+	bc blockchain.Blockchain
 }
 
-func NewNode(bc *blockchain.Blockchain, server *rpc.Server) Node {
+func NewNode(bc blockchain.Blockchain, server *rpc.Server) Node {
 	node := &baseNode{
 		bc:          bc,
 		PeerManager: p2p.NewPeerManager(),

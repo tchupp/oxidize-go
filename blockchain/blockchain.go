@@ -10,14 +10,22 @@ import (
 	"github.com/tclchiam/block_n_go/identity"
 )
 
-type Blockchain struct {
+type Blockchain interface {
+	ForEachBlock(consume func(*entity.Block)) error
+	ReadBalance(identity *identity.Identity) (uint32, error)
+	GetBestHeader() (*entity.BlockHeader, error)
+	GetHeader(hash *entity.Hash) (*entity.BlockHeader, error)
+	Send(spender, receiver, coinbase *identity.Identity, expense uint32) error
+}
+
+type blockchain struct {
 	blockRepository storage.BlockRepository
 	miner           mining.Miner
 	utxoEngine      utxo.Engine
 }
 
-func Open(repository storage.BlockRepository, miner mining.Miner) (blockchain *Blockchain, err error) {
-	blockchain = &Blockchain{
+func Open(repository storage.BlockRepository, miner mining.Miner) (Blockchain, error) {
+	bc := &blockchain{
 		blockRepository: repository,
 		miner:           miner,
 		utxoEngine:      utxo.NewCrawlerEngine(repository),
@@ -29,7 +37,7 @@ func Open(repository storage.BlockRepository, miner mining.Miner) (blockchain *B
 	}
 
 	if exists {
-		return blockchain, nil
+		return bc, nil
 	}
 
 	err = repository.SaveBlock(entity.DefaultGenesisBlock())
@@ -37,7 +45,7 @@ func Open(repository storage.BlockRepository, miner mining.Miner) (blockchain *B
 		return nil, err
 	}
 
-	return blockchain, nil
+	return bc, nil
 }
 
 func genesisBlockExists(repository storage.BlockRepository) (bool, error) {
@@ -51,15 +59,15 @@ func genesisBlockExists(repository storage.BlockRepository) (bool, error) {
 	return true, nil
 }
 
-func (bc *Blockchain) ForEachBlock(consume func(*entity.Block)) error {
+func (bc *blockchain) ForEachBlock(consume func(*entity.Block)) error {
 	return iter.ForEachBlock(bc.blockRepository, consume)
 }
 
-func (bc *Blockchain) ReadBalance(identity *identity.Identity) (uint32, error) {
+func (bc *blockchain) ReadBalance(identity *identity.Identity) (uint32, error) {
 	return engine.ReadBalance(identity, bc.utxoEngine)
 }
 
-func (bc *Blockchain) GetBestHeader() (*entity.BlockHeader, error) {
+func (bc *blockchain) GetBestHeader() (*entity.BlockHeader, error) {
 	head, err := bc.blockRepository.Head()
 	if err != nil {
 		return nil, err
@@ -67,7 +75,7 @@ func (bc *Blockchain) GetBestHeader() (*entity.BlockHeader, error) {
 	return head.Header(), nil
 }
 
-func (bc *Blockchain) GetHeader(hash *entity.Hash) (*entity.BlockHeader, error) {
+func (bc *blockchain) GetHeader(hash *entity.Hash) (*entity.BlockHeader, error) {
 	head, err := bc.blockRepository.Block(hash)
 	if err != nil {
 		return nil, err
@@ -75,7 +83,7 @@ func (bc *Blockchain) GetHeader(hash *entity.Hash) (*entity.BlockHeader, error) 
 	return head.Header(), nil
 }
 
-func (bc *Blockchain) Send(spender, receiver, coinbase *identity.Identity, expense uint32) error {
+func (bc *blockchain) Send(spender, receiver, coinbase *identity.Identity, expense uint32) error {
 	expenseTransaction, err := engine.BuildExpenseTransaction(spender, receiver, expense, bc.utxoEngine)
 	if err != nil {
 		return err

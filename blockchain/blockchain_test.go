@@ -111,7 +111,7 @@ func TestBlockchain_Workflow(t *testing.T) {
 	})
 }
 
-func verifyBalance(t *testing.T, bc *blockchain.Blockchain, spender *identity.Identity, expectedBalance uint32) {
+func verifyBalance(t *testing.T, bc blockchain.Blockchain, spender *identity.Identity, expectedBalance uint32) {
 	balance, err := bc.ReadBalance(spender)
 
 	if err != nil {
@@ -122,7 +122,7 @@ func verifyBalance(t *testing.T, bc *blockchain.Blockchain, spender *identity.Id
 	}
 }
 
-func setupBlockchain(t *testing.T, owner *identity.Identity) *blockchain.Blockchain {
+func setupBlockchain(t *testing.T, owner *identity.Identity) blockchain.Blockchain {
 	blockRepository := memdb.NewBlockRepository()
 	miner := proofofwork.NewDefaultMiner(owner)
 

@@ -8,12 +8,13 @@ import (
 )
 
 type PeerManager interface {
+	rpc.ConnectionManager
 	AddPeer(address string) error
 	ActivePeers() Peers
 }
 
 type peerManager struct {
-	connectionManager rpc.ConnectionManager
+	rpc.ConnectionManager
 	peers             Peers
 	lock              sync.RWMutex
 }
@@ -24,20 +25,20 @@ func NewPeerManager() PeerManager {
 
 func newPeerManager(connectionManager rpc.ConnectionManager) *peerManager {
 	return &peerManager{
-		connectionManager: connectionManager,
+		ConnectionManager: connectionManager,
 		peers:             Peers{},
 	}
 }
 
 func (m *peerManager) AddPeer(address string) error {
-	conn, err := m.connectionManager.OpenConnection(address)
+	conn, err := m.ConnectionManager.OpenConnection(address)
 	if err != nil {
 		return err
 	}
 
 	hash, err := NewDiscoveryClient(conn).Version()
 	if err != nil {
-		m.connectionManager.CloseConnection(address)
+		m.ConnectionManager.CloseConnection(address)
 		return err
 	}
 
@@ -64,7 +65,7 @@ func (m *peerManager) removePeer(target *Peer) {
 	}
 
 	m.lock.Lock()
-	m.connectionManager.CloseConnection(target.Address)
+	m.ConnectionManager.CloseConnection(target.Address)
 	m.peers = m.peers.Remove(target)
 	m.lock.Unlock()
 }
@@ -76,7 +77,7 @@ func (m *peerManager) ActivePeers() Peers {
 // Expected to be run in a goroutine
 func (m *peerManager) peerMonitor(peer *Peer) {
 	for {
-		conn := m.connectionManager.GetConnection(peer.Address)
+		conn := m.ConnectionManager.GetConnection(peer.Address)
 		if conn == nil {
 			m.removePeer(peer)
 			return
