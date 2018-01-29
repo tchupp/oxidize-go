@@ -14,6 +14,7 @@ import (
 type syncBackend interface {
 	GetBestHeader() (*entity.BlockHeader, error)
 	GetHeader(hash *entity.Hash) (*entity.BlockHeader, error)
+	GetHeaders(hash *entity.Hash, index uint64) (entity.BlockHeaders, error)
 }
 
 type syncServer struct {
@@ -41,15 +42,21 @@ func (s *syncServer) GetHeaders(ctx context.Context, req *rpc.GetHeadersRequest)
 		return nil, status.Errorf(codes.InvalidArgument, "requested starting header hash was invalid: '%s'", req.GetLatestHash())
 	}
 
-	header, err := s.backend.GetHeader(hash)
+	startingHeader, err := s.backend.GetBestHeader()
 	if err != nil {
+		return nil, status.Errorf(codes.Internal, "error finding previous headers")
+	}
+	if startingHeader == nil {
 		return nil, status.Errorf(codes.NotFound, "requested starting header was not found with hash: '%s'", hash)
 	}
 
+	headers, err := s.backend.GetHeaders(hash, req.GetLatestIndex())
+	if err != nil {
+		return nil, status.Errorf(codes.Internal, "error finding previous headers")
+	}
+
 	return &rpc.GetHeadersResponse{
-		HeaderCount: proto.Uint32(1),
-		Headers: []*encoding.BlockHeader{
-			encoding.ToWireBlockHeader(header),
-		},
+		HeaderCount: proto.Uint32(uint32(len(headers))),
+		Headers:     encoding.ToWireBlockHeaders(headers),
 	}, nil
 }
