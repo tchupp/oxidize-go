@@ -11,14 +11,14 @@ import (
 )
 
 func TestSyncServer_GetBestHeader(t *testing.T) {
-	bc, err := blockchain.Open(memdb.NewBlockRepository(), nil)
+	bc, err := blockchain.Open(memdb.NewBlockRepository(), memdb.NewHeaderRepository(), nil)
 	if err != nil {
 		t.Fatalf("opening blockchain: %s", err)
 	}
 
 	expectedHeader, err := bc.GetBestHeader()
 	if err != nil {
-		t.Fatalf("getting best header with blockchain: %s", err)
+		t.Fatalf("getting best header: %s", err)
 	}
 
 	lis, err := net.Listen("tcp", "127.0.0.1:0")

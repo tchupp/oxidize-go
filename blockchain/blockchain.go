@@ -16,24 +16,30 @@ type Blockchain interface {
 
 	GetBestHeader() (*entity.BlockHeader, error)
 	GetHeader(hash *entity.Hash) (*entity.BlockHeader, error)
+	GetHeaders(hash *entity.Hash, index uint64) (entity.BlockHeaders, error)
+
+	SaveHeaders(headers entity.BlockHeaders) error
+	SaveBlock(block *entity.Block) error
 
 	Send(spender, receiver, coinbase *identity.Identity, expense uint32) error
 }
 
 type blockchain struct {
-	blockRepository entity.BlockRepository
-	miner           mining.Miner
-	utxoEngine      utxo.Engine
+	blockRepository  entity.BlockRepository
+	headerRepository entity.HeaderRepository
+	miner            mining.Miner
+	utxoEngine       utxo.Engine
 }
 
-func Open(repository entity.BlockRepository, miner mining.Miner) (Blockchain, error) {
+func Open(blockRepository entity.BlockRepository, headerRepository entity.HeaderRepository, miner mining.Miner) (Blockchain, error) {
 	bc := &blockchain{
-		blockRepository: repository,
-		miner:           miner,
-		utxoEngine:      utxo.NewCrawlerEngine(repository),
+		blockRepository:  blockRepository,
+		headerRepository: headerRepository,
+		miner:            miner,
+		utxoEngine:       utxo.NewCrawlerEngine(blockRepository),
 	}
 
-	exists, err := genesisBlockExists(repository)
+	exists, err := genesisBlockExists(blockRepository)
 	if err != nil {
 		return nil, err
 	}
@@ -42,8 +48,11 @@ func Open(repository entity.BlockRepository, miner mining.Miner) (Blockchain, er
 		return bc, nil
 	}
 
-	err = repository.SaveBlock(entity.DefaultGenesisBlock())
-	if err != nil {
+	genesisBlock := entity.DefaultGenesisBlock()
+	if err = blockRepository.SaveBlock(genesisBlock); err != nil {
+		return nil, err
+	}
+	if err = headerRepository.SaveHeader(genesisBlock.Header()); err != nil {
 		return nil, err
 	}
 
@@ -70,11 +79,7 @@ func (bc *blockchain) ReadBalance(identity *identity.Identity) (uint32, error) {
 }
 
 func (bc *blockchain) GetBestHeader() (*entity.BlockHeader, error) {
-	head, err := bc.blockRepository.Head()
-	if err != nil {
-		return nil, err
-	}
-	return head.Header(), nil
+	return bc.headerRepository.Head()
 }
 
 func (bc *blockchain) GetHeader(hash *entity.Hash) (*entity.BlockHeader, error) {
@@ -83,6 +88,57 @@ func (bc *blockchain) GetHeader(hash *entity.Hash) (*entity.BlockHeader, error) 
 		return nil, err
 	}
 	return head.Header(), nil
+}
+
+func (bc *blockchain) GetHeaders(hash *entity.Hash, index uint64) (entity.BlockHeaders, error) {
+	// TODO finish unit tests
+	startingHeader, err := bc.GetBestHeader()
+	if err != nil {
+		return nil, err
+	}
+
+	headers := entity.BlockHeaders{startingHeader}
+	nextHeader := startingHeader
+	for {
+		if nextHeader.PreviousHash.IsEqual(&entity.EmptyHash) {
+			return headers, nil
+		}
+
+		nextHeader, err = bc.GetHeader(nextHeader.PreviousHash)
+		if err != nil {
+			return nil, err
+		}
+
+		headers = headers.Add(nextHeader)
+	}
+
+	panic("unexpected")
+}
+
+func (bc *blockchain) SaveHeaders(headers entity.BlockHeaders) error {
+	// TODO verify headers
+	for _, header := range headers {
+		err := bc.headerRepository.SaveHeader(header)
+		if err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (bc *blockchain) SaveBlock(block *entity.Block) error {
+	// TODO verify block
+	err := bc.blockRepository.SaveBlock(block)
+	if err != nil {
+		return err
+	}
+
+	err = bc.headerRepository.SaveHeader(block.Header())
+	if err != nil {
+		return err
+	}
+	return nil
 }
 
 func (bc *blockchain) Send(spender, receiver, coinbase *identity.Identity, expense uint32) error {

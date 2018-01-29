@@ -131,7 +131,7 @@ func setupBlockchain(t *testing.T, owner *identity.Identity) blockchain.Blockcha
 		t.Fatalf("saving genesis block: %s", err)
 	}
 
-	bc, err := blockchain.Open(blockRepository, miner)
+	bc, err := blockchain.Open(blockRepository, memdb.NewHeaderRepository(), miner)
 	if err != nil {
 		t.Fatalf("failed to open test blockchain: %s", err)
 	}

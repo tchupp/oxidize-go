@@ -26,3 +26,12 @@ func NewNode(bc blockchain.Blockchain, server *rpc.Server) Node {
 
 	return node
 }
+
+func (n *baseNode) AddPeer(address string) (*p2p.Peer, error) {
+	peer, err := n.PeerManager.AddPeer(address)
+	if err != nil {
+		return nil, err
+	}
+
+	return peer, nil
+}

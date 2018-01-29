@@ -5,7 +5,7 @@ import (
 )
 
 type Node interface {
-	AddPeer(address string) error
+	AddPeer(address string) (*p2p.Peer, error)
 	ActivePeers() p2p.Peers
 	Serve()
 	Shutdown()

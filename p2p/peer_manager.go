@@ -5,18 +5,19 @@ import (
 	"time"
 
 	"github.com/tclchiam/block_n_go/rpc"
+	"google.golang.org/grpc"
 )
 
 type PeerManager interface {
-	rpc.ConnectionManager
-	AddPeer(address string) error
+	AddPeer(address string) (*Peer, error)
+	GetPeerConnection(peer *Peer) (*grpc.ClientConn)
 	ActivePeers() Peers
 }
 
 type peerManager struct {
 	rpc.ConnectionManager
-	peers             Peers
-	lock              sync.RWMutex
+	peers Peers
+	lock  sync.RWMutex
 }
 
 func NewPeerManager() PeerManager {
@@ -30,25 +31,25 @@ func newPeerManager(connectionManager rpc.ConnectionManager) *peerManager {
 	}
 }
 
-func (m *peerManager) AddPeer(address string) error {
+func (m *peerManager) AddPeer(address string) (*Peer, error) {
 	conn, err := m.ConnectionManager.OpenConnection(address)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	hash, err := NewDiscoveryClient(conn).Version()
 	if err != nil {
 		m.ConnectionManager.CloseConnection(address)
-		return err
+		return nil, err
 	}
 
 	peer := &Peer{
-		Address: address,
-		Head:    hash,
+		Address:  address,
+		BestHash: hash,
 	}
 
 	m.addPeer(peer)
-	return nil
+	return peer, nil
 }
 func (m *peerManager) addPeer(peer *Peer) {
 	m.lock.Lock()
@@ -91,4 +92,15 @@ func (m *peerManager) peerMonitor(peer *Peer) {
 
 		time.Sleep(500 * time.Millisecond)
 	}
+}
+
+func (m *peerManager) GetPeerConnection(peer *Peer) (*grpc.ClientConn) {
+	m.lock.RLock()
+	defer m.lock.RUnlock()
+
+	if !m.peers.Contains(peer) {
+		return nil
+	}
+
+	return m.ConnectionManager.GetConnection(peer.Address)
 }

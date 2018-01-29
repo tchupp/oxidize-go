@@ -11,14 +11,14 @@ import (
 )
 
 func TestBaseNode_AddPeer(t *testing.T) {
-	bc, err := blockchain.Open(memdb.NewBlockRepository(), nil)
+	bc, err := blockchain.Open(memdb.NewBlockRepository(), memdb.NewHeaderRepository(), nil)
 	if err != nil {
 		t.Fatalf("opening blockchain: %s", err)
 	}
 
 	expectedHeader, err := bc.GetBestHeader()
 	if err != nil {
-		t.Fatalf("getting best header with blockchain: %s", err)
+		t.Fatalf("getting best header: %s", err)
 	}
 
 	lis, err := net.Listen("tcp", "127.0.0.1:0")
@@ -36,7 +36,7 @@ func TestBaseNode_AddPeer(t *testing.T) {
 		t.Fatalf("incorrect starting peer count. got - %d, wanted  - %d", len(node2.ActivePeers()), 0)
 	}
 
-	if err := node2.AddPeer(lis.Addr().String()); err != nil {
+	if _, err := node2.AddPeer(lis.Addr().String()); err != nil {
 		t.Fatalf("unexpected error: %s", err)
 	}
 
@@ -49,13 +49,13 @@ func TestBaseNode_AddPeer(t *testing.T) {
 	if peer.Address != lis.Addr().String() {
 		t.Errorf("incorrect peer address. got - %s, wanted - %s", peer.Address, lis.Addr())
 	}
-	if !peer.Head.IsEqual(expectedHeader.Hash) {
-		t.Errorf("incorrect peer address. got - %s, wanted - %s", peer.Head, expectedHeader.Hash)
+	if !peer.BestHash.IsEqual(expectedHeader.Hash) {
+		t.Errorf("incorrect peer address. got - %s, wanted - %s", peer.BestHash, expectedHeader.Hash)
 	}
 }
 
 func TestBaseNode_AddPeer_PeerLoosesConnection(t *testing.T) {
-	bc, err := blockchain.Open(memdb.NewBlockRepository(), nil)
+	bc, err := blockchain.Open(memdb.NewBlockRepository(), memdb.NewHeaderRepository(), nil)
 	if err != nil {
 		t.Fatalf("opening blockchain: %s", err)
 	}
@@ -74,7 +74,7 @@ func TestBaseNode_AddPeer_PeerLoosesConnection(t *testing.T) {
 		t.Fatalf("incorrect starting peer count. got - %d, wanted  - %d", len(node2.ActivePeers()), 0)
 	}
 
-	if err := node2.AddPeer(lis.Addr().String()); err != nil {
+	if _, err := node2.AddPeer(lis.Addr().String()); err != nil {
 		t.Fatalf("unexpected error: %s", err)
 	}
 
@@ -92,7 +92,7 @@ func TestBaseNode_AddPeer_PeerLoosesConnection(t *testing.T) {
 }
 
 func TestBaseNode_AddPeer_TargetIsOffline(t *testing.T) {
-	bc, err := blockchain.Open(memdb.NewBlockRepository(), nil)
+	bc, err := blockchain.Open(memdb.NewBlockRepository(), memdb.NewHeaderRepository(), nil)
 	if err != nil {
 		t.Fatalf("opening blockchain: %s", err)
 	}
@@ -103,7 +103,7 @@ func TestBaseNode_AddPeer_TargetIsOffline(t *testing.T) {
 		t.Fatalf("incorrect starting peer count. got - %d, wanted  - %d", len(node.ActivePeers()), 0)
 	}
 
-	if err := node.AddPeer("127.0.0.1:0"); err == nil {
+	if _, err := node.AddPeer("127.0.0.1:0"); err == nil {
 		t.Fatal("expected error, got none")
 	}
 

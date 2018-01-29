@@ -8,10 +8,11 @@ import (
 	"github.com/tclchiam/block_n_go/blockchain"
 	"github.com/tclchiam/block_n_go/blockchain/entity"
 	"github.com/tclchiam/block_n_go/encoding"
-	"github.com/tclchiam/block_n_go/mining/proofofwork"
-	"github.com/tclchiam/block_n_go/storage/boltdb"
 	"github.com/tclchiam/block_n_go/identity"
 	"github.com/tclchiam/block_n_go/mining"
+	"github.com/tclchiam/block_n_go/mining/proofofwork"
+	"github.com/tclchiam/block_n_go/storage/boltdb"
+	"github.com/tclchiam/block_n_go/storage/memdb"
 )
 
 func main() {
@@ -33,7 +34,7 @@ func main() {
 		log.Panic(err)
 	}
 
-	bc, err := blockchain.Open(blockRepository, miner)
+	bc, err := blockchain.Open(blockRepository, memdb.NewHeaderRepository(), miner)
 	if err != nil {
 		log.Panic(err)
 	}

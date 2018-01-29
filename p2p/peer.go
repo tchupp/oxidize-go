@@ -7,12 +7,12 @@ import (
 )
 
 type Peer struct {
-	Address string
-	Head    *entity.Hash
+	Address  string
+	BestHash *entity.Hash
 }
 
 func (p *Peer) String() string {
-	return fmt.Sprintf("{Address: %s, Head: %s}", p.Address, p.Head)
+	return fmt.Sprintf("{Address: %s, BestHash: %s}", p.Address, p.BestHash)
 }
 
 type Peers []*Peer
