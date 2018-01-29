@@ -34,18 +34,18 @@ func NewDefaultMiner(coinbase *identity.Identity) mining.Miner {
 	return NewMiner(defaultWorkerCount, coinbase)
 }
 
-func (miner *miner) MineBlock(parent *entity.Block, transactions entity.Transactions) (*entity.Block) {
+func (miner *miner) MineBlock(parent *entity.BlockHeader, transactions entity.Transactions) (*entity.Block) {
 	reward := entity.NewCoinbaseTx(miner.coinbase, miner.transactionEncoder)
 
 	return miner.mineBlock(parent, transactions.Add(reward), uint64(time.Now().Unix()))
 }
 
-func (miner *miner) mineBlock(parent *entity.Block, transactions entity.Transactions, now uint64) (*entity.Block) {
+func (miner *miner) mineBlock(parent *entity.BlockHeader, transactions entity.Transactions, now uint64) (*entity.Block) {
 	transactionsHash := mining.CalculateTransactionsHash(transactions)
 
 	work := &mining.BlockHashingInput{
-		Index:            parent.Index() + 1,
-		PreviousHash:     parent.Hash(),
+		Index:            parent.Index + 1,
+		PreviousHash:     parent.Hash,
 		Timestamp:        now,
 		TransactionsHash: transactionsHash,
 	}

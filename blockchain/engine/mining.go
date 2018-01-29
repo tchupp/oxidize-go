@@ -23,5 +23,5 @@ func MineBlock(transactions entity.Transactions, miner mining.Miner, repository 
 		}
 	}
 
-	return miner.MineBlock(parent, transactions), nil
+	return miner.MineBlock(parent.Header(), transactions), nil
 }

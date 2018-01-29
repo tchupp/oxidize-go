@@ -18,7 +18,7 @@ var (
 		},
 	}
 	timestamp = uint64(1514479677)
-	header    = &entity.BlockHeader{
+	parent    = &entity.BlockHeader{
 		Index:            0,
 		PreviousHash:     &entity.EmptyHash,
 		Timestamp:        timestamp,
@@ -26,7 +26,6 @@ var (
 		Nonce:            9330,
 		Hash:             entity.NewHashOrPanic("00008623b2c8806d056cb4ab9a5c3a57d9f36c017aa6c40fed5767249dcd10a8"),
 	}
-	parent = entity.NewBlock(header, transactions)
 
 	coinbase = identity.RandomIdentity()
 )

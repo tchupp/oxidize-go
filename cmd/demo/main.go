@@ -70,7 +70,6 @@ func main() {
 
 func buildGenesisBlock(miner mining.Miner) *entity.Block {
 	header := entity.NewBlockHeader(math.MaxUint64, nil, nil, 0, 0, &entity.EmptyHash)
-	parent := entity.NewBlock(header, entity.Transactions{})
 
-	return miner.MineBlock(parent, entity.Transactions{})
+	return miner.MineBlock(header, entity.Transactions{})
 }
