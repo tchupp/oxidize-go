@@ -5,6 +5,14 @@ import (
 	"strings"
 )
 
+type BlockRepository interface {
+	Head() (head *Block, err error)
+
+	Block(hash *Hash) (*Block, error)
+
+	SaveBlock(*Block) error
+}
+
 type Block struct {
 	header       *BlockHeader
 	transactions Transactions

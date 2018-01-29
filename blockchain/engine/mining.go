@@ -7,10 +7,9 @@ import (
 	"github.com/tclchiam/block_n_go/blockchain/entity"
 	"github.com/tclchiam/block_n_go/encoding"
 	"github.com/tclchiam/block_n_go/mining"
-	"github.com/tclchiam/block_n_go/storage"
 )
 
-func MineBlock(transactions entity.Transactions, miner mining.Miner, repository storage.BlockRepository) (*entity.Block, error) {
+func MineBlock(transactions entity.Transactions, miner mining.Miner, repository entity.BlockRepository) (*entity.Block, error) {
 	parent, err := repository.Head()
 	if err != nil {
 		return nil, err

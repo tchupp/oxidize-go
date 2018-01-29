@@ -5,26 +5,28 @@ import (
 	"github.com/tclchiam/block_n_go/blockchain/engine/iter"
 	"github.com/tclchiam/block_n_go/blockchain/engine/utxo"
 	"github.com/tclchiam/block_n_go/blockchain/entity"
-	"github.com/tclchiam/block_n_go/storage"
 	"github.com/tclchiam/block_n_go/mining"
 	"github.com/tclchiam/block_n_go/identity"
 )
 
 type Blockchain interface {
 	ForEachBlock(consume func(*entity.Block)) error
+
 	ReadBalance(identity *identity.Identity) (uint32, error)
+
 	GetBestHeader() (*entity.BlockHeader, error)
 	GetHeader(hash *entity.Hash) (*entity.BlockHeader, error)
+
 	Send(spender, receiver, coinbase *identity.Identity, expense uint32) error
 }
 
 type blockchain struct {
-	blockRepository storage.BlockRepository
+	blockRepository entity.BlockRepository
 	miner           mining.Miner
 	utxoEngine      utxo.Engine
 }
 
-func Open(repository storage.BlockRepository, miner mining.Miner) (Blockchain, error) {
+func Open(repository entity.BlockRepository, miner mining.Miner) (Blockchain, error) {
 	bc := &blockchain{
 		blockRepository: repository,
 		miner:           miner,
@@ -48,7 +50,7 @@ func Open(repository storage.BlockRepository, miner mining.Miner) (Blockchain, e
 	return bc, nil
 }
 
-func genesisBlockExists(repository storage.BlockRepository) (bool, error) {
+func genesisBlockExists(repository entity.BlockRepository) (bool, error) {
 	head, err := repository.Head()
 	if err != nil {
 		return false, err

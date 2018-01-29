@@ -3,16 +3,15 @@ package utxo
 import (
 	"github.com/tclchiam/block_n_go/blockchain/engine/iter"
 	"github.com/tclchiam/block_n_go/blockchain/entity"
-	"github.com/tclchiam/block_n_go/storage"
 	"github.com/tclchiam/block_n_go/identity"
 	"github.com/imdario/mergo"
 )
 
 type utxoCrawlerEngine struct {
-	repository storage.BlockRepository
+	repository entity.BlockRepository
 }
 
-func NewCrawlerEngine(repository storage.BlockRepository) Engine {
+func NewCrawlerEngine(repository entity.BlockRepository) Engine {
 	return &utxoCrawlerEngine{repository: repository}
 }
 

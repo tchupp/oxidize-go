@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"sync"
 
-	"github.com/tclchiam/block_n_go/storage"
 	"github.com/tclchiam/block_n_go/blockchain/entity"
 )
 
@@ -14,7 +13,7 @@ type blockMemoryRepository struct {
 	lock sync.RWMutex
 }
 
-func NewBlockRepository() storage.BlockRepository {
+func NewBlockRepository() entity.BlockRepository {
 	return &blockMemoryRepository{db: make(map[*entity.Hash]*entity.Block)}
 }
 

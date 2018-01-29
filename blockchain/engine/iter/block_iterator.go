@@ -2,12 +2,11 @@ package iter
 
 import (
 	"github.com/tclchiam/block_n_go/blockchain/entity"
-	"github.com/tclchiam/block_n_go/storage"
 )
 
 type Iterator struct {
 	current         *entity.Block
-	blockRepository storage.BlockRepository
+	blockRepository entity.BlockRepository
 }
 
 func (it *Iterator) next() (*Iterator, error) {
@@ -23,7 +22,7 @@ func (it *Iterator) hasNext() bool {
 	return !it.current.IsGenesisBlock()
 }
 
-func head(blockRepository storage.BlockRepository) (*Iterator, error) {
+func head(blockRepository entity.BlockRepository) (*Iterator, error) {
 	head, err := blockRepository.Head()
 	if err != nil {
 		return nil, err
@@ -35,7 +34,7 @@ func head(blockRepository storage.BlockRepository) (*Iterator, error) {
 	}, nil
 }
 
-func ForEachBlock(blockRepository storage.BlockRepository, consume func(*entity.Block)) error {
+func ForEachBlock(blockRepository entity.BlockRepository, consume func(*entity.Block)) error {
 	it, err := head(blockRepository)
 	if err != nil {
 		return err
