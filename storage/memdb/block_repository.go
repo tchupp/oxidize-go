@@ -42,7 +42,11 @@ func (r *blockMemoryRepository) SaveBlock(block *entity.Block) error {
 	defer r.lock.Unlock()
 
 	r.db[block.Hash()] = block
-	r.head = block
+	if r.head == nil {
+		r.head = block
+	} else if r.head.Index() < block.Index() {
+		r.head = block
+	}
 
 	return nil
 }

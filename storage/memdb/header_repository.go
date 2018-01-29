@@ -41,7 +41,11 @@ func (r *headerMemoryRepository) SaveHeader(header *entity.BlockHeader) error {
 	defer r.lock.Unlock()
 
 	r.db[header.Hash] = header
-	r.head = header
+	if r.head == nil {
+		r.head = header
+	} else if r.head.Index < header.Index {
+		r.head = header
+	}
 
 	return nil
 }
