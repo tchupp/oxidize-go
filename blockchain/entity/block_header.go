@@ -5,6 +5,14 @@ import (
 	"strings"
 )
 
+type HeaderRepository interface {
+	Head() (head *BlockHeader, err error)
+
+	Header(hash *Hash) (*BlockHeader, error)
+
+	SaveHeader(*BlockHeader) error
+}
+
 type BlockHeader struct {
 	Index            uint64
 	PreviousHash     *Hash
