@@ -117,15 +117,7 @@ func (bc *blockchain) GetHeaders(hash *entity.Hash, index uint64) (entity.BlockH
 }
 
 func (bc *blockchain) SaveHeaders(headers entity.BlockHeaders) error {
-	// TODO verify headers
-	for _, header := range headers {
-		err := bc.headerRepository.SaveHeader(header)
-		if err != nil {
-			return err
-		}
-	}
-
-	return nil
+	return engine.SaveHeaders(headers, bc)
 }
 
 func (bc *blockchain) SaveHeader(header *entity.BlockHeader) error {

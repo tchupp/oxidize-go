@@ -15,16 +15,18 @@ type baseNode struct {
 }
 
 func NewNode(bc blockchain.Blockchain, server *rpc.Server) Node {
-	node := &baseNode{
+	return newNode(bc, server)
+}
+
+func newNode(bc blockchain.Blockchain, server *rpc.Server) *baseNode {
+	server.RegisterSyncServer(blockrpc.NewSyncServer(bc))
+	server.RegisterDiscoveryServer(p2p.NewDiscoveryServer(bc))
+
+	return &baseNode{
 		bc:          bc,
 		PeerManager: p2p.NewPeerManager(),
 		Server:      server,
 	}
-
-	server.RegisterSyncServer(blockrpc.NewSyncServer(bc))
-	server.RegisterDiscoveryServer(p2p.NewDiscoveryServer(bc))
-
-	return node
 }
 
 func (n *baseNode) AddPeer(address string) (*p2p.Peer, error) {
@@ -32,6 +34,8 @@ func (n *baseNode) AddPeer(address string) (*p2p.Peer, error) {
 	if err != nil {
 		return nil, err
 	}
+
+	go startSyncFlow(peer, n.PeerManager, n.bc)
 
 	return peer, nil
 }
