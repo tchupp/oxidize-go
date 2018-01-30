@@ -59,6 +59,10 @@ func CalculateTransactionsHash(transactions entity.Transactions) *entity.Hash {
 }
 
 func HashValid(hash *entity.Hash) bool {
+	if hash == nil {
+		return false
+	}
+
 	return new(big.Int).SetBytes(hash.Slice()).Cmp(target) == -1
 }
 
