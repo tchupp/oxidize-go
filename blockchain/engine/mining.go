@@ -10,7 +10,7 @@ import (
 )
 
 func MineBlock(transactions entity.Transactions, miner mining.Miner, repository entity.BlockRepository) (*entity.Block, error) {
-	parent, err := repository.Head()
+	parent, err := repository.BestBlock()
 	if err != nil {
 		return nil, err
 	}

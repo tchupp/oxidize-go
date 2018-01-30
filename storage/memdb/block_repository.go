@@ -17,7 +17,7 @@ func NewBlockRepository() entity.BlockRepository {
 	return &blockMemoryRepository{db: make(map[*entity.Hash]*entity.Block)}
 }
 
-func (r *blockMemoryRepository) Head() (head *entity.Block, err error) {
+func (r *blockMemoryRepository) BestBlock() (head *entity.Block, err error) {
 	r.lock.RLock()
 	defer r.lock.RUnlock()
 

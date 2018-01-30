@@ -23,7 +23,7 @@ func (it *Iterator) hasNext() bool {
 }
 
 func head(blockRepository entity.BlockRepository) (*Iterator, error) {
-	head, err := blockRepository.Head()
+	head, err := blockRepository.BestBlock()
 	if err != nil {
 		return nil, err
 	}

@@ -16,7 +16,7 @@ func NewHeaderRepository() entity.HeaderRepository {
 	return &headerMemoryRepository{db: make(map[*entity.Hash]*entity.BlockHeader)}
 }
 
-func (r *headerMemoryRepository) Head() (head *entity.BlockHeader, err error) {
+func (r *headerMemoryRepository) BestHeader() (head *entity.BlockHeader, err error) {
 	r.lock.RLock()
 	defer r.lock.RUnlock()
 
@@ -47,5 +47,9 @@ func (r *headerMemoryRepository) SaveHeader(header *entity.BlockHeader) error {
 		r.head = header
 	}
 
+	return nil
+}
+
+func (r *headerMemoryRepository) Close() error {
 	return nil
 }

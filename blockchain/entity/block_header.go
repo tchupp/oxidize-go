@@ -2,12 +2,14 @@ package entity
 
 import (
 	"fmt"
+	"io"
 	"sort"
 	"strings"
 )
 
 type HeaderRepository interface {
-	Head() (head *BlockHeader, err error)
+	io.Closer
+	BestHeader() (head *BlockHeader, err error)
 
 	Header(hash *Hash) (*BlockHeader, error)
 
@@ -72,6 +74,8 @@ func (header *BlockHeader) IsEqual(other *BlockHeader) bool {
 
 	return true
 }
+
+func (header *BlockHeader) IsGenesisBlock() bool { return header.PreviousHash.IsEmpty() }
 
 func (headers BlockHeaders) Len() int                             { return len(headers) }
 func (headers BlockHeaders) Swap(i, j int)                        { headers[i], headers[j] = headers[j], headers[i] }

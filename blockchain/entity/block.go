@@ -6,7 +6,7 @@ import (
 )
 
 type BlockRepository interface {
-	Head() (head *Block, err error)
+	BestBlock() (head *Block, err error)
 
 	Block(hash *Hash) (*Block, error)
 

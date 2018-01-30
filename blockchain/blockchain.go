@@ -61,7 +61,7 @@ func Open(blockRepository entity.BlockRepository, headerRepository entity.Header
 }
 
 func genesisBlockExists(repository entity.BlockRepository) (bool, error) {
-	head, err := repository.Head()
+	head, err := repository.BestBlock()
 	if err != nil {
 		return false, err
 	}
@@ -80,7 +80,7 @@ func (bc *blockchain) ReadBalance(identity *identity.Identity) (uint32, error) {
 }
 
 func (bc *blockchain) GetBestHeader() (*entity.BlockHeader, error) {
-	return bc.headerRepository.Head()
+	return bc.headerRepository.BestHeader()
 }
 
 func (bc *blockchain) GetHeader(hash *entity.Hash) (*entity.BlockHeader, error) {
@@ -101,7 +101,7 @@ func (bc *blockchain) GetHeaders(hash *entity.Hash, index uint64) (entity.BlockH
 	headers := entity.BlockHeaders{startingHeader}
 	nextHeader := startingHeader
 	for {
-		if nextHeader.PreviousHash.IsEqual(&entity.EmptyHash) {
+		if nextHeader.IsGenesisBlock() {
 			return headers, nil
 		}
 

@@ -72,7 +72,7 @@ func openDB(name string) (*bolt.DB, error) {
 	return db, err
 }
 
-func (r *blockBoltRepository) Head() (head *entity.Block, err error) {
+func (r *blockBoltRepository) BestBlock() (head *entity.Block, err error) {
 	db, err := openDB(r.name)
 	if err != nil {
 		return nil, err
