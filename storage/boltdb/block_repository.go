@@ -185,3 +185,8 @@ func writeBlock(bucket *bolt.Bucket, block *entity.Block, encoder entity.BlockEn
 
 	return nil
 }
+
+func (r *blockBoltRepository) Close() error {
+	// TODO open the database when the repository is created
+	return nil
+}

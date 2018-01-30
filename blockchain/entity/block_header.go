@@ -2,13 +2,13 @@ package entity
 
 import (
 	"fmt"
-	"io"
 	"sort"
 	"strings"
 )
 
 type HeaderRepository interface {
-	io.Closer
+	Close() error
+
 	BestHeader() (head *BlockHeader, err error)
 
 	Header(hash *Hash) (*BlockHeader, error)

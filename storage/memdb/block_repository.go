@@ -50,3 +50,7 @@ func (r *blockMemoryRepository) SaveBlock(block *entity.Block) error {
 
 	return nil
 }
+
+func (r *blockMemoryRepository) Close() error {
+	return nil
+}
