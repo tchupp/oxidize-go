@@ -2,6 +2,7 @@ package entity
 
 import (
 	"fmt"
+	"sort"
 	"strings"
 )
 
@@ -72,8 +73,15 @@ func (header *BlockHeader) IsEqual(other *BlockHeader) bool {
 	return true
 }
 
-func (headers BlockHeaders) Add(header *BlockHeader) BlockHeaders {
-	return append(headers, header)
+func (headers BlockHeaders) Len() int                             { return len(headers) }
+func (headers BlockHeaders) Swap(i, j int)                        { headers[i], headers[j] = headers[j], headers[i] }
+func (headers BlockHeaders) Less(i, j int) bool                   { return headers[i].Index < headers[j].Index }
+func (headers BlockHeaders) Add(header *BlockHeader) BlockHeaders { return append(headers, header) }
+
+func (headers BlockHeaders) Sort() BlockHeaders {
+	copies := append(BlockHeaders(nil), headers...)
+	sort.Sort(copies)
+	return copies
 }
 
 func (headers BlockHeaders) Hashes() []*Hash {
