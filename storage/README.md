@@ -33,8 +33,8 @@ Blocks, and Headers.
 
 ```go
 type BlockRepository interface {
-	io.Closer
-	BestBlock() (head *Block, err error)
+	Close() error
+	BestBlock() (*Block, error)
 
 	BlockByHash(hash *Hash) (*Block, error)
 	BlockByIndex(index uint64) (*Block, error)
@@ -43,8 +43,8 @@ type BlockRepository interface {
 }
 
 type HeaderRepository interface {
-	io.Closer
-	BestHeader() (head *BlockHeader, err error)
+	Close() error
+	BestHeader() (*BlockHeader, error)
 
 	HeaderByHash(hash *Hash) (*BlockHeader, error)
 	HeaderByIndex(index uint64) (*BlockHeader, error)
@@ -52,6 +52,11 @@ type HeaderRepository interface {
 	SaveHeader(*BlockHeader) error
 }
 ```
+
+Contract:  
+ - Functions should only return error if there was an issue reading or writing
+ - Read functions will return nil if the entity isn't found
+ - Write functions are destructive, and will override if an entity exists (luckily, this should happen if entities are stored by hash)
 
 #### Use cases
 
