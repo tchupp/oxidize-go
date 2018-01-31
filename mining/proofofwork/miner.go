@@ -50,7 +50,7 @@ func (miner *miner) mineBlock(parent *entity.BlockHeader, transactions entity.Tr
 		TransactionsHash: transactionsHash,
 	}
 
-	solutions := make(chan *entity.BlockSolution)
+	solutions := make(chan *BlockSolution)
 	nonces := make(chan uint64, miner.workerCount)
 	defer close(nonces)
 
@@ -72,12 +72,12 @@ func (miner *miner) mineBlock(parent *entity.BlockHeader, transactions entity.Tr
 	return nil
 }
 
-func worker(work *mining.BlockHashingInput, nonces <-chan uint64, solutions chan<- *entity.BlockSolution) {
+func worker(work *mining.BlockHashingInput, nonces <-chan uint64, solutions chan<- *BlockSolution) {
 	for nonce := range nonces {
 		hash := mining.CalculateBlockHash(work, nonce)
 
 		if mining.HashValid(hash) {
-			solutions <- &entity.BlockSolution{Nonce: nonce, Hash: hash}
+			solutions <- &BlockSolution{Nonce: nonce, Hash: hash}
 		}
 	}
 }
