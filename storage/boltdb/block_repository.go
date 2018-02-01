@@ -18,6 +18,9 @@ func bestBlockHash(tx *bolt.Tx) (hash *entity.Hash, err error) {
 	if err != nil {
 		return nil, err
 	}
+	if index == nil {
+		return nil, err
+	}
 
 	rawHash := bucket.Get(index)
 	return entity.NewHash(rawHash)

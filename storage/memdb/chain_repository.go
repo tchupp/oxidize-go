@@ -6,8 +6,8 @@ import (
 )
 
 type chainMemoryRepository struct {
-	blockDB      map[*entity.Hash]*entity.Block
-	headerDB     map[*entity.Hash]*entity.BlockHeader
+	blockDB      map[string]*entity.Block
+	headerDB     map[string]*entity.BlockHeader
 	blockHashDB  map[uint64]*entity.Hash
 	headerHashDB map[uint64]*entity.Hash
 	lock         sync.RWMutex
@@ -15,8 +15,8 @@ type chainMemoryRepository struct {
 
 func NewChainRepository() entity.ChainRepository {
 	return &chainMemoryRepository{
-		blockDB:      make(map[*entity.Hash]*entity.Block),
-		headerDB:     make(map[*entity.Hash]*entity.BlockHeader),
+		blockDB:      make(map[string]*entity.Block),
+		headerDB:     make(map[string]*entity.BlockHeader),
 		blockHashDB:  make(map[uint64]*entity.Hash),
 		headerHashDB: make(map[uint64]*entity.Hash),
 	}
@@ -36,7 +36,7 @@ func (r *chainMemoryRepository) BestBlock() (head *entity.Block, err error) {
 
 	bestIndex := bestIndex(r.blockHashDB)
 	if hash, ok := r.blockHashDB[bestIndex]; ok {
-		return r.blockDB[hash], nil
+		return r.blockDB[hash.String()], nil
 	}
 	return nil, nil
 }
@@ -55,7 +55,7 @@ func (r *chainMemoryRepository) BlockByHash(hash *entity.Hash) (*entity.Block, e
 	r.lock.RLock()
 	defer r.lock.RUnlock()
 
-	if block, ok := r.blockDB[hash]; ok {
+	if block, ok := r.blockDB[hash.String()]; ok {
 		return block, nil
 	}
 	return nil, nil
@@ -66,7 +66,7 @@ func (r *chainMemoryRepository) BlockByIndex(index uint64) (*entity.Block, error
 	defer r.lock.RUnlock()
 
 	if hash, ok := r.blockHashDB[index]; ok {
-		if block, ok := r.blockDB[hash]; ok {
+		if block, ok := r.blockDB[hash.String()]; ok {
 			return block, nil
 		}
 	}
@@ -77,8 +77,8 @@ func (r *chainMemoryRepository) SaveBlock(block *entity.Block) error {
 	r.lock.Lock()
 	defer r.lock.Unlock()
 
-	r.blockDB[block.Hash()] = block
-	r.headerDB[block.Hash()] = block.Header()
+	r.blockDB[block.Hash().String()] = block
+	r.headerDB[block.Hash().String()] = block.Header()
 	r.blockHashDB[block.Index()] = block.Hash()
 	r.headerHashDB[block.Index()] = block.Hash()
 
@@ -91,7 +91,7 @@ func (r *chainMemoryRepository) BestHeader() (head *entity.BlockHeader, err erro
 
 	bestIndex := bestIndex(r.headerHashDB)
 	if hash, ok := r.headerHashDB[bestIndex]; ok {
-		return r.headerDB[hash], nil
+		return r.headerDB[hash.String()], nil
 	}
 	return nil, nil
 }
@@ -100,7 +100,7 @@ func (r *chainMemoryRepository) HeaderByHash(hash *entity.Hash) (*entity.BlockHe
 	r.lock.RLock()
 	defer r.lock.RUnlock()
 
-	if header, ok := r.headerDB[hash]; ok {
+	if header, ok := r.headerDB[hash.String()]; ok {
 		return header, nil
 	}
 	return nil, nil
@@ -111,7 +111,7 @@ func (r *chainMemoryRepository) HeaderByIndex(index uint64) (*entity.BlockHeader
 	defer r.lock.RUnlock()
 
 	if hash, ok := r.headerHashDB[index]; ok {
-		if header, ok := r.headerDB[hash]; ok {
+		if header, ok := r.headerDB[hash.String()]; ok {
 			return header, nil
 		}
 	}
@@ -122,7 +122,7 @@ func (r *chainMemoryRepository) SaveHeader(header *entity.BlockHeader) error {
 	r.lock.Lock()
 	defer r.lock.Unlock()
 
-	r.headerDB[header.Hash] = header
+	r.headerDB[header.Hash.String()] = header
 	r.headerHashDB[header.Index] = header.Hash
 
 	return nil
