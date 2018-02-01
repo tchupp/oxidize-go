@@ -13,6 +13,7 @@ Each package is designed to work as a stand alone package (WIP)
 
 - [ ] [Blockchain](https://github.com/tclchiam/block_n_go/tree/master/blockchain)
 - [ ] [Identity](https://github.com/tclchiam/block_n_go/tree/master/identity)
+- [ ] [RPC](https://github.com/tclchiam/block_n_go/tree/master/rpc)
 - [x] [Storage](https://github.com/tclchiam/block_n_go/tree/master/storage)
 - [ ] [Node](https://github.com/tclchiam/block_n_go/tree/master/node)
 - [ ] [Wallet](https://github.com/tclchiam/block_n_go/tree/master/wallet)
