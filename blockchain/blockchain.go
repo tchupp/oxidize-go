@@ -16,6 +16,7 @@ type Blockchain interface {
 
 	GetBestHeader() (*entity.BlockHeader, error)
 	GetHeader(hash *entity.Hash) (*entity.BlockHeader, error)
+	GetHeaderByIndex(index uint64) (*entity.BlockHeader, error)
 	GetHeaders(hash *entity.Hash, index uint64) (entity.BlockHeaders, error)
 
 	SaveHeaders(headers entity.BlockHeaders) error
@@ -26,41 +27,35 @@ type Blockchain interface {
 }
 
 type blockchain struct {
-	blockRepository  entity.BlockRepository
-	headerRepository entity.HeaderRepository
+	repository  entity.ChainRepository
 	miner            mining.Miner
 	utxoEngine       utxo.Engine
 }
 
-func Open(blockRepository entity.BlockRepository, headerRepository entity.HeaderRepository, miner mining.Miner) (Blockchain, error) {
+func Open(repository entity.ChainRepository, miner mining.Miner) (Blockchain, error) {
 	bc := &blockchain{
-		blockRepository:  blockRepository,
-		headerRepository: headerRepository,
-		miner:            miner,
-		utxoEngine:       utxo.NewCrawlerEngine(blockRepository),
+		repository: repository,
+		miner:           miner,
+		utxoEngine:      utxo.NewCrawlerEngine(repository),
 	}
 
-	exists, err := genesisBlockExists(blockRepository)
+	exists, err := genesisBlockExists(repository)
 	if err != nil {
 		return nil, err
 	}
-
 	if exists {
 		return bc, nil
 	}
 
 	genesisBlock := entity.DefaultGenesisBlock()
-	if err = blockRepository.SaveBlock(genesisBlock); err != nil {
-		return nil, err
-	}
-	if err = headerRepository.SaveHeader(genesisBlock.Header()); err != nil {
+	if err = repository.SaveBlock(genesisBlock); err != nil {
 		return nil, err
 	}
 
 	return bc, nil
 }
 
-func genesisBlockExists(repository entity.BlockRepository) (bool, error) {
+func genesisBlockExists(repository entity.ChainRepository) (bool, error) {
 	head, err := repository.BestBlock()
 	if err != nil {
 		return false, err
@@ -72,7 +67,7 @@ func genesisBlockExists(repository entity.BlockRepository) (bool, error) {
 }
 
 func (bc *blockchain) ForEachBlock(consume func(*entity.Block)) error {
-	return iter.ForEachBlock(bc.blockRepository, consume)
+	return iter.ForEachBlock(bc.repository, consume)
 }
 
 func (bc *blockchain) ReadBalance(identity *identity.Identity) (uint32, error) {
@@ -80,34 +75,43 @@ func (bc *blockchain) ReadBalance(identity *identity.Identity) (uint32, error) {
 }
 
 func (bc *blockchain) GetBestHeader() (*entity.BlockHeader, error) {
-	return bc.headerRepository.BestHeader()
+	return bc.repository.BestHeader()
 }
 
 func (bc *blockchain) GetHeader(hash *entity.Hash) (*entity.BlockHeader, error) {
-	head, err := bc.blockRepository.BlockByHash(hash)
+	bestHeader, err := bc.repository.HeaderByHash(hash)
 	if err != nil {
 		return nil, err
 	}
-	return head.Header(), nil
+	return bestHeader, nil
+}
+
+func (bc *blockchain) GetHeaderByIndex(index uint64) (*entity.BlockHeader, error) {
+	bestHeader, err := bc.repository.HeaderByIndex(index)
+	if err != nil {
+		return nil, err
+	}
+	return bestHeader, nil
 }
 
 func (bc *blockchain) GetHeaders(hash *entity.Hash, index uint64) (entity.BlockHeaders, error) {
-	// TODO finish unit tests
-	startingHeader, err := bc.GetBestHeader()
+	startingHeader, err := bc.GetHeader(hash)
 	if err != nil {
 		return nil, err
+	}
+	if startingHeader == nil {
+		return entity.NewBlockHeaders(), nil
 	}
 
 	headers := entity.BlockHeaders{startingHeader}
 	nextHeader := startingHeader
 	for {
-		if nextHeader.IsGenesisBlock() {
-			return headers, nil
-		}
-
-		nextHeader, err = bc.GetHeader(nextHeader.PreviousHash)
+		nextHeader, err = bc.GetHeaderByIndex(nextHeader.Index + 1)
 		if err != nil {
 			return nil, err
+		}
+		if nextHeader == nil {
+			return headers, nil
 		}
 
 		headers = headers.Add(nextHeader)
@@ -122,7 +126,7 @@ func (bc *blockchain) SaveHeaders(headers entity.BlockHeaders) error {
 
 func (bc *blockchain) SaveHeader(header *entity.BlockHeader) error {
 	// TODO verify header
-	return bc.headerRepository.SaveHeader(header)
+	return bc.repository.SaveHeader(header)
 }
 
 func (bc *blockchain) SaveBlock(block *entity.Block) error {
@@ -132,7 +136,7 @@ func (bc *blockchain) SaveBlock(block *entity.Block) error {
 		return err
 	}
 
-	err = bc.blockRepository.SaveBlock(block)
+	err = bc.repository.SaveBlock(block)
 	if err != nil {
 		return err
 	}
@@ -146,9 +150,9 @@ func (bc *blockchain) Send(spender, receiver, coinbase *identity.Identity, expen
 		return err
 	}
 
-	newBlock, err := engine.MineBlock(entity.Transactions{expenseTransaction}, bc.miner, bc.blockRepository)
+	newBlock, err := engine.MineBlock(entity.Transactions{expenseTransaction}, bc.miner, bc.repository)
 	if err != nil {
 		return err
 	}
-	return bc.blockRepository.SaveBlock(newBlock)
+	return bc.repository.SaveBlock(newBlock)
 }

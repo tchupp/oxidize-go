@@ -93,7 +93,7 @@ func TestSaveHeaders(t *testing.T) {
 }
 
 func buildBlockchain(t *testing.T) blockchain.Blockchain {
-	bc, err := blockchain.Open(memdb.NewBlockRepository(), memdb.NewHeaderRepository(), nil)
+	bc, err := blockchain.Open(memdb.NewChainRepository(), nil)
 	if err != nil {
 		t.Fatalf("failed to open test blockchain: %s", err)
 	}

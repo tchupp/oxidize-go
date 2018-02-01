@@ -123,15 +123,15 @@ func verifyBalance(t *testing.T, bc blockchain.Blockchain, spender *identity.Ide
 }
 
 func setupBlockchain(t *testing.T, owner *identity.Identity) blockchain.Blockchain {
-	blockRepository := memdb.NewBlockRepository()
+	repository := memdb.NewChainRepository()
 	miner := proofofwork.NewDefaultMiner(owner)
 
 	genesisBlock := buildGenesisBlock(miner)
-	if err := blockRepository.SaveBlock(genesisBlock); err != nil {
+	if err := repository.SaveBlock(genesisBlock); err != nil {
 		t.Fatalf("saving genesis block: %s", err)
 	}
 
-	bc, err := blockchain.Open(blockRepository, memdb.NewHeaderRepository(), miner)
+	bc, err := blockchain.Open(repository, miner)
 	if err != nil {
 		t.Fatalf("failed to open test blockchain: %s", err)
 	}

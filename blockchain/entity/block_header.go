@@ -24,8 +24,6 @@ type BlockHeader struct {
 	Hash             *Hash
 }
 
-type BlockHeaders []*BlockHeader
-
 func NewBlockHeader(index uint64, previousHash *Hash, transactionsHash *Hash, timestamp uint64, nonce uint64, hash *Hash) *BlockHeader {
 	return &BlockHeader{
 		Index:            index,
@@ -76,6 +74,12 @@ func (header *BlockHeader) IsEqual(other *BlockHeader) bool {
 
 func (header *BlockHeader) IsGenesisBlock() bool { return header.PreviousHash.IsEmpty() }
 
+type BlockHeaders []*BlockHeader
+
+func NewBlockHeaders() BlockHeaders {
+	return make(BlockHeaders, 0)
+}
+
 func (headers BlockHeaders) Len() int                             { return len(headers) }
 func (headers BlockHeaders) Swap(i, j int)                        { headers[i], headers[j] = headers[j], headers[i] }
 func (headers BlockHeaders) Less(i, j int) bool                   { return headers[i].Index < headers[j].Index }
@@ -93,4 +97,29 @@ func (headers BlockHeaders) Hashes() []*Hash {
 		hashes = append(hashes, header.Hash)
 	}
 	return hashes
+}
+
+func (headers BlockHeaders) IsEqual(other BlockHeaders) bool {
+	if headers == nil && other == nil {
+		return true
+	}
+	if headers == nil || other == nil {
+		return false
+	}
+	if headers.Len() == 0 && other.Len() == 0 {
+		return true
+	}
+	if headers.Len() != other.Len() {
+		return false
+	}
+
+	other = other.Sort()
+	self := headers.Sort()
+	for i := 0; i < self.Len(); i++ {
+		if !self[i].Hash.IsEqual(other[i].Hash) {
+			return false
+		}
+	}
+
+	return true
 }

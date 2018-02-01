@@ -53,7 +53,7 @@ func TestDiscoveryServer_Ping_TargetIsOffline(t *testing.T) {
 }
 
 func TestDiscoveryServer_Version(t *testing.T) {
-	bc, err := blockchain.Open(memdb.NewBlockRepository(), memdb.NewHeaderRepository(), nil)
+	bc, err := blockchain.Open(memdb.NewChainRepository(), nil)
 	if err != nil {
 		t.Fatalf("opening blockchain: %s", err)
 	}

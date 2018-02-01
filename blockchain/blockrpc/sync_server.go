@@ -42,14 +42,6 @@ func (s *syncServer) GetHeaders(ctx context.Context, req *rpc.GetHeadersRequest)
 		return nil, status.Errorf(codes.InvalidArgument, "requested starting header hash was invalid: '%s'", req.GetLatestHash())
 	}
 
-	startingHeader, err := s.backend.GetBestHeader()
-	if err != nil {
-		return nil, status.Errorf(codes.Internal, "error finding previous headers")
-	}
-	if startingHeader == nil {
-		return nil, status.Errorf(codes.NotFound, "requested starting header was not found with hash: '%s'", hash)
-	}
-
 	headers, err := s.backend.GetHeaders(hash, req.GetLatestIndex())
 	if err != nil {
 		return nil, status.Errorf(codes.Internal, "error finding previous headers")

@@ -118,11 +118,11 @@ func TestBaseNode_AddPeer_SyncsHeadersWithNewPeer_WhenPeersVersionIsHigher(t *te
 
 	localBestHeader, err := localBc.GetBestHeader()
 	if err != nil {
-		t.Fatalf("getting best header: %s", err)
+		t.Fatalf("getting local best header: %s", err)
 	}
 	remoteBestHeader, err := remoteBc.GetBestHeader()
 	if err != nil {
-		t.Fatalf("getting best header: %s", err)
+		t.Fatalf("getting remote best header: %s", err)
 	}
 	if !remoteBestHeader.IsEqual(localBestHeader) {
 		t.Errorf("unexpected local best header. got - %s, wanted - %s", localBestHeader, remoteBestHeader)
@@ -130,7 +130,7 @@ func TestBaseNode_AddPeer_SyncsHeadersWithNewPeer_WhenPeersVersionIsHigher(t *te
 }
 
 func buildBlockchain(t *testing.T) (blockchain.Blockchain) {
-	bc, err := blockchain.Open(memdb.NewBlockRepository(), memdb.NewHeaderRepository(), nil)
+	bc, err := blockchain.Open(memdb.NewChainRepository(), nil)
 	if err != nil {
 		t.Fatalf("opening blockchain: %s", err)
 	}

@@ -7,8 +7,6 @@ import (
 	"testing"
 	"google.golang.org/grpc"
 
-	"github.com/google/go-cmp/cmp"
-
 	"github.com/tclchiam/block_n_go/blockchain"
 	"github.com/tclchiam/block_n_go/blockchain/entity"
 	"github.com/tclchiam/block_n_go/encoding"
@@ -19,7 +17,7 @@ import (
 )
 
 func TestSyncServer_GetBestHeader(t *testing.T) {
-	bc, err := blockchain.Open(memdb.NewBlockRepository(), memdb.NewHeaderRepository(), nil)
+	bc, err := blockchain.Open(memdb.NewChainRepository(), nil)
 	if err != nil {
 	}
 
@@ -55,17 +53,16 @@ func TestSyncServer_GetBestHeader(t *testing.T) {
 }
 
 func TestSyncServer_GetHeaders(t *testing.T) {
-	blockRepository := memdb.NewBlockRepository()
-	bc, err := blockchain.Open(blockRepository, memdb.NewHeaderRepository(), nil)
+	bc, err := blockchain.Open(memdb.NewChainRepository(), nil)
 	if err != nil {
 		t.Fatalf("opening blockchain: %s", err)
 	}
 
-	saveRandomBlocks(bc, rand.Intn(31))
+	saveRandomBlocks(bc, rand.Intn(12))
 
-	expectedHeaders, err := bc.GetHeaders(nil, 0)
+	startingHeader, err := bc.GetHeaderByIndex(uint64(rand.Intn(11)))
 	if err != nil {
-		t.Fatalf("getting headers: %s", err)
+		t.Fatalf("getting header: %s", err)
 	}
 
 	lis, err := net.Listen("tcp", "127.0.0.1:0")
@@ -81,21 +78,20 @@ func TestSyncServer_GetHeaders(t *testing.T) {
 	if err != nil {
 		t.Fatalf("dialing server: %s", err)
 	}
-
 	client := NewSyncClient(conn)
 
-	bestHeader, err := bc.GetBestHeader()
+	headers, err := client.GetHeaders(startingHeader.Hash, startingHeader.Index)
 	if err != nil {
-		t.Fatalf("getting best header: %s", err)
+		t.Fatalf("getting remote headers: %s", err)
 	}
 
-	headers, err := client.GetHeaders(bestHeader.Hash, bestHeader.Index)
+	expectedHeaders, err := bc.GetHeaders(startingHeader.Hash, startingHeader.Index)
 	if err != nil {
-		t.Fatalf("dialing server: %s", err)
+		t.Fatalf("getting local headers: %s", err)
 	}
 
-	if !cmp.Equal(headers, expectedHeaders) {
-		t.Errorf("headers don't match. got - %s, wanted - %s", headers, expectedHeaders)
+	if !headers.IsEqual(expectedHeaders) {
+		t.Errorf("headers don't match. got - %v, wanted - %v", headers, expectedHeaders)
 	}
 }
 

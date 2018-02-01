@@ -88,7 +88,7 @@ func ToWireBlockHeaders(headers entity.BlockHeaders) ([]*BlockHeader) {
 }
 
 func FromWireBlockHeaders(wireHeaders []*BlockHeader) (entity.BlockHeaders, error) {
-	var headers entity.BlockHeaders
+	headers := entity.NewBlockHeaders()
 	for _, wireHeader := range wireHeaders {
 		blockHeader, err := FromWireBlockHeader(wireHeader)
 		if err != nil {
