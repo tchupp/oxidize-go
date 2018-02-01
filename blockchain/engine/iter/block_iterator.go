@@ -10,7 +10,7 @@ type Iterator struct {
 }
 
 func (it *Iterator) next() (*Iterator, error) {
-	b, err := it.blockRepository.Block(it.current.PreviousHash())
+	b, err := it.blockRepository.BlockByHash(it.current.PreviousHash())
 	if err != nil {
 		return nil, err
 	}

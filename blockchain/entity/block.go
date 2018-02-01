@@ -6,21 +6,25 @@ import (
 )
 
 type BlockRepository interface {
-	Close() error
-
 	BestBlock() (head *Block, err error)
 
-	Block(hash *Hash) (*Block, error)
+	BlockByHash(hash *Hash) (*Block, error)
+	BlockByIndex(index uint64) (*Block, error)
 
 	SaveBlock(*Block) error
+}
+
+type ChainRepository interface {
+	BlockRepository
+	HeaderRepository
+
+	Close() error
 }
 
 type Block struct {
 	header       *BlockHeader
 	transactions Transactions
 }
-
-type Blocks []*Block
 
 func NewBlock(header *BlockHeader, transactions Transactions) *Block {
 	return &Block{
@@ -36,6 +40,7 @@ func (block *Block) String() string {
 	lines = append(lines, fmt.Sprintf("Index: %d", block.Index()))
 	lines = append(lines, fmt.Sprintf("Hash: %x", block.Hash().Slice()))
 	lines = append(lines, fmt.Sprintf("PreviousHash: %x", block.PreviousHash().Slice()))
+	lines = append(lines, fmt.Sprintf("TransactionHash: %x", block.header.TransactionsHash.Slice()))
 	lines = append(lines, fmt.Sprintf("Timestamp: %d", block.Timestamp()))
 	lines = append(lines, fmt.Sprintf("Nonce: %d", block.Nonce()))
 	lines = append(lines, fmt.Sprintf("Transactions:"))
@@ -47,6 +52,12 @@ func (block *Block) String() string {
 }
 
 func (block *Block) IsEqual(other *Block) bool {
+	if block == nil && other == nil {
+		return true
+	}
+	if block == nil || other == nil {
+		return false
+	}
 	if !block.header.IsEqual(other.header) {
 		return false
 	}

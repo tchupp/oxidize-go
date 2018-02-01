@@ -7,11 +7,10 @@ import (
 )
 
 type HeaderRepository interface {
-	Close() error
-
 	BestHeader() (head *BlockHeader, err error)
 
-	Header(hash *Hash) (*BlockHeader, error)
+	HeaderByHash(hash *Hash) (*BlockHeader, error)
+	HeaderByIndex(index uint64) (*BlockHeader, error)
 
 	SaveHeader(*BlockHeader) error
 }

@@ -9,7 +9,7 @@ import (
 
 // mainNetGenesisHash is the hash of the first block in the block chain for the
 // main network (genesis block).
-var mainNetGenesisHash = Hash([hashLength]byte{
+var mainNetGenesisHash = Hash([HashLength]byte{
 	0x00, 0x00, 0x00, 0x00, 0x00, 0x19, 0xd6, 0x68,
 	0x9c, 0x08, 0x5a, 0xe1, 0x65, 0x83, 0x1e, 0x93,
 	0x4f, 0xf7, 0x63, 0xae, 0x46, 0xa2, 0xa6, 0xc1,
@@ -35,8 +35,8 @@ func TestHash(t *testing.T) {
 	}
 
 	// Ensure proper size.
-	if len(hash) != hashLength {
-		t.Errorf("NewHash: hash length mismatch - got: %v, want: %v", len(hash), hashLength)
+	if len(hash) != HashLength {
+		t.Errorf("NewHash: hash length mismatch - got: %v, want: %v", len(hash), HashLength)
 	}
 
 	// Ensure contents match.
@@ -73,7 +73,7 @@ func TestHash(t *testing.T) {
 	}
 
 	// Invalid size for NewHash.
-	invalidHash := make([]byte, hashLength+1)
+	invalidHash := make([]byte, HashLength+1)
 	_, err = NewHash(invalidHash)
 	if err == nil {
 		t.Errorf("NewHash: failed to received expected err - got: nil")
@@ -84,7 +84,7 @@ func TestHash(t *testing.T) {
 func TestHashString(t *testing.T) {
 	// Block 100000 hash.
 	wantStr := "000000000003ba27aa200b1cecaad478d2b00432346c3f1f3986da1afd33e506"
-	hash := Hash([hashLength]byte{
+	hash := Hash([HashLength]byte{
 		0x00, 0x00, 0x00, 0x00, 0x00, 0x03, 0xba, 0x27,
 		0xaa, 0x20, 0x0b, 0x1c, 0xec, 0xaa, 0xd4, 0x78,
 		0xd2, 0xb0, 0x04, 0x32, 0x34, 0x6c, 0x3f, 0x1f,
@@ -128,7 +128,7 @@ func TestNewHashFromString(t *testing.T) {
 		// Single digit hash.
 		{
 			"1",
-			Hash([hashLength]byte{
+			Hash([HashLength]byte{
 				0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
 				0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
 				0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
@@ -140,7 +140,7 @@ func TestNewHashFromString(t *testing.T) {
 		// Block 203707 with stripped leading zeros.
 		{
 			"3264bc2ac36a60840790ba1d475d01367e7c723da941069e9dc",
-			Hash([hashLength]byte{
+			Hash([HashLength]byte{
 				0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x03, 0x26,
 				0x4b, 0xc2, 0xac, 0x36, 0xa6, 0x08, 0x40, 0x79,
 				0x0b, 0xa1, 0xd4, 0x75, 0xd0, 0x13, 0x67, 0xe7,
@@ -152,7 +152,7 @@ func TestNewHashFromString(t *testing.T) {
 		// Hash string that is too long.
 		{
 			"012345678901234567890123456789012345678901234567890123456789012345",
-			[hashLength]byte{
+			[HashLength]byte{
 				0x01, 0x23, 0x45, 0x67, 0x89, 0x01, 0x23, 0x45,
 				0x67, 0x89, 0x01, 0x23, 0x45, 0x67, 0x89, 0x01,
 				0x23, 0x45, 0x67, 0x89, 0x01, 0x23, 0x45, 0x67,

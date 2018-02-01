@@ -84,7 +84,7 @@ func (bc *blockchain) GetBestHeader() (*entity.BlockHeader, error) {
 }
 
 func (bc *blockchain) GetHeader(hash *entity.Hash) (*entity.BlockHeader, error) {
-	head, err := bc.blockRepository.Block(hash)
+	head, err := bc.blockRepository.BlockByHash(hash)
 	if err != nil {
 		return nil, err
 	}

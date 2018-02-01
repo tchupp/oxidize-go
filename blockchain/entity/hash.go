@@ -9,11 +9,11 @@ import (
 )
 
 const (
-	hashLength         = sha256.Size
-	maxHexStringLength = hashLength * 2
+	HashLength         = sha256.Size
+	maxHexStringLength = HashLength * 2
 )
 
-type Hash [hashLength]byte
+type Hash [HashLength]byte
 
 var EmptyHash = Hash{}
 
@@ -34,8 +34,8 @@ func (hash *Hash) IsEqual(target *Hash) bool {
 
 func NewHash(newHash []byte) (*Hash, error) {
 	var hash Hash
-	if len(newHash) != hashLength {
-		return nil, fmt.Errorf("invalid hash length of %v, want %v", len(newHash), hashLength)
+	if len(newHash) != HashLength {
+		return nil, fmt.Errorf("invalid hash length of %v, want %v", len(newHash), HashLength)
 	}
 	copy(hash[:], newHash)
 
@@ -55,7 +55,7 @@ func NewHashFromString(hash string) (*Hash, error) {
 		return nil, err
 	}
 
-	for len(b) < hashLength {
+	for len(b) < HashLength {
 		b = append([]byte{0}, b...)
 	}
 
