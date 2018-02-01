@@ -35,3 +35,25 @@ func (*blockProtoEncoder) DecodeBlock(input []byte) (*entity.Block, error) {
 
 	return FromWireBlock(message)
 }
+
+func (*blockProtoEncoder) EncodeHeader(header *entity.BlockHeader) ([]byte, error) {
+	message := ToWireBlockHeader(header)
+
+	data, err := proto.Marshal(message)
+	if err != nil {
+		return nil, fmt.Errorf("serializing header to protobuf: %s", err)
+	}
+
+	return data, nil
+}
+
+func (*blockProtoEncoder) DecodeHeader(input []byte) (*entity.BlockHeader, error) {
+	message := &BlockHeader{}
+
+	err := proto.Unmarshal(input, message)
+	if err != nil {
+		return nil, fmt.Errorf("deserializing header from protobuf '%s': %s", input, err)
+	}
+
+	return FromWireBlockHeader(message)
+}
