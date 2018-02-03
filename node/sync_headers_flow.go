@@ -14,13 +14,13 @@ type syncBackend interface {
 	SaveHeaders(headers entity.BlockHeaders) error
 }
 
-func startSyncFlow(peer *p2p.Peer, peerManager p2p.PeerManager, backend syncBackend) {
+func startSyncHeadersFlow(peer *p2p.Peer, peerManager p2p.PeerManager, backend syncBackend) {
 	syncLogger := log.WithField("peer", peer.Address)
 
 	start := time.Now()
 	syncLogger.Info("starting sync")
 
-	err := syncWithPeer(peer, peerManager, backend)
+	err := syncHeadersWithPeer(peer, peerManager, backend)
 
 	syncLogger = syncLogger.WithField("elapsed", time.Since(start))
 	if err != nil {
@@ -29,10 +29,9 @@ func startSyncFlow(peer *p2p.Peer, peerManager p2p.PeerManager, backend syncBack
 	}
 
 	syncLogger.Info("successfully synced with peer")
-	return
 }
 
-func syncWithPeer(peer *p2p.Peer, peerManager p2p.PeerManager, backend syncBackend) error {
+func syncHeadersWithPeer(peer *p2p.Peer, peerManager p2p.PeerManager, backend syncBackend) error {
 	conn := peerManager.GetPeerConnection(peer)
 	if conn == nil {
 		return fmt.Errorf("no connection open for peer")

@@ -33,37 +33,16 @@ type blockchain struct {
 }
 
 func Open(repository entity.ChainRepository, miner mining.Miner) (Blockchain, error) {
-	bc := &blockchain{
+	err := engine.ResetGenesis(repository)
+	if err != nil {
+		return nil, err
+	}
+
+	return &blockchain{
 		repository: repository,
 		miner:      miner,
 		utxoEngine: utxo.NewCrawlerEngine(repository),
-	}
-
-	exists, err := genesisBlockExists(repository)
-	if err != nil {
-		return nil, err
-	}
-	if exists {
-		return bc, nil
-	}
-
-	genesisBlock := entity.DefaultGenesisBlock()
-	if err = repository.SaveBlock(genesisBlock); err != nil {
-		return nil, err
-	}
-
-	return bc, nil
-}
-
-func genesisBlockExists(repository entity.ChainRepository) (bool, error) {
-	head, err := repository.BestBlock()
-	if err != nil {
-		return false, err
-	}
-	if head == nil {
-		return false, nil
-	}
-	return true, nil
+	}, nil
 }
 
 func (bc *blockchain) ForEachBlock(consume func(*entity.Block)) error {
@@ -79,19 +58,11 @@ func (bc *blockchain) GetBestHeader() (*entity.BlockHeader, error) {
 }
 
 func (bc *blockchain) GetHeader(hash *entity.Hash) (*entity.BlockHeader, error) {
-	bestHeader, err := bc.repository.HeaderByHash(hash)
-	if err != nil {
-		return nil, err
-	}
-	return bestHeader, nil
+	return bc.repository.HeaderByHash(hash)
 }
 
 func (bc *blockchain) GetHeaderByIndex(index uint64) (*entity.BlockHeader, error) {
-	bestHeader, err := bc.repository.HeaderByIndex(index)
-	if err != nil {
-		return nil, err
-	}
-	return bestHeader, nil
+	return bc.repository.HeaderByIndex(index)
 }
 
 func (bc *blockchain) GetHeaders(hash *entity.Hash, index uint64) (entity.BlockHeaders, error) {

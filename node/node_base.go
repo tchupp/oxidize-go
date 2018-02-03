@@ -35,7 +35,7 @@ func (n *baseNode) AddPeer(address string) (*p2p.Peer, error) {
 		return nil, err
 	}
 
-	go startSyncFlow(peer, n.PeerManager, n.bc)
+	go startSyncHeadersFlow(peer, n.PeerManager, n.bc)
 
 	return peer, nil
 }
