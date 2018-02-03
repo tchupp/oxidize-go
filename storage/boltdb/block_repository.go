@@ -54,16 +54,7 @@ func readBlock(bucket *bolt.Bucket, hash *entity.Hash, encoder entity.BlockEncod
 	return b, err
 }
 
-func saveBlock(tx *bolt.Tx, encoder entity.BlockEncoder, block *entity.Block) error {
-	err := writeBlock(tx, block, encoder)
-	if err != nil {
-		return err
-	}
-
-	return saveHeader(tx, encoder, block.Header())
-}
-
-func writeBlock(tx *bolt.Tx, block *entity.Block, encoder entity.BlockEncoder) error {
+func saveBlock(tx *bolt.Tx, block *entity.Block, encoder entity.BlockEncoder) error {
 	bucket, err := bucket(tx, blocksBucketName)
 	if err != nil {
 		return err
@@ -84,7 +75,7 @@ func writeBlock(tx *bolt.Tx, block *entity.Block, encoder entity.BlockEncoder) e
 		return fmt.Errorf("writing block hash: %s", err)
 	}
 
-	return nil
+	return saveHeader(tx, encoder, block.Header())
 }
 
 func bestIndex(bucket *bolt.Bucket) (index []byte, err error) {

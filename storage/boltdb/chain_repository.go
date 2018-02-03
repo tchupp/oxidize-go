@@ -103,7 +103,7 @@ func (r *chainBoltRepository) BlockByIndex(index uint64) (block *entity.Block, e
 
 func (r *chainBoltRepository) SaveBlock(block *entity.Block) error {
 	return r.db.Update(func(tx *bolt.Tx) error {
-		return saveBlock(tx, r.blockEncoder, block)
+		return saveBlock(tx, block, r.blockEncoder)
 	})
 }
 
