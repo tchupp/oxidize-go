@@ -3,11 +3,10 @@ package node
 import (
 	"fmt"
 	"time"
-	"github.com/sirupsen/logrus"
 
 	"github.com/tclchiam/block_n_go/blockchain/blockrpc"
-	"github.com/tclchiam/block_n_go/p2p"
 	"github.com/tclchiam/block_n_go/blockchain/entity"
+	"github.com/tclchiam/block_n_go/p2p"
 )
 
 type syncBackend interface {
@@ -16,7 +15,7 @@ type syncBackend interface {
 }
 
 func startSyncFlow(peer *p2p.Peer, peerManager p2p.PeerManager, backend syncBackend) {
-	syncLogger := logrus.WithField("peer", peer.Address)
+	syncLogger := log.WithField("peer", peer.Address)
 
 	start := time.Now()
 	syncLogger.Info("starting sync")

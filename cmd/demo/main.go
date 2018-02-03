@@ -2,8 +2,9 @@ package main
 
 import (
 	"fmt"
-	log "github.com/sirupsen/logrus"
 	"math"
+
+	log "github.com/sirupsen/logrus"
 
 	"github.com/tclchiam/block_n_go/blockchain"
 	"github.com/tclchiam/block_n_go/blockchain/entity"
@@ -11,6 +12,7 @@ import (
 	"github.com/tclchiam/block_n_go/identity"
 	"github.com/tclchiam/block_n_go/mining"
 	"github.com/tclchiam/block_n_go/mining/proofofwork"
+	"github.com/tclchiam/block_n_go/storage"
 	"github.com/tclchiam/block_n_go/storage/boltdb"
 )
 
@@ -26,7 +28,9 @@ func main() {
 	if err != nil {
 		log.Panic(err)
 	}
+	defer repository.Close()
 	defer boltdb.DeleteBlockchain(blockchainName)
+	repository = storage.WrapWithLogger(repository)
 
 	genesisBlock := buildGenesisBlock(miner)
 	if err = repository.SaveBlock(genesisBlock); err != nil {

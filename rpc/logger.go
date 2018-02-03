@@ -1,15 +1,15 @@
 package rpc
 
 import (
-	log "github.com/sirupsen/logrus"
+	"google.golang.org/grpc/grpclog"
 
-	"github.com/grpc-ecosystem/go-grpc-middleware/logging/logrus"
+	"github.com/sirupsen/logrus"
+	"github.com/tclchiam/block_n_go/logger"
 )
 
-var (
-	logrusEntry = log.NewEntry(log.StandardLogger())
-)
+var log = logger.Disabled
 
-func init() {
-	grpc_logrus.ReplaceGrpcLogger(logrusEntry)
+func UseLogger(logger *logrus.Entry) {
+	log = logger
+	grpclog.SetLogger(logger)
 }

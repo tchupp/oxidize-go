@@ -1,8 +1,8 @@
 package rpc
 
 import (
-	log "github.com/sirupsen/logrus"
 	"net"
+
 	"google.golang.org/grpc"
 
 	"github.com/grpc-ecosystem/go-grpc-middleware"
@@ -19,11 +19,11 @@ func NewServer(listener net.Listener) *Server {
 	grpcServer := grpc.NewServer(
 		grpc.StreamInterceptor(grpc_middleware.ChainStreamServer(
 			grpc_ctxtags.StreamServerInterceptor(),
-			grpc_logrus.StreamServerInterceptor(logrusEntry),
+			grpc_logrus.StreamServerInterceptor(log),
 		)),
 		grpc.UnaryInterceptor(grpc_middleware.ChainUnaryServer(
 			grpc_ctxtags.UnaryServerInterceptor(),
-			grpc_logrus.UnaryServerInterceptor(logrusEntry),
+			grpc_logrus.UnaryServerInterceptor(log),
 		)),
 	)
 

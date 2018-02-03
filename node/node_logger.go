@@ -1,10 +1,17 @@
 package node
 
 import (
-	log "github.com/sirupsen/logrus"
+	"github.com/sirupsen/logrus"
 
+	"github.com/tclchiam/block_n_go/logger"
 	"github.com/tclchiam/block_n_go/p2p"
 )
+
+var log = logger.Disabled
+
+func UseLogger(logger *logrus.Entry) {
+	log = logger
+}
 
 type loggingNodeDecorator struct {
 	Node
