@@ -1,10 +1,10 @@
 package blockrpc
 
 import (
-	"google.golang.org/grpc/codes"
-	"google.golang.org/grpc/status"
 	"github.com/golang/protobuf/proto"
 	"golang.org/x/net/context"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
 
 	"github.com/tclchiam/block_n_go/blockchain/entity"
 	"github.com/tclchiam/block_n_go/encoding"
@@ -15,6 +15,7 @@ type syncBackend interface {
 	GetBestHeader() (*entity.BlockHeader, error)
 	GetHeader(hash *entity.Hash) (*entity.BlockHeader, error)
 	GetHeaders(hash *entity.Hash, index uint64) (entity.BlockHeaders, error)
+	GetBlock(hash *entity.Hash) (*entity.Block, error)
 }
 
 type syncServer struct {
@@ -50,5 +51,21 @@ func (s *syncServer) GetHeaders(ctx context.Context, req *rpc.GetHeadersRequest)
 	return &rpc.GetHeadersResponse{
 		HeaderCount: proto.Uint32(uint32(len(headers))),
 		Headers:     encoding.ToWireBlockHeaders(headers),
+	}, nil
+}
+
+func (s *syncServer) GetBlock(ctx context.Context, req *rpc.GetBlockRequest) (*rpc.GetBlockResponse, error) {
+	hash, err := entity.NewHash(req.GetHash())
+	if err != nil {
+		return nil, status.Errorf(codes.InvalidArgument, "requested starting header hash was invalid: '%s'", req.GetHash())
+	}
+
+	block, err := s.backend.GetBlock(hash)
+	if err != nil {
+		return nil, status.Errorf(codes.Internal, "error finding previous headers")
+	}
+
+	return &rpc.GetBlockResponse{
+		Block: encoding.ToWireBlock(block),
 	}, nil
 }

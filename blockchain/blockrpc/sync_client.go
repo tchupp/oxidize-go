@@ -13,6 +13,8 @@ import (
 type SyncClient interface {
 	GetBestHeader() (*entity.BlockHeader, error)
 	GetHeaders(hash *entity.Hash, index uint64) (entity.BlockHeaders, error)
+
+	GetBlock(hash *entity.Hash, index uint64) (*entity.Block, error)
 }
 
 type syncClient struct {
@@ -58,4 +60,23 @@ func (c *syncClient) GetHeaders(latestHash *entity.Hash, latestIndex uint64) (en
 		return nil, err
 	}
 	return headers, nil
+}
+
+func (c *syncClient) GetBlock(hash *entity.Hash, index uint64) (*entity.Block, error) {
+	request := &rpc.GetBlockRequest{
+		Hash:  hash.Slice(),
+		Index: proto.Uint64(index),
+	}
+
+	ctx := context.Background()
+	response, err := c.client.GetBlock(ctx, request)
+	if err != nil {
+		return nil, err
+	}
+
+	block, err := encoding.FromWireBlock(response.GetBlock())
+	if err != nil {
+		return nil, err
+	}
+	return block, nil
 }

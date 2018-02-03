@@ -21,6 +21,10 @@ type Blockchain interface {
 
 	SaveHeaders(headers entity.BlockHeaders) error
 	SaveHeader(header *entity.BlockHeader) error
+
+	GetBestBlock() (*entity.Block, error)
+	GetBlock(hash *entity.Hash) (*entity.Block, error)
+	GetBlockByIndex(index uint64) (*entity.Block, error)
 	SaveBlock(block *entity.Block) error
 
 	Send(spender, receiver, coinbase *identity.Identity, expense uint32) error
@@ -100,14 +104,21 @@ func (bc *blockchain) SaveHeader(header *entity.BlockHeader) error {
 	return bc.repository.SaveHeader(header)
 }
 
+func (bc *blockchain) GetBestBlock() (*entity.Block, error) {
+	return bc.repository.BestBlock()
+}
+
+func (bc *blockchain) GetBlock(hash *entity.Hash) (*entity.Block, error) {
+	return bc.repository.BlockByHash(hash)
+}
+
+func (bc *blockchain) GetBlockByIndex(index uint64) (*entity.Block, error) {
+	return bc.repository.BlockByIndex(index)
+}
+
 func (bc *blockchain) SaveBlock(block *entity.Block) error {
 	// TODO verify block
-	err := bc.repository.SaveBlock(block)
-	if err != nil {
-		return err
-	}
-
-	return nil
+	return bc.repository.SaveBlock(block)
 }
 
 func (bc *blockchain) Send(spender, receiver, coinbase *identity.Identity, expense uint32) error {

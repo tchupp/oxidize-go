@@ -8,6 +8,7 @@ import "encoding/entities.proto";
 service SyncService {
     rpc GetBestHeader (GetBestHeaderRequest) returns (GetBestHeaderResponse);
     rpc GetHeaders (GetHeadersRequest) returns (GetHeadersResponse);
+    rpc GetBlock (GetBlockRequest) returns (GetBlockResponse);
 }
 
 message GetBestHeaderRequest {
@@ -25,4 +26,13 @@ message GetHeadersRequest {
 message GetHeadersResponse {
     required uint32 headerCount = 1;
     repeated entities.BlockHeader headers = 2;
+}
+
+message GetBlockRequest {
+    required bytes hash = 1;
+    required uint64 index = 2;
+}
+
+message GetBlockResponse {
+    required entities.Block block = 1;
 }

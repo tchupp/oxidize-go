@@ -17,6 +17,8 @@ It has these top-level messages:
 	GetBestHeaderResponse
 	GetHeadersRequest
 	GetHeadersResponse
+	GetBlockRequest
+	GetBlockResponse
 */
 package rpc
 
