@@ -1,11 +1,12 @@
 package entity
 
 import (
+	"bytes"
 	"crypto/sha256"
 	"encoding/hex"
 	"fmt"
+
 	log "github.com/sirupsen/logrus"
-	"bytes"
 )
 
 const (

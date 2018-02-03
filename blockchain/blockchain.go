@@ -5,8 +5,8 @@ import (
 	"github.com/tclchiam/block_n_go/blockchain/engine/iter"
 	"github.com/tclchiam/block_n_go/blockchain/engine/utxo"
 	"github.com/tclchiam/block_n_go/blockchain/entity"
-	"github.com/tclchiam/block_n_go/mining"
 	"github.com/tclchiam/block_n_go/identity"
+	"github.com/tclchiam/block_n_go/mining"
 )
 
 type Blockchain interface {
@@ -27,16 +27,16 @@ type Blockchain interface {
 }
 
 type blockchain struct {
-	repository  entity.ChainRepository
-	miner            mining.Miner
-	utxoEngine       utxo.Engine
+	repository entity.ChainRepository
+	miner      mining.Miner
+	utxoEngine utxo.Engine
 }
 
 func Open(repository entity.ChainRepository, miner mining.Miner) (Blockchain, error) {
 	bc := &blockchain{
 		repository: repository,
-		miner:           miner,
-		utxoEngine:      utxo.NewCrawlerEngine(repository),
+		miner:      miner,
+		utxoEngine: utxo.NewCrawlerEngine(repository),
 	}
 
 	exists, err := genesisBlockExists(repository)
@@ -131,12 +131,7 @@ func (bc *blockchain) SaveHeader(header *entity.BlockHeader) error {
 
 func (bc *blockchain) SaveBlock(block *entity.Block) error {
 	// TODO verify block
-	err := bc.SaveHeader(block.Header())
-	if err != nil {
-		return err
-	}
-
-	err = bc.repository.SaveBlock(block)
+	err := bc.repository.SaveBlock(block)
 	if err != nil {
 		return err
 	}
