@@ -2,12 +2,11 @@ package boltdb
 
 import (
 	"fmt"
+	"os"
 	"time"
 
 	"github.com/boltdb/bolt"
-
 	"github.com/tclchiam/block_n_go/blockchain/entity"
-	"os"
 )
 
 const dbFile = "blockchain_%s.db"
@@ -43,14 +42,6 @@ func NewChainRepository(name string, blockEncoder entity.BlockEncoder) (entity.C
 		blockEncoder: blockEncoder,
 		db:           db,
 	}, nil
-}
-
-func NewBlockRepository(name string, blockEncoder entity.BlockEncoder) (entity.BlockRepository, error) {
-	return NewChainRepository(name, blockEncoder)
-}
-
-func NewHeaderRepository(name string, blockEncoder entity.BlockEncoder) (entity.BlockRepository, error) {
-	return NewChainRepository(name, blockEncoder)
 }
 
 func DeleteBlockchain(name string) error {

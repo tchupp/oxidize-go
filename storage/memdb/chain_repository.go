@@ -1,8 +1,9 @@
 package memdb
 
 import (
-	"github.com/tclchiam/block_n_go/blockchain/entity"
 	"sync"
+
+	"github.com/tclchiam/block_n_go/blockchain/entity"
 )
 
 type chainMemoryRepository struct {
@@ -20,14 +21,6 @@ func NewChainRepository() entity.ChainRepository {
 		blockHashDB:  make(map[uint64]*entity.Hash),
 		headerHashDB: make(map[uint64]*entity.Hash),
 	}
-}
-
-func NewBlockRepository() entity.BlockRepository {
-	return NewChainRepository()
-}
-
-func NewHeaderRepository() entity.HeaderRepository {
-	return NewChainRepository()
 }
 
 func (r *chainMemoryRepository) BestBlock() (head *entity.Block, err error) {

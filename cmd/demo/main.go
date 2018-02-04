@@ -12,7 +12,6 @@ import (
 	"github.com/tclchiam/block_n_go/identity"
 	"github.com/tclchiam/block_n_go/mining"
 	"github.com/tclchiam/block_n_go/mining/proofofwork"
-	"github.com/tclchiam/block_n_go/storage"
 	"github.com/tclchiam/block_n_go/storage/boltdb"
 )
 
@@ -24,16 +23,17 @@ func main() {
 	fmt.Printf("Owner: '%s', receiver: '%s'\n", owner, receiver)
 
 	miner := proofofwork.NewDefaultMiner(owner)
-	repository, err := boltdb.NewChainRepository(blockchainName, encoding.BlockProtoEncoder())
-	if err != nil {
-		log.Panic(err)
-	}
+
+	repository := boltdb.Builder(blockchainName, encoding.BlockProtoEncoder()).
+		WithCache().
+		WithMetrics().
+		WithLogger().
+		Build()
 	defer repository.Close()
 	defer boltdb.DeleteBlockchain(blockchainName)
-	repository = storage.WrapWithLogger(repository)
 
 	genesisBlock := buildGenesisBlock(miner)
-	if err = repository.SaveBlock(genesisBlock); err != nil {
+	if err := repository.SaveBlock(genesisBlock); err != nil {
 		log.Panic(err)
 	}
 

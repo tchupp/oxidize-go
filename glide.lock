@@ -1,5 +1,5 @@
-hash: 6c7adb4b9da214faf1dd02750d5fe0ef4497fea81d2f75f28424c4bc7f8b967c
-updated: 2018-01-26T12:52:11.409826-05:00
+hash: 6f96465441f6cb2e8dfa096b60e24ca196d5503c511d81ffc8f01064e6f4cda8
+updated: 2018-02-04T14:13:05.183107-05:00
 imports:
 - name: github.com/boltdb/bolt
   version: 2f1ce7a837dcb8da3ec595b1dac9d0632f0f99e8
@@ -17,6 +17,10 @@ imports:
   - logging/logrus
   - tags
   - tags/logrus
+- name: github.com/hashicorp/golang-lru
+  version: 0fb14efe8c47ae851c0034ed7a448854d3d34cf3
+  subpackages:
+  - simplelru
 - name: github.com/imdario/mergo
   version: f1ac5984e69fed03e0574a92f70c59f132616ea2
 - name: github.com/mr-tron/base58
@@ -24,7 +28,7 @@ imports:
   subpackages:
   - base58
 - name: github.com/sirupsen/logrus
-  version: d682213848ed68c0a260ca37d6dd5ace8423f5ba
+  version: 768a92a02685ee7535069fc1581341b41bab9b72
 - name: golang.org/x/crypto
   version: 122d919ec1efcfb58483215da23f815853e24b81
   subpackages:
@@ -76,6 +80,3 @@ testImports:
   version: 8099a9787ce5dc5984ed879a3bda47dc730a8e97
   subpackages:
   - cmp
-  - cmp/internal/diff
-  - cmp/internal/function
-  - cmp/internal/value

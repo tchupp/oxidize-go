@@ -45,10 +45,11 @@ func TestRepository_ReturnsNilIfBlockDoesNotExist(t *testing.T) {
 		suite(repository, t)
 	})
 	t.Run("boltdb", func(t *testing.T) {
-		repository, err := boltdb.NewChainRepository("ReturnsNilIfBlockDoesNotExist", blockEncoder)
-		if err != nil {
-			t.Fatalf("failed to create repository: %s", err)
-		}
+		repository := boltdb.Builder("ReturnsNilIfBlockDoesNotExist", blockEncoder).
+			WithCache().
+			WithMetrics().
+			WithLogger().
+			Build()
 		defer repository.Close()
 		defer boltdb.DeleteBlockchain("ReturnsNilIfBlockDoesNotExist")
 
@@ -86,10 +87,11 @@ func TestRepository_CanReadSavedBlocks(t *testing.T) {
 		suite(repository, t)
 	})
 	t.Run("boltdb", func(t *testing.T) {
-		repository, err := boltdb.NewChainRepository("CanReadSavedBlocks", blockEncoder)
-		if err != nil {
-			t.Fatalf("failed to create repository: %s", err)
-		}
+		repository := boltdb.Builder("CanReadSavedBlocks", blockEncoder).
+			WithCache().
+			WithMetrics().
+			WithLogger().
+			Build()
 		defer repository.Close()
 		defer boltdb.DeleteBlockchain("CanReadSavedBlocks")
 
@@ -122,10 +124,11 @@ func TestRepository_ReturnsNilIfHeaderDoesNotExist(t *testing.T) {
 		suite(repository, t)
 	})
 	t.Run("boltdb", func(t *testing.T) {
-		repository, err := boltdb.NewChainRepository("ReturnsNilIfHeaderDoesNotExist", blockEncoder)
-		if err != nil {
-			t.Fatalf("failed to create repository: %s", err)
-		}
+		repository := boltdb.Builder("ReturnsNilIfHeaderDoesNotExist", blockEncoder).
+			WithCache().
+			WithMetrics().
+			WithLogger().
+			Build()
 		defer repository.Close()
 		defer boltdb.DeleteBlockchain("ReturnsNilIfHeaderDoesNotExist")
 
@@ -165,10 +168,11 @@ func TestRepository_CanReadSavedHeaders(t *testing.T) {
 		suite(repository, t)
 	})
 	t.Run("boltdb", func(t *testing.T) {
-		repository, err := boltdb.NewChainRepository("CanReadSavedHeaders", blockEncoder)
-		if err != nil {
-			t.Fatalf("failed to create repository: %s", err)
-		}
+		repository := boltdb.Builder("CanReadSavedHeaders", blockEncoder).
+			WithCache().
+			WithMetrics().
+			WithLogger().
+			Build()
 		defer repository.Close()
 		defer boltdb.DeleteBlockchain("CanReadSavedHeaders")
 
@@ -208,10 +212,11 @@ func TestRepository_SavingBlocksAlsoSavesHeader(t *testing.T) {
 		suite(repository, t)
 	})
 	t.Run("boltdb", func(t *testing.T) {
-		repository, err := boltdb.NewChainRepository("SavingBlocksAlsoSavesHeader", blockEncoder)
-		if err != nil {
-			t.Fatalf("failed to create repository: %s", err)
-		}
+		repository := boltdb.Builder("SavingBlocksAlsoSavesHeader", blockEncoder).
+			WithCache().
+			WithMetrics().
+			WithLogger().
+			Build()
 		defer repository.Close()
 		defer boltdb.DeleteBlockchain("SavingBlocksAlsoSavesHeader")
 
@@ -247,10 +252,11 @@ func TestRepository_BestBlockReturnsHighestBlock(t *testing.T) {
 		suite(repository, t)
 	})
 	t.Run("boltdb", func(t *testing.T) {
-		repository, err := boltdb.NewChainRepository("BestBlockReturnsHighestBlock", blockEncoder)
-		if err != nil {
-			t.Fatalf("failed to create repository: %s", err)
-		}
+		repository := boltdb.Builder("BestBlockReturnsHighestBlock", blockEncoder).
+			WithCache().
+			WithMetrics().
+			WithLogger().
+			Build()
 		defer repository.Close()
 		defer boltdb.DeleteBlockchain("BestBlockReturnsHighestBlock")
 
@@ -286,10 +292,11 @@ func TestRepository_BestHeaderReturnsHighestIndexHeader(t *testing.T) {
 		suite(repository, t)
 	})
 	t.Run("boltdb", func(t *testing.T) {
-		repository, err := boltdb.NewChainRepository("BestHeaderReturnsHighestIndexHeader", blockEncoder)
-		if err != nil {
-			t.Fatalf("failed to create repository: %s", err)
-		}
+		repository := boltdb.Builder("BestHeaderReturnsHighestIndexHeader", blockEncoder).
+			WithCache().
+			WithMetrics().
+			WithLogger().
+			Build()
 		defer repository.Close()
 		defer boltdb.DeleteBlockchain("BestHeaderReturnsHighestIndexHeader")
 
@@ -348,10 +355,11 @@ func TestRepository_BestHeaderCanBeHigherThanBestBlock(t *testing.T) {
 		suite(repository, t)
 	})
 	t.Run("boltdb", func(t *testing.T) {
-		repository, err := boltdb.NewChainRepository("BestHeaderCanBeHigherThanBestBlock", blockEncoder)
-		if err != nil {
-			t.Fatalf("failed to create repository: %s", err)
-		}
+		repository := boltdb.Builder("BestHeaderCanBeHigherThanBestBlock", blockEncoder).
+			WithCache().
+			WithMetrics().
+			WithLogger().
+			Build()
 		defer repository.Close()
 		defer boltdb.DeleteBlockchain("BestHeaderCanBeHigherThanBestBlock")
 

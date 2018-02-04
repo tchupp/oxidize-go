@@ -13,6 +13,7 @@ import:
 - package: golang.org/x/crypto
   subpackages:
   - ripemd160
+- package: github.com/hashicorp/golang-lru
 testImport:
 - package: github.com/google/go-cmp
   version: v0.1.0
