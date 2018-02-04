@@ -3,8 +3,8 @@ package encoding
 import (
 	"fmt"
 
-	"github.com/tclchiam/block_n_go/blockchain/entity"
 	"github.com/golang/protobuf/proto"
+	"github.com/tclchiam/block_n_go/blockchain/entity"
 )
 
 func ToWireBlock(block *entity.Block) *Block {
@@ -68,17 +68,17 @@ func FromWireBlockHeader(header *BlockHeader) (*entity.BlockHeader, error) {
 		return nil, fmt.Errorf("parsing block hash: %s", err)
 	}
 
-	return &entity.BlockHeader{
-		Index:            header.GetIndex(),
-		PreviousHash:     previousHash,
-		Timestamp:        header.GetTimestamp(),
-		TransactionsHash: transactionsHash,
-		Nonce:            header.GetNonce(),
-		Hash:             hash,
-	}, nil
+	return entity.NewBlockHeader(
+		header.GetIndex(),
+		previousHash,
+		transactionsHash,
+		header.GetTimestamp(),
+		header.GetNonce(),
+		hash,
+	), nil
 }
 
-func ToWireBlockHeaders(headers entity.BlockHeaders) ([]*BlockHeader) {
+func ToWireBlockHeaders(headers entity.BlockHeaders) []*BlockHeader {
 	var wireHeaders []*BlockHeader
 	for _, header := range headers {
 		wireHeaders = append(wireHeaders, ToWireBlockHeader(header))

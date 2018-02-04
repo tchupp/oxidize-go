@@ -1,7 +1,6 @@
 package storage_test
 
 import (
-	"math"
 	"testing"
 
 	"github.com/tclchiam/block_n_go/blockchain/engine/mining/proofofwork"
@@ -16,7 +15,7 @@ var (
 	blockEncoder = encoding.BlockProtoEncoder()
 	miner        = proofofwork.NewDefaultMiner(identity.RandomIdentity())
 
-	block1 = miner.MineBlock(&entity.BlockHeader{Index: math.MaxUint64, Hash: &entity.EmptyHash}, entity.Transactions{})
+	block1 = miner.MineBlock(&entity.GenesisParentHeader, entity.Transactions{})
 	block2 = miner.MineBlock(block1.Header(), entity.Transactions{})
 )
 

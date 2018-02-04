@@ -2,6 +2,7 @@ package entity
 
 import (
 	"fmt"
+	"math"
 	"sort"
 	"strings"
 )
@@ -23,6 +24,8 @@ type BlockHeader struct {
 	Nonce            uint64
 	Hash             *Hash
 }
+
+var GenesisParentHeader = BlockHeader{Index: math.MaxUint64, Hash: &EmptyHash}
 
 func NewBlockHeader(index uint64, previousHash *Hash, transactionsHash *Hash, timestamp uint64, nonce uint64, hash *Hash) *BlockHeader {
 	return &BlockHeader{

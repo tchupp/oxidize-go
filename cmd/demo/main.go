@@ -2,12 +2,10 @@ package main
 
 import (
 	"fmt"
-	"math"
 
 	log "github.com/sirupsen/logrus"
 
 	"github.com/tclchiam/block_n_go/blockchain"
-	"github.com/tclchiam/block_n_go/blockchain/engine/mining"
 	"github.com/tclchiam/block_n_go/blockchain/engine/mining/proofofwork"
 	"github.com/tclchiam/block_n_go/blockchain/entity"
 	"github.com/tclchiam/block_n_go/encoding"
@@ -32,7 +30,7 @@ func main() {
 	defer repository.Close()
 	defer boltdb.DeleteBlockchain(blockchainName)
 
-	genesisBlock := buildGenesisBlock(miner)
+	genesisBlock := miner.MineBlock(&entity.GenesisParentHeader, entity.Transactions{})
 	if err := repository.SaveBlock(genesisBlock); err != nil {
 		log.Panic(err)
 	}
@@ -69,10 +67,4 @@ func main() {
 		log.Panic(err)
 	}
 	fmt.Printf("Balance of '%s': %d\n\n", receiver, balance)
-}
-
-func buildGenesisBlock(miner mining.Miner) *entity.Block {
-	header := entity.NewBlockHeader(math.MaxUint64, nil, nil, 0, 0, &entity.EmptyHash)
-
-	return miner.MineBlock(header, entity.Transactions{})
 }

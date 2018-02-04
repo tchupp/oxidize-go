@@ -5,35 +5,18 @@ import (
 
 	"github.com/tclchiam/block_n_go/blockchain"
 	"github.com/tclchiam/block_n_go/blockchain/engine"
+	"github.com/tclchiam/block_n_go/blockchain/engine/mining/proofofwork"
 	"github.com/tclchiam/block_n_go/blockchain/entity"
+	"github.com/tclchiam/block_n_go/identity"
 	"github.com/tclchiam/block_n_go/storage/memdb"
 )
 
 var (
-	header1 = &entity.BlockHeader{
-		Index:            0,
-		PreviousHash:     entity.NewHashOrPanic("0000000000000000000000000000000000000000000000000000000000000000"),
-		Timestamp:        1517248881,
-		TransactionsHash: entity.NewHashOrPanic("8f25669c75d1baa16ebab15f9770e9e48a8922870d81fde885403cfade4e58c0"),
-		Nonce:            58168,
-		Hash:             entity.NewHashOrPanic("0000087839901c00b18eb0ef6ed4f20e5ea9406122ae0ebe7887ccea93c25664"),
-	}
-	header2 = &entity.BlockHeader{
-		Index:            1,
-		PreviousHash:     entity.NewHashOrPanic("0000087839901c00b18eb0ef6ed4f20e5ea9406122ae0ebe7887ccea93c25664"),
-		Timestamp:        1517248881,
-		TransactionsHash: entity.NewHashOrPanic("e763887b560d75a4048a86abb6f70f8b60ae069249dcade11fdcae89b30724df"),
-		Nonce:            16245,
-		Hash:             entity.NewHashOrPanic("0000d7ed4c5c6cd34828d07d43da441eab32dca9abc352298fdbb0f8d887ee2e"),
-	}
-	header3 = &entity.BlockHeader{
-		Index:            2,
-		PreviousHash:     entity.NewHashOrPanic("0000d7ed4c5c6cd34828d07d43da441eab32dca9abc352298fdbb0f8d887ee2e"),
-		Timestamp:        1517248881,
-		TransactionsHash: entity.NewHashOrPanic("d8c4558738d6cf0d5ef3069bd335888b0ca9c7391e6dd7a07298743e8f3b7759"),
-		Nonce:            22243,
-		Hash:             entity.NewHashOrPanic("0000801b473efa6465d32e02d192ac7ceddb5c9ea60442bd4af7be3ca09d2d77"),
-	}
+	miner = proofofwork.NewDefaultMiner(identity.RandomIdentity())
+
+	header1 = miner.MineBlock(&entity.GenesisParentHeader, entity.Transactions{}).Header()
+	header2 = miner.MineBlock(header1, entity.Transactions{}).Header()
+	header3 = miner.MineBlock(header2, entity.Transactions{}).Header()
 
 	badHeader = &entity.BlockHeader{
 		Index:            3,

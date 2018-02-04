@@ -2,12 +2,10 @@ package blockchain_test
 
 import (
 	"fmt"
-	"math"
 	"strings"
 	"testing"
 
 	"github.com/tclchiam/block_n_go/blockchain"
-	"github.com/tclchiam/block_n_go/blockchain/engine/mining"
 	"github.com/tclchiam/block_n_go/blockchain/engine/mining/proofofwork"
 	"github.com/tclchiam/block_n_go/blockchain/entity"
 	"github.com/tclchiam/block_n_go/identity"
@@ -126,7 +124,7 @@ func setupBlockchain(t *testing.T, owner *identity.Identity) blockchain.Blockcha
 	repository := memdb.NewChainRepository()
 	miner := proofofwork.NewDefaultMiner(owner)
 
-	genesisBlock := buildGenesisBlock(miner)
+	genesisBlock := miner.MineBlock(&entity.GenesisParentHeader, entity.Transactions{})
 	if err := repository.SaveBlock(genesisBlock); err != nil {
 		t.Fatalf("saving genesis block: %s", err)
 	}
@@ -137,10 +135,4 @@ func setupBlockchain(t *testing.T, owner *identity.Identity) blockchain.Blockcha
 	}
 
 	return bc
-}
-
-func buildGenesisBlock(miner mining.Miner) *entity.Block {
-	header := entity.NewBlockHeader(math.MaxUint64, nil, nil, 0, 0, &entity.EmptyHash)
-
-	return miner.MineBlock(header, entity.Transactions{})
 }
