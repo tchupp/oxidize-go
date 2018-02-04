@@ -3,10 +3,10 @@ package blockchain
 import (
 	"github.com/tclchiam/block_n_go/blockchain/engine"
 	"github.com/tclchiam/block_n_go/blockchain/engine/iter"
+	"github.com/tclchiam/block_n_go/blockchain/engine/mining"
 	"github.com/tclchiam/block_n_go/blockchain/engine/utxo"
 	"github.com/tclchiam/block_n_go/blockchain/entity"
 	"github.com/tclchiam/block_n_go/identity"
-	"github.com/tclchiam/block_n_go/mining"
 )
 
 type Blockchain interface {

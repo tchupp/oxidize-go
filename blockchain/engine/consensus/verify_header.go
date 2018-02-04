@@ -1,8 +1,8 @@
 package consensus
 
 import (
+	"github.com/tclchiam/block_n_go/blockchain/engine/mining"
 	"github.com/tclchiam/block_n_go/blockchain/entity"
-	"github.com/tclchiam/block_n_go/mining"
 )
 
 func VerifyHeader(header *entity.BlockHeader) error {

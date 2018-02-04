@@ -1,15 +1,16 @@
 package proofofwork
 
 import (
-	log "github.com/sirupsen/logrus"
 	"math"
 	"runtime"
 	"time"
 
+	log "github.com/sirupsen/logrus"
+
+	"github.com/tclchiam/block_n_go/blockchain/engine/mining"
 	"github.com/tclchiam/block_n_go/blockchain/entity"
 	"github.com/tclchiam/block_n_go/encoding"
 	"github.com/tclchiam/block_n_go/identity"
-	"github.com/tclchiam/block_n_go/mining"
 )
 
 const (
@@ -34,13 +35,13 @@ func NewDefaultMiner(coinbase *identity.Identity) mining.Miner {
 	return NewMiner(defaultWorkerCount, coinbase)
 }
 
-func (miner *miner) MineBlock(parent *entity.BlockHeader, transactions entity.Transactions) (*entity.Block) {
+func (miner *miner) MineBlock(parent *entity.BlockHeader, transactions entity.Transactions) *entity.Block {
 	reward := entity.NewCoinbaseTx(miner.coinbase, miner.transactionEncoder)
 
 	return miner.mineBlock(parent, transactions.Add(reward), uint64(time.Now().Unix()))
 }
 
-func (miner *miner) mineBlock(parent *entity.BlockHeader, transactions entity.Transactions, now uint64) (*entity.Block) {
+func (miner *miner) mineBlock(parent *entity.BlockHeader, transactions entity.Transactions, now uint64) *entity.Block {
 	transactionsHash := mining.CalculateTransactionsHash(transactions)
 
 	work := &mining.BlockHashingInput{

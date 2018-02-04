@@ -7,10 +7,10 @@ import (
 	"testing"
 
 	"github.com/tclchiam/block_n_go/blockchain"
+	"github.com/tclchiam/block_n_go/blockchain/engine/mining"
+	"github.com/tclchiam/block_n_go/blockchain/engine/mining/proofofwork"
 	"github.com/tclchiam/block_n_go/blockchain/entity"
 	"github.com/tclchiam/block_n_go/identity"
-	"github.com/tclchiam/block_n_go/mining"
-	"github.com/tclchiam/block_n_go/mining/proofofwork"
 	"github.com/tclchiam/block_n_go/storage/memdb"
 )
 

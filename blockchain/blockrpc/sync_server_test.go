@@ -2,16 +2,17 @@ package blockrpc
 
 import (
 	"fmt"
-	"net"
 	"math/rand"
+	"net"
 	"testing"
+
 	"google.golang.org/grpc"
 
 	"github.com/tclchiam/block_n_go/blockchain"
+	"github.com/tclchiam/block_n_go/blockchain/engine/mining/proofofwork"
 	"github.com/tclchiam/block_n_go/blockchain/entity"
 	"github.com/tclchiam/block_n_go/encoding"
 	"github.com/tclchiam/block_n_go/identity"
-	"github.com/tclchiam/block_n_go/mining/proofofwork"
 	"github.com/tclchiam/block_n_go/rpc"
 	"github.com/tclchiam/block_n_go/storage/memdb"
 )

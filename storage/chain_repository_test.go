@@ -4,10 +4,10 @@ import (
 	"math"
 	"testing"
 
+	"github.com/tclchiam/block_n_go/blockchain/engine/mining/proofofwork"
 	"github.com/tclchiam/block_n_go/blockchain/entity"
 	"github.com/tclchiam/block_n_go/encoding"
 	"github.com/tclchiam/block_n_go/identity"
-	"github.com/tclchiam/block_n_go/mining/proofofwork"
 	"github.com/tclchiam/block_n_go/storage/boltdb"
 	"github.com/tclchiam/block_n_go/storage/memdb"
 )
