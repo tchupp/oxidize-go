@@ -1,8 +1,8 @@
 package engine
 
 import (
-	log "github.com/sirupsen/logrus"
-
+	"github.com/hashicorp/go-multierror"
+	"github.com/sirupsen/logrus"
 	"github.com/tclchiam/block_n_go/blockchain/engine/consensus"
 	"github.com/tclchiam/block_n_go/blockchain/entity"
 )
@@ -14,14 +14,16 @@ type headerChain interface {
 }
 
 func SaveHeaders(headers entity.BlockHeaders, chain headerChain) error {
+	var result *multierror.Error
+
 	for _, header := range headers.Sort() {
 		_, err := saveHeader(header, chain)
 		if err != nil {
-			return err
+			result = multierror.Append(result, err)
 		}
 	}
 
-	return nil
+	return result.ErrorOrNil()
 }
 
 func saveHeader(header *entity.BlockHeader, chain headerChain) (bool, error) {
@@ -42,11 +44,11 @@ func saveHeader(header *entity.BlockHeader, chain headerChain) (bool, error) {
 		return false, chain.SaveHeader(header)
 
 	case currentBestHeader.Index+1 < header.Index:
-		log.Warn("Future header, we shouldn't get this situation")
+		logrus.Warn("Future header, we shouldn't get this situation")
 		return true, nil
 
 	default:
-		log.Warn("Somehow, a header case wasn't handled...")
+		logrus.Warn("Somehow, a header case wasn't handled...")
 		return false, nil
 	}
 }

@@ -1,5 +1,5 @@
-hash: 6f96465441f6cb2e8dfa096b60e24ca196d5503c511d81ffc8f01064e6f4cda8
-updated: 2018-02-04T14:13:05.183107-05:00
+hash: 788357b99ecc03c1a7b0da3a9695e1876520b3d08b534d10b02dc3fb88249f00
+updated: 2018-02-04T14:17:24.929655-05:00
 imports:
 - name: github.com/boltdb/bolt
   version: 2f1ce7a837dcb8da3ec595b1dac9d0632f0f99e8
@@ -17,6 +17,8 @@ imports:
   - logging/logrus
   - tags
   - tags/logrus
+- name: github.com/hashicorp/go-multierror
+  version: b7773ae218740a7be65057fc60b366a49b538a44
 - name: github.com/hashicorp/golang-lru
   version: 0fb14efe8c47ae851c0034ed7a448854d3d34cf3
   subpackages:
