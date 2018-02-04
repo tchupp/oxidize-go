@@ -4,23 +4,18 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/tclchiam/block_n_go/blockchain"
 	"github.com/tclchiam/block_n_go/blockchain/blockrpc"
-	"github.com/tclchiam/block_n_go/blockchain/entity"
 	"github.com/tclchiam/block_n_go/p2p"
 )
 
-type syncBackend interface {
-	GetBestHeader() (*entity.BlockHeader, error)
-	SaveHeaders(headers entity.BlockHeaders) error
-}
-
-func startSyncHeadersFlow(peer *p2p.Peer, peerManager p2p.PeerManager, backend syncBackend) {
+func startSyncHeadersFlow(peer *p2p.Peer, peerManager p2p.PeerManager, bc blockchain.Blockchain) {
 	syncLogger := log.WithField("peer", peer.Address)
 
 	start := time.Now()
 	syncLogger.Info("starting sync")
 
-	err := syncHeadersWithPeer(peer, peerManager, backend)
+	err := syncHeadersWithPeer(peer, peerManager, bc)
 
 	syncLogger = syncLogger.WithField("elapsed", time.Since(start))
 	if err != nil {
@@ -31,7 +26,7 @@ func startSyncHeadersFlow(peer *p2p.Peer, peerManager p2p.PeerManager, backend s
 	syncLogger.Info("successfully synced with peer")
 }
 
-func syncHeadersWithPeer(peer *p2p.Peer, peerManager p2p.PeerManager, backend syncBackend) error {
+func syncHeadersWithPeer(peer *p2p.Peer, peerManager p2p.PeerManager, bc blockchain.Blockchain) error {
 	conn := peerManager.GetPeerConnection(peer)
 	if conn == nil {
 		return fmt.Errorf("no connection open for peer")
@@ -45,7 +40,7 @@ func syncHeadersWithPeer(peer *p2p.Peer, peerManager p2p.PeerManager, backend sy
 			return fmt.Errorf("error getting peer best header: %s", err)
 		}
 
-		localBestHeader, err := backend.GetBestHeader()
+		localBestHeader, err := bc.GetBestHeader()
 		if err != nil {
 			return fmt.Errorf("error getting local best header")
 		}
@@ -59,12 +54,12 @@ func syncHeadersWithPeer(peer *p2p.Peer, peerManager p2p.PeerManager, backend sy
 			return fmt.Errorf("error getting peer headers: %s", err)
 		}
 
-		if len(peerHeaders) == 0 {
-			return nil
+		if err = bc.SaveHeaders(peerHeaders); err != nil {
+			return fmt.Errorf("error saving headers: %s", err)
 		}
 
-		if err = backend.SaveHeaders(peerHeaders); err != nil {
-			return fmt.Errorf("error saving headers: %s", err)
+		if err := reconcileBlocks(syncClient, bc); err != nil {
+			return err
 		}
 	}
 }

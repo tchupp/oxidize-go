@@ -1,18 +1,18 @@
 package node
 
 import (
-	"net"
 	"math/rand"
+	"net"
 	"testing"
 	"time"
 
 	"github.com/tclchiam/block_n_go/blockchain"
-	"github.com/tclchiam/block_n_go/rpc"
-	"github.com/tclchiam/block_n_go/storage/memdb"
-	"github.com/tclchiam/block_n_go/mining/proofofwork"
-	"github.com/tclchiam/block_n_go/identity"
 	"github.com/tclchiam/block_n_go/blockchain/entity"
 	"github.com/tclchiam/block_n_go/encoding"
+	"github.com/tclchiam/block_n_go/identity"
+	"github.com/tclchiam/block_n_go/mining/proofofwork"
+	"github.com/tclchiam/block_n_go/rpc"
+	"github.com/tclchiam/block_n_go/storage/memdb"
 )
 
 func TestBaseNode_AddPeer(t *testing.T) {
@@ -127,9 +127,21 @@ func TestBaseNode_AddPeer_SyncsHeadersWithNewPeer_WhenPeersVersionIsHigher(t *te
 	if !remoteBestHeader.IsEqual(localBestHeader) {
 		t.Errorf("unexpected local best header. got - %s, wanted - %s", localBestHeader, remoteBestHeader)
 	}
+
+	localBestBlock, err := localBc.GetBestBlock()
+	if err != nil {
+		t.Fatalf("getting local best block: %s", err)
+	}
+	remoteBestBlock, err := remoteBc.GetBestBlock()
+	if err != nil {
+		t.Fatalf("getting remote best block: %s", err)
+	}
+	if !remoteBestBlock.IsEqual(localBestBlock) {
+		t.Errorf("unexpected local best block. got - %s, wanted - %s", localBestBlock, remoteBestBlock)
+	}
 }
 
-func buildBlockchain(t *testing.T) (blockchain.Blockchain) {
+func buildBlockchain(t *testing.T) blockchain.Blockchain {
 	bc, err := blockchain.Open(memdb.NewChainRepository(), nil)
 	if err != nil {
 		t.Fatalf("opening blockchain: %s", err)
