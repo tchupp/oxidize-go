@@ -4,7 +4,6 @@ import (
 	"github.com/tclchiam/block_n_go/blockchain/engine/iter"
 	"github.com/tclchiam/block_n_go/blockchain/entity"
 	"github.com/tclchiam/block_n_go/identity"
-	"github.com/imdario/mergo"
 )
 
 type utxoCrawlerEngine struct {
@@ -16,22 +15,40 @@ func NewCrawlerEngine(repository entity.BlockRepository) Engine {
 }
 
 func (engine *utxoCrawlerEngine) FindUnspentOutputs(spender *identity.Identity) (*TransactionOutputSet, error) {
-	spentOutputs := make(map[string][]*entity.Output)
+	gatherInputs := func(res interface{}, tx *entity.Transaction) interface{} {
+		return res.(entity.SignedInputs).Append(entity.NewSignedInputs(tx.Inputs))
+	}
+
+	spentOutputs := make(map[*entity.Hash][]*entity.Output)
 	outputsForAddress := NewTransactionSet()
 
 	err := iter.ForEachBlock(engine.repository, func(block *entity.Block) {
+		spentOutputs = block.Transactions().
+			Reduce(entity.EmptySingedInputs(), gatherInputs).(entity.SignedInputs).
+			Filter(func(input *entity.SignedInput) bool { return input.SpentBy(spender) }).
+			Reduce(spentOutputs, addInputToMap).(map[*entity.Hash][]*entity.Output)
+
 		for _, transaction := range block.Transactions() {
-			mergo.Map(&spentOutputs, findSpentOutputs(transaction, spender))
-			outputsForAddress = outputsForAddress.Plus(findOutputsForIdentity(transaction, spender))
+			addToTxSet := func(res interface{}, output *entity.Output) interface{} {
+				return res.(*TransactionOutputSet).Add(transaction, output)
+			}
+
+			outputsForAddress = entity.NewOutputs(transaction.Outputs).
+				Filter(func(output *entity.Output) bool { return output.ReceivedBy(spender) }).
+				Reduce(outputsForAddress, addToTxSet).(*TransactionOutputSet)
 		}
 	})
+	if err != nil {
+		return nil, err
+	}
 
-	return outputsForAddress.Filter(isUnspent(spentOutputs)), err
+	return outputsForAddress.
+		Filter(isUnspent(spentOutputs)), nil
 }
 
-func isUnspent(spentOutputs map[string][]*entity.Output) func(transaction *entity.Transaction, output *entity.Output) bool {
+var isUnspent = func(spentOutputs map[*entity.Hash][]*entity.Output) func(*entity.Transaction, *entity.Output) bool {
 	return func(transaction *entity.Transaction, output *entity.Output) bool {
-		if outputs, ok := spentOutputs[transaction.ID.String()]; ok {
+		if outputs, ok := spentOutputs[transaction.ID]; ok {
 			for _, spentOutput := range outputs {
 				if spentOutput.IsEqual(output) {
 					return false
@@ -42,30 +59,10 @@ func isUnspent(spentOutputs map[string][]*entity.Output) func(transaction *entit
 	}
 }
 
-func findSpentOutputs(transaction *entity.Transaction, spender *identity.Identity) map[string][]*entity.Output {
-	spent := make(map[string][]*entity.Output)
-	if transaction.IsCoinbase() {
-		return spent
-	}
+var addInputToMap = func(res interface{}, input *entity.SignedInput) interface{} {
+	outputs := res.(map[*entity.Hash][]*entity.Output)
+	transactionId := input.OutputReference.ID
+	outputs[transactionId] = append(outputs[transactionId], input.OutputReference.Output)
 
-	addToUnspent := func(res interface{}, input *entity.SignedInput) interface{} {
-		transactionId := input.OutputReference.ID.String()
-		res.(map[string][]*entity.Output)[transactionId] = append(res.(map[string][]*entity.Output)[transactionId], input.OutputReference.Output)
-
-		return res
-	}
-
-	return entity.NewSignedInputs(transaction.Inputs).
-		Filter(func(input *entity.SignedInput) bool { return input.SpentBy(spender) }).
-		Reduce(spent, addToUnspent).(map[string][]*entity.Output)
-}
-
-func findOutputsForIdentity(transaction *entity.Transaction, identity *identity.Identity) *TransactionOutputSet {
-	addToTxSet := func(res interface{}, output *entity.Output) interface{} {
-		return res.(*TransactionOutputSet).Add(transaction, output)
-	}
-
-	return entity.NewOutputs(transaction.Outputs).
-		Filter(func(output *entity.Output) bool { return output.ReceivedBy(identity) }).
-		Reduce(NewTransactionSet(), addToTxSet).(*TransactionOutputSet)
+	return res
 }

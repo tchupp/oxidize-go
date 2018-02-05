@@ -3,10 +3,10 @@ package engine
 import (
 	"fmt"
 
-	"github.com/tclchiam/block_n_go/encoding"
 	"github.com/tclchiam/block_n_go/blockchain/engine/txsigning"
 	"github.com/tclchiam/block_n_go/blockchain/engine/utxo"
 	"github.com/tclchiam/block_n_go/blockchain/entity"
+	"github.com/tclchiam/block_n_go/encoding"
 	"github.com/tclchiam/block_n_go/identity"
 )
 
@@ -28,7 +28,7 @@ func BuildExpenseTransaction(spender, receiver *identity.Identity, expense uint3
 		Reduce(make([]*entity.Output, 0), collectOutputs).([]*entity.Output)
 
 	signedInputs := unspentOutputs.
-		Reduce(entity.EmptyUnsignedInputs(nil), buildInputs(spender)).(entity.UnsignedInputs).
+		Reduce(entity.EmptyUnsignedInputs(), buildInputs(spender)).(entity.UnsignedInputs).
 		Reduce(make([]*entity.SignedInput, 0), signInputs(finalizedOutputs, spender)).([]*entity.SignedInput)
 
 	return entity.NewTx(signedInputs, finalizedOutputs, encoding.TransactionProtoEncoder()), nil

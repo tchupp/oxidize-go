@@ -4,10 +4,11 @@ import (
 	"crypto/rand"
 	"crypto/sha256"
 	"fmt"
-	log "github.com/sirupsen/logrus"
+	"sort"
 	"strconv"
 	"strings"
-	"sort"
+
+	log "github.com/sirupsen/logrus"
 
 	"github.com/tclchiam/block_n_go/identity"
 )
@@ -128,4 +129,16 @@ func (txs Transactions) IsEqual(other Transactions) bool {
 	}
 
 	return true
+}
+
+func (txs Transactions) Reduce(res interface{}, apply func(res interface{}, tx *Transaction) interface{}) interface{} {
+	c := make(chan interface{})
+
+	go func() {
+		for _, tx := range txs {
+			res = apply(res, tx)
+		}
+		c <- res
+	}()
+	return <-c
 }

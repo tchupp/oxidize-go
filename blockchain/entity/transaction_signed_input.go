@@ -40,6 +40,12 @@ func (input *SignedInput) SpentBy(spender *identity.Identity) bool {
 	return bytes.Compare(lockingHash, publicKeyHash) == 0
 }
 
+func EmptySingedInputs() SignedInputs {
+	c := make(chan *SignedInput, 0)
+	defer close(c)
+	return SignedInputs(c)
+}
+
 func NewSignedInputs(inputs []*SignedInput) SignedInputs {
 	c := make(chan *SignedInput, len(inputs))
 	go func() {
@@ -68,25 +74,33 @@ func (inputs SignedInputs) Filter(predicate func(input *SignedInput) bool) Signe
 }
 
 func (inputs SignedInputs) Reduce(res interface{}, apply func(res interface{}, input *SignedInput) interface{}) interface{} {
-	c := make(chan interface{})
-
-	go func() {
-		for input := range inputs {
-			res = apply(res, input)
-		}
-		c <- res
-	}()
-	return <-c
+	for input := range inputs {
+		res = apply(res, input)
+	}
+	return res
 }
 
 func (inputs SignedInputs) Add(input *SignedInput) SignedInputs {
-	c := make(chan *SignedInput)
+	c := make(chan *SignedInput, len(inputs)+1)
+	defer close(c)
+
+	for i := range inputs {
+		c <- i
+	}
+	c <- input
+	return SignedInputs(c)
+}
+
+func (inputs SignedInputs) Append(plus SignedInputs) SignedInputs {
+	c := make(chan *SignedInput, len(inputs)+len(plus))
 
 	go func() {
 		for i := range inputs {
 			c <- i
 		}
-		c <- input
+		for i := range plus {
+			c <- i
+		}
 		close(c)
 	}()
 	return SignedInputs(c)

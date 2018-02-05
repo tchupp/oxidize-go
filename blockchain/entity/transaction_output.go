@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"fmt"
 	"strings"
+
 	"github.com/tclchiam/block_n_go/identity"
 )
 
@@ -52,18 +53,17 @@ func (output *Output) IsEqual(other *Output) bool {
 type Outputs <-chan *Output
 
 func EmptyOutputs() Outputs {
-	outputs := make([]*Output, 0)
-	return NewOutputs(outputs)
+	c := make(chan *Output, 0)
+	defer close(c)
+	return Outputs(c)
 }
 
 func NewOutputs(outputs []*Output) Outputs {
 	c := make(chan *Output, len(outputs))
-	go func() {
-		for _, output := range outputs {
-			c <- output
-		}
-		close(c)
-	}()
+	defer close(c)
+	for _, output := range outputs {
+		c <- output
+	}
 	return Outputs(c)
 }
 
@@ -82,32 +82,25 @@ func (outputs Outputs) Filter(predicate func(output *Output) bool) Outputs {
 }
 
 func (outputs Outputs) Reduce(res interface{}, apply func(res interface{}, output *Output) interface{}) interface{} {
-	c := make(chan interface{})
-
-	go func() {
-		for output := range outputs {
-			res = apply(res, output)
-		}
-		c <- res
-	}()
-	return <-c
+	for output := range outputs {
+		res = apply(res, output)
+	}
+	return res
 }
 
 func (outputs Outputs) Add(output *Output) Outputs {
-	c := make(chan *Output)
+	c := make(chan *Output, len(outputs)+1)
+	defer close(c)
 
-	go func() {
-		for i := range outputs {
-			c <- i
-		}
-		c <- output
-		close(c)
-	}()
+	for i := range outputs {
+		c <- i
+	}
+	c <- output
 	return Outputs(c)
 }
 
-func (outputs Outputs) Plus(plus Outputs) Outputs {
-	c := make(chan *Output)
+func (outputs Outputs) Append(plus Outputs) Outputs {
+	c := make(chan *Output, len(outputs)+len(plus))
 
 	go func() {
 		for output := range outputs {

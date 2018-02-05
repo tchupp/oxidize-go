@@ -1,9 +1,10 @@
 package entity
 
 import (
-	"github.com/tclchiam/block_n_go/crypto"
 	"fmt"
 	"strings"
+
+	"github.com/tclchiam/block_n_go/crypto"
 )
 
 type UnsignedInput struct {
@@ -31,14 +32,9 @@ func (input *UnsignedInput) String() string {
 
 type UnsignedInputs <-chan *UnsignedInput
 
-func EmptyUnsignedInputs(inputs []*UnsignedInput) UnsignedInputs {
-	c := make(chan *UnsignedInput, len(inputs))
-	go func() {
-		for _, input := range inputs {
-			c <- input
-		}
-		close(c)
-	}()
+func EmptyUnsignedInputs() UnsignedInputs {
+	c := make(chan *UnsignedInput, 0)
+	defer close(c)
 	return UnsignedInputs(c)
 }
 
@@ -57,27 +53,20 @@ func (inputs UnsignedInputs) Filter(predicate func(input *UnsignedInput) bool) U
 }
 
 func (inputs UnsignedInputs) Reduce(res interface{}, apply func(res interface{}, input *UnsignedInput) interface{}) interface{} {
-	c := make(chan interface{})
-
-	go func() {
-		for input := range inputs {
-			res = apply(res, input)
-		}
-		c <- res
-	}()
-	return <-c
+	for input := range inputs {
+		res = apply(res, input)
+	}
+	return res
 }
 
 func (inputs UnsignedInputs) Add(input *UnsignedInput) UnsignedInputs {
-	c := make(chan *UnsignedInput)
+	c := make(chan *UnsignedInput, len(inputs)+1)
+	defer close(c)
 
-	go func() {
-		for i := range inputs {
-			c <- i
-		}
-		c <- input
-		close(c)
-	}()
+	for i := range inputs {
+		c <- i
+	}
+	c <- input
 	return UnsignedInputs(c)
 }
 
