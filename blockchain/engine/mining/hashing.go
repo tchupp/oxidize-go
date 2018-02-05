@@ -3,18 +3,8 @@ package mining
 import (
 	"bytes"
 	"encoding/binary"
-	"math/big"
 
 	"github.com/tclchiam/block_n_go/blockchain/entity"
-)
-
-const (
-	targetBits = 16
-	hashLength = 256
-)
-
-var (
-	target = big.NewInt(1).Lsh(big.NewInt(1), uint(hashLength-targetBits))
 )
 
 type BlockHashingInput struct {
@@ -22,6 +12,7 @@ type BlockHashingInput struct {
 	PreviousHash     *entity.Hash
 	Timestamp        uint64
 	TransactionsHash *entity.Hash
+	Difficulty       uint64
 }
 
 func CalculateBlockHash(input *BlockHashingInput, nonce uint64) *entity.Hash {
@@ -30,6 +21,7 @@ func CalculateBlockHash(input *BlockHashingInput, nonce uint64) *entity.Hash {
 		input.TransactionsHash.Slice(),
 		intToHex(input.Timestamp),
 		intToHex(nonce),
+		intToHex(input.Difficulty),
 	}
 	rawBlockData := bytes.Join(rawBlockContents, []byte(nil))
 	hash := calculateHash(rawBlockData)
@@ -42,6 +34,7 @@ func CalculateHeaderHash(header *entity.BlockHeader) *entity.Hash {
 		PreviousHash:     header.PreviousHash,
 		Timestamp:        header.Timestamp,
 		TransactionsHash: header.TransactionsHash,
+		Difficulty:       header.Difficulty,
 	}
 	return CalculateBlockHash(input, header.Nonce)
 }
@@ -56,14 +49,6 @@ func CalculateTransactionsHash(transactions entity.Transactions) *entity.Hash {
 	rawTransactionData := bytes.Join(transactionHashes, []byte{})
 	hash := calculateHash(rawTransactionData)
 	return &hash
-}
-
-func HashValid(hash *entity.Hash) bool {
-	if hash == nil {
-		return false
-	}
-
-	return new(big.Int).SetBytes(hash.Slice()).Cmp(target) == -1
 }
 
 func intToHex(num uint64) []byte {

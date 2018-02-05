@@ -1,5 +1,7 @@
 package entity
 
+const genesisDifficulty = 4
+
 func DefaultGenesisBlock() *Block {
 	return &Block{
 		header: NewBlockHeader(
@@ -7,8 +9,9 @@ func DefaultGenesisBlock() *Block {
 			&EmptyHash,
 			NewHashOrPanic("85fca3e06fe7196148c3f6beae1aeb7dc8b9308ce26bbd0f32bda91a60d63bbc"),
 			1516146240,
-			80212,
-			NewHashOrPanic("0000129102d03577d79c9b919dcc71d99f7cf6c6b68f5e1f77d5adbfc0103938"),
+			84167,
+			NewHashOrPanic("00007bd9a44c3fea74388c483c3fc2fc8ac593c3da5566fbc1427cbf023e4ed9"),
+			genesisDifficulty,
 		),
 		transactions: Transactions{
 			{

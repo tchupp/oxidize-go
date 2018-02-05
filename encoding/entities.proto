@@ -15,6 +15,7 @@ message BlockHeader {
     required bytes transactionsHash = 4;
     required uint64 nonce = 5;
     required bytes hash = 6;
+    required uint64 difficulty = 7;
 }
 
 message Transaction {

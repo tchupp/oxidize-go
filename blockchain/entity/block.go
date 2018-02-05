@@ -38,9 +38,10 @@ func (block *Block) String() string {
 
 	lines = append(lines, fmt.Sprintf("\n============ Block ============"))
 	lines = append(lines, fmt.Sprintf("Index: %d", block.Index()))
-	lines = append(lines, fmt.Sprintf("Hash: %x", block.Hash().Slice()))
-	lines = append(lines, fmt.Sprintf("PreviousHash: %x", block.PreviousHash().Slice()))
-	lines = append(lines, fmt.Sprintf("TransactionHash: %x", block.header.TransactionsHash.Slice()))
+	lines = append(lines, fmt.Sprintf("Hash: %s", block.Hash()))
+	lines = append(lines, fmt.Sprintf("PreviousHash: %s", block.PreviousHash()))
+	lines = append(lines, fmt.Sprintf("TransactionHash: %s", block.header.TransactionsHash))
+	lines = append(lines, fmt.Sprintf("Difficulty: %d", block.header.Difficulty))
 	lines = append(lines, fmt.Sprintf("Timestamp: %d", block.Timestamp()))
 	lines = append(lines, fmt.Sprintf("Nonce: %d", block.Nonce()))
 	lines = append(lines, fmt.Sprintf("Transactions:"))

@@ -7,7 +7,7 @@ import (
 
 func VerifyHeader(header *entity.BlockHeader) error {
 	// TODO verify parent block exists
-	if !mining.HashValid(header.Hash) {
+	if !mining.HasDifficulty(header.Hash, header.Difficulty) {
 		return errInvalidPoW
 	}
 	if calculatedHash := mining.CalculateHeaderHash(header); !header.Hash.IsEqual(calculatedHash) {

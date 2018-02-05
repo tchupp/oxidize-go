@@ -44,11 +44,12 @@ func (miner *miner) MineBlock(parent *entity.BlockHeader, transactions entity.Tr
 func (miner *miner) mineBlock(parent *entity.BlockHeader, transactions entity.Transactions, now uint64) *entity.Block {
 	transactionsHash := mining.CalculateTransactionsHash(transactions)
 
-	work := &mining.BlockHashingInput{
+	input := &mining.BlockHashingInput{
 		Index:            parent.Index + 1,
 		PreviousHash:     parent.Hash,
 		Timestamp:        now,
 		TransactionsHash: transactionsHash,
+		Difficulty:       parent.Difficulty,
 	}
 
 	solutions := make(chan *BlockSolution)
@@ -56,13 +57,21 @@ func (miner *miner) mineBlock(parent *entity.BlockHeader, transactions entity.Tr
 	defer close(nonces)
 
 	for workerNum := uint(0); workerNum < miner.workerCount; workerNum++ {
-		go worker(work, nonces, solutions)
+		go worker(input, nonces, solutions)
 	}
 
 	for nonce := uint64(0); nonce < maxNonce; nonce++ {
 		select {
 		case solution := <-solutions:
-			header := entity.NewBlockHeader(work.Index, work.PreviousHash, work.TransactionsHash, work.Timestamp, solution.Nonce, solution.Hash)
+			header := entity.NewBlockHeader(
+				input.Index,
+				input.PreviousHash,
+				input.TransactionsHash,
+				input.Timestamp,
+				solution.Nonce,
+				solution.Hash,
+				input.Difficulty,
+			)
 			return entity.NewBlock(header, transactions)
 		default:
 			nonces <- nonce
@@ -77,7 +86,7 @@ func worker(work *mining.BlockHashingInput, nonces <-chan uint64, solutions chan
 	for nonce := range nonces {
 		hash := mining.CalculateBlockHash(work, nonce)
 
-		if mining.HashValid(hash) {
+		if mining.HasDifficulty(hash, work.Difficulty) {
 			solutions <- &BlockSolution{Nonce: nonce, Hash: hash}
 		}
 	}

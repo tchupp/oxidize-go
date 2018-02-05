@@ -25,6 +25,7 @@ var (
 		TransactionsHash: entity.NewHashOrPanic("d8c4558738d6cf0d5ef3069bd335888b0ca9c7391e6dd7a07298743e8f3b7759"),
 		Nonce:            22243,
 		Hash:             entity.NewHashOrPanic("0000701b473d9ea60442bd4af2d77efa64657be3ca0932e02d192ac7ceddb5cd"),
+		Difficulty:       4,
 	}
 )
 

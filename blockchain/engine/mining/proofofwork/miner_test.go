@@ -25,6 +25,7 @@ var (
 		TransactionsHash: &entity.EmptyHash,
 		Nonce:            9330,
 		Hash:             entity.NewHashOrPanic("00008623b2c8806d056cb4ab9a5c3a57d9f36c017aa6c40fed5767249dcd10a8"),
+		Difficulty:       4,
 	}
 
 	coinbase = identity.RandomIdentity()

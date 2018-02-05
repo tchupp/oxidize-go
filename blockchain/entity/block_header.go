@@ -23,11 +23,12 @@ type BlockHeader struct {
 	TransactionsHash *Hash
 	Nonce            uint64
 	Hash             *Hash
+	Difficulty       uint64
 }
 
-var GenesisParentHeader = BlockHeader{Index: math.MaxUint64, Hash: &EmptyHash}
+var GenesisParentHeader = BlockHeader{Index: math.MaxUint64, Hash: &EmptyHash, Difficulty: genesisDifficulty}
 
-func NewBlockHeader(index uint64, previousHash *Hash, transactionsHash *Hash, timestamp uint64, nonce uint64, hash *Hash) *BlockHeader {
+func NewBlockHeader(index uint64, previousHash *Hash, transactionsHash *Hash, timestamp uint64, nonce uint64, hash *Hash, difficulty uint64) *BlockHeader {
 	return &BlockHeader{
 		Index:            index,
 		PreviousHash:     previousHash,
@@ -35,6 +36,7 @@ func NewBlockHeader(index uint64, previousHash *Hash, transactionsHash *Hash, ti
 		TransactionsHash: transactionsHash,
 		Nonce:            nonce,
 		Hash:             hash,
+		Difficulty:       difficulty,
 	}
 }
 
@@ -42,10 +44,11 @@ func (header BlockHeader) String() string {
 	var lines []string
 
 	lines = append(lines, fmt.Sprintf("\n============ BlockHeader ============"))
-	lines = append(lines, fmt.Sprintf("Index: %x", header.Index))
+	lines = append(lines, fmt.Sprintf("Index: %d", header.Index))
 	lines = append(lines, fmt.Sprintf("PreviousHash: %s", header.PreviousHash))
 	lines = append(lines, fmt.Sprintf("Timestamp: %d", header.Timestamp))
 	lines = append(lines, fmt.Sprintf("TransactionsHash: %s", header.TransactionsHash))
+	lines = append(lines, fmt.Sprintf("Difficulty: %d", header.Difficulty))
 	lines = append(lines, fmt.Sprintf("Nonce: %d", header.Nonce))
 	lines = append(lines, fmt.Sprintf("Hash: %s", header.Hash))
 

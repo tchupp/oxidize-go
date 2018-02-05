@@ -49,6 +49,7 @@ func ToWireBlockHeader(header *entity.BlockHeader) *BlockHeader {
 		TransactionsHash: header.TransactionsHash.Slice(),
 		Nonce:            proto.Uint64(header.Nonce),
 		Hash:             header.Hash.Slice(),
+		Difficulty:       proto.Uint64(header.Difficulty),
 	}
 }
 
@@ -75,6 +76,7 @@ func FromWireBlockHeader(header *BlockHeader) (*entity.BlockHeader, error) {
 		header.GetTimestamp(),
 		header.GetNonce(),
 		hash,
+		header.GetDifficulty(),
 	), nil
 }
 
