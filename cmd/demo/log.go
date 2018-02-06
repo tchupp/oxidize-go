@@ -2,9 +2,9 @@ package main
 
 import (
 	"github.com/sirupsen/logrus"
-	"github.com/tclchiam/block_n_go/node"
-	"github.com/tclchiam/block_n_go/rpc"
-	"github.com/tclchiam/block_n_go/storage"
+	"github.com/tclchiam/oxidize-go/node"
+	"github.com/tclchiam/oxidize-go/rpc"
+	"github.com/tclchiam/oxidize-go/storage"
 )
 
 const systemField = "system"

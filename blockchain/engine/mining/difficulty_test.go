@@ -1,14 +1,12 @@
 package mining
 
 import (
-	"testing"
-
 	"encoding/hex"
 	"fmt"
-
 	"math/big"
+	"testing"
 
-	"github.com/tclchiam/block_n_go/blockchain/entity"
+	"github.com/tclchiam/oxidize-go/blockchain/entity"
 )
 
 func TestFindDifficulty(t *testing.T) {

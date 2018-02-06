@@ -6,9 +6,9 @@ import (
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 
-	"github.com/tclchiam/block_n_go/blockchain/entity"
-	"github.com/tclchiam/block_n_go/encoding"
-	"github.com/tclchiam/block_n_go/rpc"
+	"github.com/tclchiam/oxidize-go/blockchain/entity"
+	"github.com/tclchiam/oxidize-go/encoding"
+	"github.com/tclchiam/oxidize-go/rpc"
 )
 
 type syncBackend interface {

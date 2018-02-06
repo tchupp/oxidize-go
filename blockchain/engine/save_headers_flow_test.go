@@ -3,12 +3,12 @@ package engine_test
 import (
 	"testing"
 
-	"github.com/tclchiam/block_n_go/blockchain"
-	"github.com/tclchiam/block_n_go/blockchain/engine"
-	"github.com/tclchiam/block_n_go/blockchain/engine/mining/proofofwork"
-	"github.com/tclchiam/block_n_go/blockchain/entity"
-	"github.com/tclchiam/block_n_go/identity"
-	"github.com/tclchiam/block_n_go/storage/memdb"
+	"github.com/tclchiam/oxidize-go/blockchain"
+	"github.com/tclchiam/oxidize-go/blockchain/engine"
+	"github.com/tclchiam/oxidize-go/blockchain/engine/mining/proofofwork"
+	"github.com/tclchiam/oxidize-go/blockchain/entity"
+	"github.com/tclchiam/oxidize-go/identity"
+	"github.com/tclchiam/oxidize-go/storage/memdb"
 )
 
 var (

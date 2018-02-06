@@ -5,12 +5,12 @@ import (
 
 	log "github.com/sirupsen/logrus"
 
-	"github.com/tclchiam/block_n_go/blockchain"
-	"github.com/tclchiam/block_n_go/blockchain/engine/mining/proofofwork"
-	"github.com/tclchiam/block_n_go/blockchain/entity"
-	"github.com/tclchiam/block_n_go/encoding"
-	"github.com/tclchiam/block_n_go/identity"
-	"github.com/tclchiam/block_n_go/storage/boltdb"
+	"github.com/tclchiam/oxidize-go/blockchain"
+	"github.com/tclchiam/oxidize-go/blockchain/engine/mining/proofofwork"
+	"github.com/tclchiam/oxidize-go/blockchain/entity"
+	"github.com/tclchiam/oxidize-go/encoding"
+	"github.com/tclchiam/oxidize-go/identity"
+	"github.com/tclchiam/oxidize-go/storage/boltdb"
 )
 
 func main() {

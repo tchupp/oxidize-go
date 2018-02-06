@@ -4,7 +4,7 @@ import (
 	"sync"
 	"time"
 
-	"github.com/tclchiam/block_n_go/rpc"
+	"github.com/tclchiam/oxidize-go/rpc"
 	"google.golang.org/grpc"
 )
 

@@ -1,12 +1,12 @@
 package blockchain
 
 import (
-	"github.com/tclchiam/block_n_go/blockchain/engine"
-	"github.com/tclchiam/block_n_go/blockchain/engine/iter"
-	"github.com/tclchiam/block_n_go/blockchain/engine/mining"
-	"github.com/tclchiam/block_n_go/blockchain/engine/utxo"
-	"github.com/tclchiam/block_n_go/blockchain/entity"
-	"github.com/tclchiam/block_n_go/identity"
+	"github.com/tclchiam/oxidize-go/blockchain/engine"
+	"github.com/tclchiam/oxidize-go/blockchain/engine/iter"
+	"github.com/tclchiam/oxidize-go/blockchain/engine/mining"
+	"github.com/tclchiam/oxidize-go/blockchain/engine/utxo"
+	"github.com/tclchiam/oxidize-go/blockchain/entity"
+	"github.com/tclchiam/oxidize-go/identity"
 )
 
 type Blockchain interface {

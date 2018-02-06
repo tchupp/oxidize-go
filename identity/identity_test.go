@@ -4,9 +4,10 @@ import (
 	"bytes"
 	"crypto/sha256"
 	"testing"
-	"golang.org/x/crypto/ripemd160"
-	"github.com/tclchiam/block_n_go/crypto"
+
 	"github.com/mr-tron/base58/base58"
+	"github.com/tclchiam/oxidize-go/crypto"
+	"golang.org/x/crypto/ripemd160"
 )
 
 func TestAddress_Base58(t *testing.T) {

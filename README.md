@@ -1,8 +1,14 @@
-# Block n' Go
+# Oxidize: golang
 
 Super simple blockchain implementation in Go!
 
 This project is meant for people interested in understanding how blockchain works by building one from scratch.
+
+## Installation
+```bash
+go get github.com/tclchiam/oxidize-go
+glide install
+```
 
 ## Design Docs
 
@@ -11,12 +17,12 @@ Each package is designed to work as a stand alone package (WIP)
 
 ### Packages
 
-- [ ] [Blockchain](https://github.com/tclchiam/block_n_go/tree/master/blockchain)
-- [ ] [Identity](https://github.com/tclchiam/block_n_go/tree/master/identity)
-- [ ] [RPC](https://github.com/tclchiam/block_n_go/tree/master/rpc)
-- [x] [Storage](https://github.com/tclchiam/block_n_go/tree/master/storage)
-- [ ] [Node](https://github.com/tclchiam/block_n_go/tree/master/node)
-- [ ] [Wallet](https://github.com/tclchiam/block_n_go/tree/master/wallet)
+- [ ] [Blockchain](https://github.com/tclchiam/oxidize-go/tree/master/blockchain)
+- [ ] [Identity](https://github.com/tclchiam/oxidize-go/tree/master/identity)
+- [ ] [RPC](https://github.com/tclchiam/oxidize-go/tree/master/rpc)
+- [x] [Storage](https://github.com/tclchiam/oxidize-go/tree/master/storage)
+- [ ] [Node](https://github.com/tclchiam/oxidize-go/tree/master/node)
+- [ ] [Wallet](https://github.com/tclchiam/oxidize-go/tree/master/wallet)
 
 ## Contributing
 

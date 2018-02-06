@@ -1,10 +1,10 @@
 package node
 
 import (
-	"github.com/tclchiam/block_n_go/blockchain"
-	"github.com/tclchiam/block_n_go/blockchain/blockrpc"
-	"github.com/tclchiam/block_n_go/p2p"
-	"github.com/tclchiam/block_n_go/rpc"
+	"github.com/tclchiam/oxidize-go/blockchain"
+	"github.com/tclchiam/oxidize-go/blockchain/blockrpc"
+	"github.com/tclchiam/oxidize-go/p2p"
+	"github.com/tclchiam/oxidize-go/rpc"
 )
 
 type baseNode struct {

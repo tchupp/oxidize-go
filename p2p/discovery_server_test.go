@@ -5,11 +5,12 @@ import (
 	"strings"
 	"testing"
 	"time"
+
 	"google.golang.org/grpc"
 
-	"github.com/tclchiam/block_n_go/blockchain"
-	"github.com/tclchiam/block_n_go/rpc"
-	"github.com/tclchiam/block_n_go/storage/memdb"
+	"github.com/tclchiam/oxidize-go/blockchain"
+	"github.com/tclchiam/oxidize-go/rpc"
+	"github.com/tclchiam/oxidize-go/storage/memdb"
 )
 
 func TestDiscoveryServer_Ping(t *testing.T) {

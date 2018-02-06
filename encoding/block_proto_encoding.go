@@ -1,9 +1,10 @@
 package encoding
 
 import (
-	"github.com/tclchiam/block_n_go/blockchain/entity"
 	"fmt"
+
 	"github.com/golang/protobuf/proto"
+	"github.com/tclchiam/oxidize-go/blockchain/entity"
 )
 
 type blockProtoEncoder struct{}

@@ -3,9 +3,9 @@ package txsigning
 import (
 	log "github.com/sirupsen/logrus"
 
-	"github.com/tclchiam/block_n_go/crypto"
-	"github.com/tclchiam/block_n_go/blockchain/entity"
-	"github.com/tclchiam/block_n_go/identity"
+	"github.com/tclchiam/oxidize-go/crypto"
+	"github.com/tclchiam/oxidize-go/blockchain/entity"
+	"github.com/tclchiam/oxidize-go/identity"
 )
 
 func GenerateSignature(input *entity.UnsignedInput, outputs []*entity.Output, spender *identity.Identity, encoder entity.TransactionEncoder) *crypto.Signature {

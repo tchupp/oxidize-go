@@ -10,7 +10,7 @@ import (
 
 	log "github.com/sirupsen/logrus"
 
-	"github.com/tclchiam/block_n_go/identity"
+	"github.com/tclchiam/oxidize-go/identity"
 )
 
 const subsidy = 10

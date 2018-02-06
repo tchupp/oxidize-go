@@ -6,7 +6,7 @@ package rpc
 import proto "github.com/golang/protobuf/proto"
 import fmt "fmt"
 import math "math"
-import entities "github.com/tclchiam/block_n_go/encoding"
+import entities "github.com/tclchiam/oxidize-go/encoding"
 
 import (
 	context "golang.org/x/net/context"

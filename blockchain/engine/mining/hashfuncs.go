@@ -3,7 +3,7 @@ package mining
 import (
 	"crypto/sha256"
 
-	"github.com/tclchiam/block_n_go/blockchain/entity"
+	"github.com/tclchiam/oxidize-go/blockchain/entity"
 )
 
 func calculateHash(b []byte) entity.Hash {

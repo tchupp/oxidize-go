@@ -3,8 +3,8 @@ package boltdb
 import (
 	"log"
 
-	"github.com/tclchiam/block_n_go/blockchain/entity"
-	"github.com/tclchiam/block_n_go/storage"
+	"github.com/tclchiam/oxidize-go/blockchain/entity"
+	"github.com/tclchiam/oxidize-go/storage"
 )
 
 type builder struct {

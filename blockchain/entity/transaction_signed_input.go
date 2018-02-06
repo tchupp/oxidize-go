@@ -5,8 +5,8 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/tclchiam/block_n_go/crypto"
-	"github.com/tclchiam/block_n_go/identity"
+	"github.com/tclchiam/oxidize-go/crypto"
+	"github.com/tclchiam/oxidize-go/identity"
 )
 
 type SignedInput struct {

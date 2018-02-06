@@ -5,9 +5,9 @@ import (
 	"google.golang.org/grpc"
 
 	"github.com/golang/protobuf/proto"
-	"github.com/tclchiam/block_n_go/blockchain/entity"
-	"github.com/tclchiam/block_n_go/encoding"
-	"github.com/tclchiam/block_n_go/rpc"
+	"github.com/tclchiam/oxidize-go/blockchain/entity"
+	"github.com/tclchiam/oxidize-go/encoding"
+	"github.com/tclchiam/oxidize-go/rpc"
 )
 
 type SyncClient interface {

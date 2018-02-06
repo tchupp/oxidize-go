@@ -3,8 +3,8 @@ package storage
 import (
 	"github.com/sirupsen/logrus"
 
-	"github.com/tclchiam/block_n_go/blockchain/entity"
-	"github.com/tclchiam/block_n_go/logger"
+	"github.com/tclchiam/oxidize-go/blockchain/entity"
+	"github.com/tclchiam/oxidize-go/logger"
 )
 
 var log = logger.Disabled

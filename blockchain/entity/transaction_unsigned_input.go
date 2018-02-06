@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/tclchiam/block_n_go/crypto"
+	"github.com/tclchiam/oxidize-go/crypto"
 )
 
 type UnsignedInput struct {

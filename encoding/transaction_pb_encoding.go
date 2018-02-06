@@ -3,8 +3,8 @@ package encoding
 import (
 	"fmt"
 
-	"github.com/tclchiam/block_n_go/blockchain/entity"
 	"github.com/golang/protobuf/proto"
+	"github.com/tclchiam/oxidize-go/blockchain/entity"
 )
 
 type transactionProtoEncoder struct{}

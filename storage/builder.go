@@ -1,6 +1,6 @@
 package storage
 
-import "github.com/tclchiam/block_n_go/blockchain/entity"
+import "github.com/tclchiam/oxidize-go/blockchain/entity"
 
 type Builder interface {
 	WithCache() Builder

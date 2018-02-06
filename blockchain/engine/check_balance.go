@@ -1,9 +1,9 @@
 package engine
 
 import (
-	"github.com/tclchiam/block_n_go/blockchain/engine/utxo"
-	"github.com/tclchiam/block_n_go/blockchain/entity"
-	"github.com/tclchiam/block_n_go/identity"
+	"github.com/tclchiam/oxidize-go/blockchain/engine/utxo"
+	"github.com/tclchiam/oxidize-go/blockchain/entity"
+	"github.com/tclchiam/oxidize-go/identity"
 )
 
 func ReadBalance(identity *identity.Identity, engine utxo.Engine) (uint32, error) {

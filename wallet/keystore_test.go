@@ -3,7 +3,8 @@ package wallet
 import (
 	"os"
 	"testing"
-	"github.com/tclchiam/block_n_go/identity"
+
+	"github.com/tclchiam/oxidize-go/identity"
 )
 
 func TestKeyStore_SaveAccount(t *testing.T) {

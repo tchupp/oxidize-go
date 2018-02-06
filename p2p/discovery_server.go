@@ -6,8 +6,8 @@ import (
 	"google.golang.org/grpc/status"
 
 	"github.com/golang/protobuf/proto"
-	"github.com/tclchiam/block_n_go/rpc"
-	"github.com/tclchiam/block_n_go/blockchain/entity"
+	"github.com/tclchiam/oxidize-go/rpc"
+	"github.com/tclchiam/oxidize-go/blockchain/entity"
 )
 
 type discoveryBackend interface {

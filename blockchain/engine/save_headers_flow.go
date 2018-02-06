@@ -3,8 +3,8 @@ package engine
 import (
 	"github.com/hashicorp/go-multierror"
 	"github.com/sirupsen/logrus"
-	"github.com/tclchiam/block_n_go/blockchain/engine/consensus"
-	"github.com/tclchiam/block_n_go/blockchain/entity"
+	"github.com/tclchiam/oxidize-go/blockchain/engine/consensus"
+	"github.com/tclchiam/oxidize-go/blockchain/entity"
 )
 
 type headerChain interface {

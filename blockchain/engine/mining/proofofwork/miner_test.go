@@ -3,8 +3,8 @@ package proofofwork
 import (
 	"testing"
 
-	"github.com/tclchiam/block_n_go/blockchain/entity"
-	"github.com/tclchiam/block_n_go/identity"
+	"github.com/tclchiam/oxidize-go/blockchain/entity"
+	"github.com/tclchiam/oxidize-go/identity"
 )
 
 var (

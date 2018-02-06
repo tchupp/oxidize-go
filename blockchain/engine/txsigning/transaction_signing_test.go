@@ -3,9 +3,9 @@ package txsigning
 import (
 	"testing"
 
-	"github.com/tclchiam/block_n_go/blockchain/entity"
-	"github.com/tclchiam/block_n_go/encoding"
-	"github.com/tclchiam/block_n_go/identity"
+	"github.com/tclchiam/oxidize-go/blockchain/entity"
+	"github.com/tclchiam/oxidize-go/encoding"
+	"github.com/tclchiam/oxidize-go/identity"
 )
 
 func serializeSignatureTestData(input *entity.UnsignedInput, outputs []*entity.Output, encoder entity.TransactionEncoder) ([]byte, error) {

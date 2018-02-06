@@ -5,11 +5,11 @@ import (
 	"encoding/pem"
 	"fmt"
 	"io/ioutil"
-	"path/filepath"
 	"os"
+	"path/filepath"
 
-	"github.com/tclchiam/block_n_go/crypto"
-	"github.com/tclchiam/block_n_go/identity"
+	"github.com/tclchiam/oxidize-go/crypto"
+	"github.com/tclchiam/oxidize-go/identity"
 )
 
 const ecPrivateKeyType = "EC PRIVATE KEY"

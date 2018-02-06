@@ -5,7 +5,7 @@ import (
 	"fmt"
 
 	"github.com/boltdb/bolt"
-	"github.com/tclchiam/block_n_go/blockchain/entity"
+	"github.com/tclchiam/oxidize-go/blockchain/entity"
 )
 
 func bestHeaderHash(tx *bolt.Tx) (hash *entity.Hash, err error) {

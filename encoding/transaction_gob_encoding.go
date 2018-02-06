@@ -1,10 +1,11 @@
 package encoding
 
 import (
-	"github.com/tclchiam/block_n_go/blockchain/entity"
 	"bytes"
 	"encoding/gob"
 	"fmt"
+
+	"github.com/tclchiam/oxidize-go/blockchain/entity"
 )
 
 type transactionGobEncoder struct{}

@@ -1,4 +1,4 @@
-package: github.com/tclchiam/block_n_go
+package: github.com/tclchiam/oxidize-go
 import:
 - package: github.com/boltdb/bolt
   version: v1.3.1

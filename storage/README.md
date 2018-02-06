@@ -84,8 +84,8 @@ The `SaveBlock(*Block)` function lets us save a block.
 When a node discovers a peer, it sends a Version message; describing the protocol version, as well as the *best block* that the node has to offer.  
 The `BestBlock()` function lets us find the top of the chain.  
 
-You can find detailed information about Nodes and Peers [here](https://github.com/tclchiam/block_n_go/tree/master/node) **TODO**  
-You can find detailed information about [gRPC](https://grpc.io) and how we use it to communicate between nodes [here](https://github.com/tclchiam/block_n_go/tree/master/rpc) **TODO**
+You can find detailed information about Nodes and Peers [here](https://github.com/tclchiam/oxidize-go/tree/master/node) **TODO**  
+You can find detailed information about [gRPC](https://grpc.io) and how we use it to communicate between nodes [here](https://github.com/tclchiam/oxidize-go/tree/master/rpc) **TODO**
 
 ##### Syncing blocks from peers
 

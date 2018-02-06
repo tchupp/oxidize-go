@@ -1,6 +1,6 @@
 package utxo
 
-import "github.com/tclchiam/block_n_go/blockchain/entity"
+import "github.com/tclchiam/oxidize-go/blockchain/entity"
 
 type TransactionOutputSet struct {
 	transactionsToOutputs map[*entity.Transaction][]*entity.Output

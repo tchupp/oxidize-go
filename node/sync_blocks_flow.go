@@ -3,8 +3,8 @@ package node
 import (
 	"fmt"
 
-	"github.com/tclchiam/block_n_go/blockchain"
-	"github.com/tclchiam/block_n_go/blockchain/blockrpc"
+	"github.com/tclchiam/oxidize-go/blockchain"
+	"github.com/tclchiam/oxidize-go/blockchain/blockrpc"
 )
 
 func reconcileBlocks(syncClient blockrpc.SyncClient, bc blockchain.Blockchain) error {

@@ -1,6 +1,6 @@
 package engine
 
-import "github.com/tclchiam/block_n_go/blockchain/entity"
+import "github.com/tclchiam/oxidize-go/blockchain/entity"
 
 func ResetGenesis(repository entity.ChainRepository) error {
 	exists, err := genesisBlockExists(repository)

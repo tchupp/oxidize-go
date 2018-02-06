@@ -2,7 +2,7 @@ package storage
 
 import (
 	"github.com/hashicorp/golang-lru"
-	"github.com/tclchiam/block_n_go/blockchain/entity"
+	"github.com/tclchiam/oxidize-go/blockchain/entity"
 )
 
 const (

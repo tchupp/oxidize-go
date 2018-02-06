@@ -3,8 +3,8 @@ package node
 import (
 	"github.com/sirupsen/logrus"
 
-	"github.com/tclchiam/block_n_go/logger"
-	"github.com/tclchiam/block_n_go/p2p"
+	"github.com/tclchiam/oxidize-go/logger"
+	"github.com/tclchiam/oxidize-go/p2p"
 )
 
 var log = logger.Disabled

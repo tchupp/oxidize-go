@@ -1,7 +1,7 @@
 package node
 
 import (
-	"github.com/tclchiam/block_n_go/p2p"
+	"github.com/tclchiam/oxidize-go/p2p"
 )
 
 type Node interface {

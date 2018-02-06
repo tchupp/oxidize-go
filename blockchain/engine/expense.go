@@ -3,11 +3,11 @@ package engine
 import (
 	"fmt"
 
-	"github.com/tclchiam/block_n_go/blockchain/engine/txsigning"
-	"github.com/tclchiam/block_n_go/blockchain/engine/utxo"
-	"github.com/tclchiam/block_n_go/blockchain/entity"
-	"github.com/tclchiam/block_n_go/encoding"
-	"github.com/tclchiam/block_n_go/identity"
+	"github.com/tclchiam/oxidize-go/blockchain/engine/txsigning"
+	"github.com/tclchiam/oxidize-go/blockchain/engine/utxo"
+	"github.com/tclchiam/oxidize-go/blockchain/entity"
+	"github.com/tclchiam/oxidize-go/encoding"
+	"github.com/tclchiam/oxidize-go/identity"
 )
 
 func BuildExpenseTransaction(spender, receiver *identity.Identity, expense uint32, engine utxo.Engine) (*entity.Transaction, error) {

@@ -4,7 +4,7 @@ import (
 	"google.golang.org/grpc/grpclog"
 
 	"github.com/sirupsen/logrus"
-	"github.com/tclchiam/block_n_go/logger"
+	"github.com/tclchiam/oxidize-go/logger"
 )
 
 var log = logger.Disabled

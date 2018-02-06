@@ -4,9 +4,9 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/tclchiam/block_n_go/blockchain"
-	"github.com/tclchiam/block_n_go/blockchain/blockrpc"
-	"github.com/tclchiam/block_n_go/p2p"
+	"github.com/tclchiam/oxidize-go/blockchain"
+	"github.com/tclchiam/oxidize-go/blockchain/blockrpc"
+	"github.com/tclchiam/oxidize-go/p2p"
 )
 
 func startSyncHeadersFlow(peer *p2p.Peer, peerManager p2p.PeerManager, bc blockchain.Blockchain) {
