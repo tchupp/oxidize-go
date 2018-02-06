@@ -34,21 +34,21 @@ func BuildExpenseTransaction(spender, receiver *identity.Identity, expense uint3
 	return entity.NewTx(signedInputs, finalizedOutputs, encoding.TransactionProtoEncoder()), nil
 }
 
-func buildInputs(spender *identity.Identity) func(res interface{}, transaction *entity.Transaction, output *entity.Output) interface{} {
+var buildInputs = func(spender *identity.Identity) func(res interface{}, transaction *entity.Transaction, output *entity.Output) interface{} {
 	return func(res interface{}, transaction *entity.Transaction, output *entity.Output) interface{} {
 		input := entity.NewUnsignedInput(transaction.ID, output, spender.PublicKey())
 		return res.(entity.UnsignedInputs).Add(input)
 	}
 }
 
-func signInputs(outputs []*entity.Output, spender *identity.Identity) func(res interface{}, input *entity.UnsignedInput) interface{} {
+var signInputs = func(outputs []*entity.Output, spender *identity.Identity) func(res interface{}, input *entity.UnsignedInput) interface{} {
 	return func(res interface{}, input *entity.UnsignedInput) interface{} {
 		signature := txsigning.GenerateSignature(input, outputs, spender, encoding.TransactionProtoEncoder())
 		return append(res.([]*entity.SignedInput), entity.NewSignedInput(input, signature))
 	}
 }
 
-func collectOutputs(res interface{}, output *entity.Output) interface{} {
+var collectOutputs = func(res interface{}, output *entity.Output) interface{} {
 	outputs := res.([]*entity.Output)
 	output.Index = uint32(len(outputs))
 	return append(outputs, output)

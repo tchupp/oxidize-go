@@ -113,10 +113,10 @@ func verifyBalance(t *testing.T, bc blockchain.Blockchain, spender *identity.Ide
 	balance, err := bc.ReadBalance(spender)
 
 	if err != nil {
-		t.Fatalf("reading balance for '%x' %s", spender, err)
+		t.Fatalf("reading balance for '%s': %s", spender, err)
 	}
 	if balance != expectedBalance {
-		t.Fatalf("expected balance for '%x' to be [%d], was: [%d]", spender, expectedBalance, balance)
+		t.Fatalf("expected balance for '%s' to be [%d], was: [%d]", spender, expectedBalance, balance)
 	}
 }
 
