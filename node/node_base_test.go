@@ -23,19 +23,18 @@ func TestBaseNode_AddPeer(t *testing.T) {
 	remoteNode.Serve()
 	defer remoteNode.Shutdown()
 
-	localNode := newNode(nil, rpc.NewServer(nil))
+	localBc := buildBlockchain(t)
+	localNode := newNode(localBc, rpc.NewServer(nil))
 
-	if len(localNode.ActivePeers()) != 0 {
-		t.Fatalf("incorrect starting peer count. got - %d, wanted  - %d", len(localNode.ActivePeers()), 0)
-	}
+	verifyPeerCount(localNode, 0, t)
 
 	if _, err := localNode.AddPeer(lis.Addr().String()); err != nil {
 		t.Fatalf("unexpected error: %s", err)
 	}
 
-	if len(localNode.ActivePeers()) != 1 {
-		t.Fatalf("incorrect final peer count. got - %d, wanted - %d", len(localNode.ActivePeers()), 1)
-	}
+	verifyPeerCount(localNode, 1, t)
+
+	time.Sleep(600 * time.Millisecond)
 
 	peer := localNode.ActivePeers()[0]
 	if peer.Address != lis.Addr().String() {
@@ -58,44 +57,37 @@ func TestBaseNode_AddPeer_PeerLoosesConnection(t *testing.T) {
 	remoteNode := newNode(remoteBc, rpc.NewServer(lis))
 	remoteNode.Serve()
 
-	localNode := newNode(nil, rpc.NewServer(nil))
+	localBc := buildBlockchain(t)
+	localNode := newNode(localBc, rpc.NewServer(nil))
 
-	if len(localNode.ActivePeers()) != 0 {
-		t.Fatalf("incorrect starting peer count. got - %d, wanted  - %d", len(localNode.ActivePeers()), 0)
-	}
+	verifyPeerCount(localNode, 0, t)
 
 	if _, err := localNode.AddPeer(lis.Addr().String()); err != nil {
 		t.Fatalf("unexpected error: %s", err)
 	}
 
-	if len(localNode.ActivePeers()) != 1 {
-		t.Fatalf("incorrect intermediate peer count. got - %d, wanted - %d", len(localNode.ActivePeers()), 1)
-	}
+	verifyPeerCount(localNode, 1, t)
 
 	remoteNode.Shutdown()
 
 	time.Sleep(600 * time.Millisecond)
 
-	if len(localNode.ActivePeers()) != 0 {
-		t.Fatalf("incorrect final peer count. got - %d, wanted - %d", len(localNode.ActivePeers()), 0)
-	}
+	verifyPeerCount(localNode, 0, t)
 }
 
 func TestBaseNode_AddPeer_TargetIsOffline(t *testing.T) {
-	localNode := newNode(nil, rpc.NewServer(nil))
+	localBc := buildBlockchain(t)
+	localNode := newNode(localBc, rpc.NewServer(nil))
 
-	if len(localNode.ActivePeers()) != 0 {
-		t.Fatalf("incorrect starting peer count. got - %d, wanted  - %d", len(localNode.ActivePeers()), 0)
-	}
+	verifyPeerCount(localNode, 0, t)
 
 	if _, err := localNode.AddPeer("127.0.0.1:0"); err == nil {
 		t.Fatal("expected error, got none")
 	}
 
-	activePeers := localNode.ActivePeers()
-	if len(activePeers) != 0 {
-		t.Fatalf("incorrect final peer count. got - %d, wanted - %d", len(activePeers), 0)
-	}
+	verifyPeerCount(localNode, 0, t)
+
+	time.Sleep(600 * time.Millisecond)
 }
 
 func TestBaseNode_AddPeer_SyncsHeadersWithNewPeer_WhenPeersVersionIsHigher(t *testing.T) {
@@ -170,5 +162,11 @@ func saveRandomBlocks(t *testing.T, bc blockchain.Blockchain, num int) {
 		transactions := entity.Transactions{entity.NewCoinbaseTx(coinbase, encoding.TransactionProtoEncoder())}
 		block := miner.MineBlock(head, transactions)
 		bc.SaveBlock(block)
+	}
+}
+
+func verifyPeerCount(node *baseNode, peerCount int, t *testing.T) {
+	if len(node.ActivePeers()) != peerCount {
+		t.Fatalf("incorrect peer count. got - %d, wanted  - %d", len(node.ActivePeers()), peerCount)
 	}
 }

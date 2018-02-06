@@ -47,7 +47,7 @@ func TestDiscoveryServer_Ping_TargetIsOffline(t *testing.T) {
 
 	err = client.Ping()
 
-	expectedErrorMessage := "rpc error: code = Unavailable desc = grpc: the connection is unavailable"
+	expectedErrorMessage := "rpc error: code = Unavailable desc = all SubConns are in TransientFailure"
 	if !strings.Contains(err.Error(), expectedErrorMessage) {
 		t.Errorf("unexpected error message. got - %s, wanted: %s", err, expectedErrorMessage)
 	}
@@ -101,7 +101,7 @@ func TestDiscoveryServer_Version_TargetIsOffline(t *testing.T) {
 
 	_, err = client.Version()
 
-	expectedErrorMessage := "rpc error: code = Unavailable desc = grpc: the connection is unavailable"
+	expectedErrorMessage := "rpc error: code = Unavailable desc = all SubConns are in TransientFailure"
 	if !strings.Contains(err.Error(), expectedErrorMessage) {
 		t.Errorf("unexpected error message. got - %s, wanted: %s", err, expectedErrorMessage)
 	}

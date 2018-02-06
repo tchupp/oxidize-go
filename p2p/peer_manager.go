@@ -2,7 +2,6 @@ package p2p
 
 import (
 	"sync"
-	"time"
 
 	"github.com/tclchiam/oxidize-go/rpc"
 	"google.golang.org/grpc"
@@ -10,7 +9,7 @@ import (
 
 type PeerManager interface {
 	AddPeer(address string) (*Peer, error)
-	GetPeerConnection(peer *Peer) (*grpc.ClientConn)
+	GetPeerConnection(peer *Peer) *grpc.ClientConn
 	ActivePeers() Peers
 }
 
@@ -48,53 +47,30 @@ func (m *peerManager) AddPeer(address string) (*Peer, error) {
 		BestHash: hash,
 	}
 
-	m.addPeer(peer)
-	return peer, nil
-}
-func (m *peerManager) addPeer(peer *Peer) {
 	m.lock.Lock()
+	defer m.lock.Unlock()
 	if !m.peers.Contains(peer) {
 		m.peers = m.peers.Add(peer)
-		go m.peerMonitor(peer)
-	}
-	m.lock.Unlock()
-}
-
-func (m *peerManager) removePeer(target *Peer) {
-	if target == nil {
-		return
 	}
 
-	m.lock.Lock()
-	m.ConnectionManager.CloseConnection(target.Address)
-	m.peers = m.peers.Remove(target)
-	m.lock.Unlock()
+	return peer, nil
 }
 
 func (m *peerManager) ActivePeers() Peers {
-	return append(Peers(nil), m.peers...)
-}
-
-// Expected to be run in a goroutine
-func (m *peerManager) peerMonitor(peer *Peer) {
-	for {
-		conn := m.ConnectionManager.GetConnection(peer.Address)
-		if conn == nil {
-			m.removePeer(peer)
-			return
+	peers := Peers{}
+	for _, peer := range m.peers {
+		if m.ConnectionManager.HasConnection(peer.Address) {
+			peers = append(peers, peer)
 		}
-
-		client := NewDiscoveryClient(conn)
-		if err := client.Ping(); err != nil {
-			m.removePeer(peer)
-			return
-		}
-
-		time.Sleep(500 * time.Millisecond)
 	}
+
+	m.lock.Lock()
+	defer m.lock.Unlock()
+	m.peers = peers
+	return peers
 }
 
-func (m *peerManager) GetPeerConnection(peer *Peer) (*grpc.ClientConn) {
+func (m *peerManager) GetPeerConnection(peer *Peer) *grpc.ClientConn {
 	m.lock.RLock()
 	defer m.lock.RUnlock()
 

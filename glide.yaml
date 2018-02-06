@@ -15,6 +15,11 @@ import:
   - ripemd160
 - package: github.com/hashicorp/golang-lru
 - package: github.com/hashicorp/go-multierror
+- package: github.com/spf13/cobra
+  subpackages:
+  - cobra
+- package: google.golang.org/grpc
+  version: v1.9.2
 testImport:
 - package: github.com/google/go-cmp
   version: v0.1.0

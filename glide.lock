@@ -1,5 +1,5 @@
-hash: 788357b99ecc03c1a7b0da3a9695e1876520b3d08b534d10b02dc3fb88249f00
-updated: 2018-02-04T14:17:24.929655-05:00
+hash: 0e21754f77b2d85c8e1203de1a3b37f06241c1a560ec447e9d90a429435ebf29
+updated: 2018-02-06T10:48:54.150069-05:00
 imports:
 - name: github.com/boltdb/bolt
   version: 2f1ce7a837dcb8da3ec595b1dac9d0632f0f99e8
@@ -8,8 +8,11 @@ imports:
   subpackages:
   - jsonpb
   - proto
+  - ptypes
   - ptypes/any
+  - ptypes/duration
   - ptypes/struct
+  - ptypes/timestamp
 - name: github.com/grpc-ecosystem/go-grpc-middleware
   version: d0c54e68681ec7999ac17864470f3bee6521ba2b
   subpackages:
@@ -17,6 +20,8 @@ imports:
   - logging/logrus
   - tags
   - tags/logrus
+- name: github.com/hashicorp/errwrap
+  version: 7554cd9344cec97297fa6649b055a8c98c2a1e55
 - name: github.com/hashicorp/go-multierror
   version: b7773ae218740a7be65057fc60b366a49b538a44
 - name: github.com/hashicorp/golang-lru
@@ -31,6 +36,10 @@ imports:
   - base58
 - name: github.com/sirupsen/logrus
   version: 768a92a02685ee7535069fc1581341b41bab9b72
+- name: github.com/spf13/cobra
+  version: 7b2c5ac9fc04fc5efafb60700713d4fa609b777b
+  subpackages:
+  - cobra
 - name: golang.org/x/crypto
   version: 122d919ec1efcfb58483215da23f815853e24b81
   subpackages:
@@ -62,17 +71,25 @@ imports:
   subpackages:
   - googleapis/rpc/status
 - name: google.golang.org/grpc
-  version: b15215fb911b24a5d61d57feec4233d610530464
+  version: 6b51017f791ae1cfbec89c52efdf444b13b550ef
   subpackages:
+  - balancer
+  - balancer/base
+  - balancer/roundrobin
   - codes
+  - connectivity
   - credentials
-  - grpclb/grpc_lb_v1
+  - encoding
+  - grpclb/grpc_lb_v1/messages
   - grpclog
   - internal
   - keepalive
   - metadata
   - naming
   - peer
+  - resolver
+  - resolver/dns
+  - resolver/passthrough
   - stats
   - status
   - tap
