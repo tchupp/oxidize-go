@@ -7,19 +7,55 @@ import (
 	"io/ioutil"
 	"os"
 	"path/filepath"
+	"regexp"
 
+	"github.com/hashicorp/go-multierror"
 	"github.com/tclchiam/oxidize-go/crypto"
 	"github.com/tclchiam/oxidize-go/identity"
 )
 
 const ecPrivateKeyType = "EC PRIVATE KEY"
+const keyFileTemplate = "address-%s.pem"
+
+var keyFileRegex = regexp.MustCompile("address-([a-zA-Z0-9]+)\\.pem")
 
 type KeyStore struct {
 	path string
 }
 
 func NewKeyStore(path string) *KeyStore {
+	if _, err := os.Stat(path); os.IsNotExist(err) {
+		os.MkdirAll(filepath.Clean(path), 0700)
+	}
 	return &KeyStore{path: path}
+}
+
+func (store *KeyStore) ListIdentity() ([]*identity.Identity, error) {
+	infos, err := ioutil.ReadDir(store.path)
+	if err != nil {
+		return nil, err
+	}
+
+	var addrs []string
+	for _, info := range infos {
+		if keyFileRegex.MatchString(info.Name()) {
+			addr := keyFileRegex.ReplaceAllString(info.Name(), "${1}")
+			addrs = append(addrs, addr)
+		}
+	}
+
+	var result *multierror.Error
+	var ids []*identity.Identity
+	for _, addr := range addrs {
+		id, err := store.GetIdentity(addr)
+		if err != nil {
+			result = multierror.Append(result, err)
+		}
+
+		ids = append(ids, id)
+	}
+
+	return ids, result.ErrorOrNil()
 }
 
 func (store *KeyStore) GetIdentity(address string) (*identity.Identity, error) {
@@ -87,5 +123,5 @@ func readBlockFromFile(filename string) (*pem.Block, error) {
 }
 
 func buildPemFilename(path, address string) string {
-	return filepath.Join(path, fmt.Sprintf("address-%s.pem", address))
+	return filepath.Join(path, fmt.Sprintf(keyFileTemplate, address))
 }
