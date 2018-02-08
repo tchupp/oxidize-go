@@ -1,0 +1,31 @@
+package cmd
+
+import (
+	"fmt"
+
+	"github.com/fatih/color"
+	"github.com/spf13/cobra"
+)
+
+func init() {
+	WalletCmd.AddCommand(createAddressCommand)
+}
+
+var createAddressCommand = &cobra.Command{
+	Use:  "new",
+	Long: "Create a new address for the wallet",
+	Run:  runCreateAddressCommand,
+}
+
+var runCreateAddressCommand = func(cmd *cobra.Command, args []string) {
+	wallet := buildWallet()
+
+	newIdentity, err := wallet.NewIdentity()
+	if err != nil {
+		color.Red("error saving new address: %s\n", err)
+		return
+	}
+
+	fmt.Print("Saved new address: ", newIdentity)
+	color.White("%s\n", newIdentity)
+}
