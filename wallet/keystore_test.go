@@ -17,7 +17,7 @@ func TestKeyStore_SaveAccount(t *testing.T) {
 		t.Fatalf("saving identity: %s", err)
 	}
 
-	readIdentity, err := keyStore.GetIdentity(randomIdentity.Address())
+	readIdentity, err := keyStore.Identity(randomIdentity.Address())
 	if err != nil {
 		t.Fatalf("reading identity: %s", err)
 	}
@@ -41,7 +41,7 @@ func TestKeyStore_ListIdentity(t *testing.T) {
 		t.Fatalf("saving identity: %s", err)
 	}
 
-	identities, err := keyStore.ListIdentity()
+	identities, err := keyStore.Identities()
 	if err != nil {
 		t.Fatalf("reading identity list: %s", err)
 	}

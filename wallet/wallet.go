@@ -1,35 +1,32 @@
 package wallet
 
 import (
-	"github.com/tclchiam/oxidize-go/crypto"
 	"github.com/tclchiam/oxidize-go/identity"
 )
 
-type Wallet struct {
-	PrivateKey *crypto.PrivateKey
-	PublicKey  *crypto.PublicKey
-
-	identity *identity.Identity
+type Wallet interface {
+	Identities() ([]*identity.Identity, error)
+	NewIdentity() (*identity.Identity, error)
 }
 
-func NewWallet() *Wallet {
-	privateKey := crypto.NewP256PrivateKey()
-	return newWallet(privateKey)
+type wallet struct {
+	store *KeyStore
 }
 
-func newWallet(privateKey *crypto.PrivateKey) *Wallet {
-	return &Wallet{PrivateKey: privateKey, PublicKey: privateKey.PubKey()}
+func NewWallet(store *KeyStore) Wallet {
+	return &wallet{store: store}
 }
 
-func (w *Wallet) GetAddress() *identity.Identity {
-	if w.identity != nil {
-		return w.identity
+func (w *wallet) Identities() ([]*identity.Identity, error) {
+	return w.store.Identities()
+}
+
+func (w *wallet) NewIdentity() (*identity.Identity, error) {
+	newIdentity := identity.RandomIdentity()
+	err := w.store.SaveIdentity(newIdentity)
+	if err != nil {
+		return nil, err
 	}
 
-	w.identity = identity.NewIdentity(w.PrivateKey)
-	return w.identity
-}
-
-func (w *Wallet) String() string {
-	return w.GetAddress().String()
+	return newIdentity, nil
 }

@@ -30,7 +30,7 @@ func NewKeyStore(path string) *KeyStore {
 	return &KeyStore{path: path}
 }
 
-func (store *KeyStore) ListIdentity() ([]*identity.Identity, error) {
+func (store *KeyStore) Identities() ([]*identity.Identity, error) {
 	infos, err := ioutil.ReadDir(store.path)
 	if err != nil {
 		return nil, err
@@ -47,7 +47,7 @@ func (store *KeyStore) ListIdentity() ([]*identity.Identity, error) {
 	var result *multierror.Error
 	var ids []*identity.Identity
 	for _, addr := range addrs {
-		id, err := store.GetIdentity(addr)
+		id, err := store.Identity(addr)
 		if err != nil {
 			result = multierror.Append(result, err)
 		}
@@ -58,7 +58,7 @@ func (store *KeyStore) ListIdentity() ([]*identity.Identity, error) {
 	return ids, result.ErrorOrNil()
 }
 
-func (store *KeyStore) GetIdentity(address string) (*identity.Identity, error) {
+func (store *KeyStore) Identity(address string) (*identity.Identity, error) {
 	filename := buildPemFilename(store.path, address)
 
 	block, err := readBlockFromFile(filename)
