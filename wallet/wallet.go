@@ -7,6 +7,7 @@ import (
 type Wallet interface {
 	Identities() ([]*identity.Identity, error)
 	NewIdentity() (*identity.Identity, error)
+	Balance() (uint64, error)
 }
 
 type wallet struct {
@@ -29,4 +30,8 @@ func (w *wallet) NewIdentity() (*identity.Identity, error) {
 	}
 
 	return newIdentity, nil
+}
+
+func (w *wallet) Balance() (uint64, error) {
+	return 0, nil
 }
