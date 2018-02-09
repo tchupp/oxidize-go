@@ -5,7 +5,6 @@ import (
 	"google.golang.org/grpc"
 
 	"github.com/tclchiam/oxidize-go/blockchain/entity"
-	"github.com/tclchiam/oxidize-go/rpc"
 )
 
 type DiscoveryClient interface {
@@ -14,17 +13,17 @@ type DiscoveryClient interface {
 }
 
 type discoveryClient struct {
-	client rpc.DiscoveryServiceClient
+	client DiscoveryServiceClient
 }
 
 func NewDiscoveryClient(conn *grpc.ClientConn) DiscoveryClient {
-	client := rpc.NewDiscoveryServiceClient(conn)
+	client := NewDiscoveryServiceClient(conn)
 
 	return &discoveryClient{client: client}
 }
 
 func (c *discoveryClient) Ping() error {
-	request := &rpc.PingRequest{}
+	request := &PingRequest{}
 
 	ctx := context.Background()
 	_, err := c.client.Ping(ctx, request)
@@ -32,7 +31,7 @@ func (c *discoveryClient) Ping() error {
 }
 
 func (c *discoveryClient) Version() (*entity.Hash, error) {
-	request := &rpc.VersionRequest{}
+	request := &VersionRequest{}
 
 	ctx := context.Background()
 	response, err := c.client.Version(ctx, request)

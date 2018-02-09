@@ -1,7 +1,7 @@
 syntax = "proto2";
 
-package rpc;
-option go_package = "rpc";
+package p2p;
+option go_package = "p2p";
 
 service DiscoveryService {
     rpc Ping (PingRequest) returns (PingResponse);
