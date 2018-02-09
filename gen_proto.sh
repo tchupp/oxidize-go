@@ -9,7 +9,7 @@ main() {
   protoc --go_out=. encoding/entities.proto
 
   # gRPC
-  protoc --go_out=Mencoding/entities.proto=github.com/tclchiam/oxidize-go/encoding,plugins=grpc:. rpc/sync.proto
+  protoc --go_out=Mencoding/entities.proto=github.com/tclchiam/oxidize-go/encoding,plugins=grpc:. blockchain/blockrpc/sync.proto
   protoc --go_out=plugins=grpc:. p2p/discovery.proto
 }
 

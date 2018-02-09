@@ -7,7 +7,6 @@ import (
 	"github.com/golang/protobuf/proto"
 	"github.com/tclchiam/oxidize-go/blockchain/entity"
 	"github.com/tclchiam/oxidize-go/encoding"
-	"github.com/tclchiam/oxidize-go/rpc"
 )
 
 type SyncClient interface {
@@ -18,17 +17,17 @@ type SyncClient interface {
 }
 
 type syncClient struct {
-	client rpc.SyncServiceClient
+	client SyncServiceClient
 }
 
 func NewSyncClient(conn *grpc.ClientConn) SyncClient {
-	client := rpc.NewSyncServiceClient(conn)
+	client := NewSyncServiceClient(conn)
 
 	return &syncClient{client: client}
 }
 
 func (c *syncClient) GetBestHeader() (*entity.BlockHeader, error) {
-	request := &rpc.GetBestHeaderRequest{}
+	request := &GetBestHeaderRequest{}
 
 	ctx := context.Background()
 	response, err := c.client.GetBestHeader(ctx, request)
@@ -44,7 +43,7 @@ func (c *syncClient) GetBestHeader() (*entity.BlockHeader, error) {
 }
 
 func (c *syncClient) GetHeaders(latestHash *entity.Hash, latestIndex uint64) (entity.BlockHeaders, error) {
-	request := &rpc.GetHeadersRequest{
+	request := &GetHeadersRequest{
 		LatestHash:  latestHash.Slice(),
 		LatestIndex: proto.Uint64(latestIndex),
 	}
@@ -63,7 +62,7 @@ func (c *syncClient) GetHeaders(latestHash *entity.Hash, latestIndex uint64) (en
 }
 
 func (c *syncClient) GetBlock(hash *entity.Hash, index uint64) (*entity.Block, error) {
-	request := &rpc.GetBlockRequest{
+	request := &GetBlockRequest{
 		Hash:  hash.Slice(),
 		Index: proto.Uint64(index),
 	}

@@ -22,22 +22,26 @@ type syncServer struct {
 	backend syncBackend
 }
 
-func NewSyncServer(backend syncBackend) rpc.SyncServiceServer {
+func NewSyncServer(backend syncBackend) SyncServiceServer {
 	return &syncServer{backend: backend}
 }
 
-func (s *syncServer) GetBestHeader(ctx context.Context, req *rpc.GetBestHeaderRequest) (*rpc.GetBestHeaderResponse, error) {
+func RegisterSyncServer(s *rpc.Server, srv SyncServiceServer) {
+	s.Register(&_SyncService_serviceDesc, srv)
+}
+
+func (s *syncServer) GetBestHeader(ctx context.Context, req *GetBestHeaderRequest) (*GetBestHeaderResponse, error) {
 	header, err := s.backend.GetBestHeader()
 	if err != nil {
 		return nil, status.Errorf(codes.Internal, "error finding best header: %s", err)
 	}
 
-	return &rpc.GetBestHeaderResponse{
+	return &GetBestHeaderResponse{
 		Header: encoding.ToWireBlockHeader(header),
 	}, nil
 }
 
-func (s *syncServer) GetHeaders(ctx context.Context, req *rpc.GetHeadersRequest) (*rpc.GetHeadersResponse, error) {
+func (s *syncServer) GetHeaders(ctx context.Context, req *GetHeadersRequest) (*GetHeadersResponse, error) {
 	hash, err := entity.NewHash(req.GetLatestHash())
 	if err != nil {
 		return nil, status.Errorf(codes.InvalidArgument, "requested starting header hash was invalid: '%s'", req.GetLatestHash())
@@ -48,13 +52,13 @@ func (s *syncServer) GetHeaders(ctx context.Context, req *rpc.GetHeadersRequest)
 		return nil, status.Errorf(codes.Internal, "error finding previous headers")
 	}
 
-	return &rpc.GetHeadersResponse{
+	return &GetHeadersResponse{
 		HeaderCount: proto.Uint32(uint32(len(headers))),
 		Headers:     encoding.ToWireBlockHeaders(headers),
 	}, nil
 }
 
-func (s *syncServer) GetBlock(ctx context.Context, req *rpc.GetBlockRequest) (*rpc.GetBlockResponse, error) {
+func (s *syncServer) GetBlock(ctx context.Context, req *GetBlockRequest) (*GetBlockResponse, error) {
 	hash, err := entity.NewHash(req.GetHash())
 	if err != nil {
 		return nil, status.Errorf(codes.InvalidArgument, "requested starting header hash was invalid: '%s'", req.GetHash())
@@ -65,7 +69,7 @@ func (s *syncServer) GetBlock(ctx context.Context, req *rpc.GetBlockRequest) (*r
 		return nil, status.Errorf(codes.Internal, "error finding previous headers")
 	}
 
-	return &rpc.GetBlockResponse{
+	return &GetBlockResponse{
 		Block: encoding.ToWireBlock(block),
 	}, nil
 }

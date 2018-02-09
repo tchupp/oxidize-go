@@ -7,6 +7,7 @@ import (
 
 	"github.com/golang/protobuf/proto"
 	"github.com/tclchiam/oxidize-go/blockchain/entity"
+	"github.com/tclchiam/oxidize-go/rpc"
 )
 
 type discoveryBackend interface {
@@ -19,6 +20,10 @@ type discoveryServer struct {
 
 func NewDiscoveryServer(backend discoveryBackend) DiscoveryServiceServer {
 	return &discoveryServer{backend: backend}
+}
+
+func RegisterDiscoveryServer(s *rpc.Server, srv DiscoveryServiceServer) {
+	s.Register(&_DiscoveryService_serviceDesc, srv)
 }
 
 func (s *discoveryServer) Ping(ctx context.Context, req *PingRequest) (*PingResponse, error) {

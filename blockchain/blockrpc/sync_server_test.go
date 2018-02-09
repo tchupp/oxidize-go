@@ -33,7 +33,7 @@ func TestSyncServer_GetBestHeader(t *testing.T) {
 	}
 
 	server := rpc.NewServer(lis)
-	server.RegisterSyncServer(NewSyncServer(bc))
+	RegisterSyncServer(server, NewSyncServer(bc))
 	server.Serve()
 
 	conn, err := grpc.Dial(lis.Addr().String(), grpc.WithInsecure())
@@ -72,7 +72,7 @@ func TestSyncServer_GetHeaders(t *testing.T) {
 	}
 
 	server := rpc.NewServer(lis)
-	server.RegisterSyncServer(NewSyncServer(bc))
+	RegisterSyncServer(server, NewSyncServer(bc))
 	server.Serve()
 
 	conn, err := grpc.Dial(lis.Addr().String(), grpc.WithInsecure())

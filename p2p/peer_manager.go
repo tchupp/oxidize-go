@@ -3,7 +3,6 @@ package p2p
 import (
 	"sync"
 
-	"github.com/tclchiam/oxidize-go/rpc"
 	"google.golang.org/grpc"
 )
 
@@ -14,16 +13,16 @@ type PeerManager interface {
 }
 
 type peerManager struct {
-	rpc.ConnectionManager
+	ConnectionManager
 	peers Peers
 	lock  sync.RWMutex
 }
 
 func NewPeerManager() PeerManager {
-	return newPeerManager(rpc.NewConnectionManager())
+	return newPeerManager(NewConnectionManager())
 }
 
-func newPeerManager(connectionManager rpc.ConnectionManager) *peerManager {
+func newPeerManager(connectionManager ConnectionManager) *peerManager {
 	return &peerManager{
 		ConnectionManager: connectionManager,
 		peers:             Peers{},

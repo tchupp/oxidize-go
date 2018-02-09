@@ -19,8 +19,8 @@ func NewNode(bc blockchain.Blockchain, server *rpc.Server) Node {
 }
 
 func newNode(bc blockchain.Blockchain, server *rpc.Server) *baseNode {
-	server.RegisterSyncServer(blockrpc.NewSyncServer(bc))
-	server.RegisterDiscoveryServer(p2p.NewDiscoveryServer(bc))
+	blockrpc.RegisterSyncServer(server, blockrpc.NewSyncServer(bc))
+	p2p.RegisterDiscoveryServer(server, p2p.NewDiscoveryServer(bc))
 
 	return &baseNode{
 		bc:          bc,

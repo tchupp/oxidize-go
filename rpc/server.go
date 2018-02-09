@@ -30,12 +30,8 @@ func NewServer(listener net.Listener) *Server {
 	return &Server{server: grpcServer, listener: listener}
 }
 
-func (s *Server) RegisterSyncServer(service SyncServiceServer) {
-	RegisterSyncServiceServer(s.server, service)
-}
-
-func (s *Server) RegisterDiscoveryServer(service DiscoveryServiceServer) {
-	RegisterDiscoveryServiceServer(s.server, service)
+func (s *Server) Register(sd *grpc.ServiceDesc, ss interface{}) {
+	s.server.RegisterService(sd, ss)
 }
 
 func (s *Server) Serve() {

@@ -20,7 +20,7 @@ func TestDiscoveryServer_Ping(t *testing.T) {
 	}
 
 	server := rpc.NewServer(lis)
-	server.RegisterDiscoveryServer(NewDiscoveryServer(nil))
+	RegisterDiscoveryServer(server, NewDiscoveryServer(nil))
 	server.Serve()
 
 	conn, err := grpc.Dial(lis.Addr().String(), grpc.WithTimeout(500*time.Millisecond), grpc.WithInsecure())
@@ -70,7 +70,7 @@ func TestDiscoveryServer_Version(t *testing.T) {
 	}
 
 	server := rpc.NewServer(lis)
-	server.RegisterDiscoveryServer(NewDiscoveryServer(bc))
+	RegisterDiscoveryServer(server, NewDiscoveryServer(bc))
 	server.Serve()
 
 	conn, err := grpc.Dial(lis.Addr().String(), grpc.WithTimeout(500*time.Millisecond), grpc.WithInsecure())
