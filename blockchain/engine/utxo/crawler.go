@@ -14,7 +14,7 @@ func NewCrawlerEngine(repository entity.BlockRepository) Engine {
 	return &utxoCrawlerEngine{repository: repository}
 }
 
-func (engine *utxoCrawlerEngine) FindUnspentOutputs(spender *identity.Identity) (*TransactionOutputSet, error) {
+func (engine *utxoCrawlerEngine) FindUnspentOutputs(spender *identity.Address) (*TransactionOutputSet, error) {
 	inputs, err := findInputs(engine.repository)
 	if err != nil {
 		return nil, err

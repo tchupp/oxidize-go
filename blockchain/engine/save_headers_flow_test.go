@@ -12,7 +12,7 @@ import (
 )
 
 var (
-	miner = proofofwork.NewDefaultMiner(identity.RandomIdentity())
+	miner = proofofwork.NewDefaultMiner(identity.RandomIdentity().Address())
 
 	header1 = miner.MineBlock(&entity.GenesisParentHeader, entity.Transactions{}).Header()
 	header2 = miner.MineBlock(header1, entity.Transactions{}).Header()

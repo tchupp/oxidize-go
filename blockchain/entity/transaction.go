@@ -32,7 +32,7 @@ type (
 	}
 )
 
-func (tx *Transaction) IsCoinbase() bool {
+func (tx *Transaction) IsReward() bool {
 	return len(tx.Inputs) == 0
 }
 
@@ -40,7 +40,7 @@ func (tx *Transaction) String() string {
 	var lines []string
 
 	lines = append(lines, fmt.Sprintf("--- Transaction %s:", tx.ID))
-	lines = append(lines, fmt.Sprintf("     Is Coinbase: %s", strconv.FormatBool(tx.IsCoinbase())))
+	lines = append(lines, fmt.Sprintf("     Is Reward: %s", strconv.FormatBool(tx.IsReward())))
 	lines = append(lines, fmt.Sprintf("     Secret:      %x", tx.Secret))
 
 	for _, input := range tx.Inputs {
@@ -54,9 +54,9 @@ func (tx *Transaction) String() string {
 	return strings.Join(lines, "\n")
 }
 
-func NewCoinbaseTx(coinbase *identity.Identity, encoder TransactionEncoder) *Transaction {
+func NewRewardTx(beneficiary *identity.Address, encoder TransactionEncoder) *Transaction {
 	var inputs []*SignedInput
-	outputs := []*Output{NewOutput(subsidy, coinbase)}
+	outputs := []*Output{NewOutput(subsidy, beneficiary)}
 
 	return NewTx(inputs, outputs, encoder)
 }

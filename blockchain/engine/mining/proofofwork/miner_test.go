@@ -28,11 +28,11 @@ var (
 		Difficulty:       4,
 	}
 
-	coinbase = identity.RandomIdentity()
+	beneficiary = identity.RandomIdentity().Address()
 )
 
 func BenchmarkNewMiner_8(b *testing.B) {
-	miner := NewMiner(8, coinbase).(*miner)
+	miner := NewMiner(8, beneficiary).(*miner)
 
 	b.ResetTimer()
 	for n := 0; n < b.N; n++ {
@@ -41,7 +41,7 @@ func BenchmarkNewMiner_8(b *testing.B) {
 }
 
 func BenchmarkNewMiner_16(b *testing.B) {
-	miner := NewMiner(16, coinbase).(*miner)
+	miner := NewMiner(16, beneficiary).(*miner)
 
 	b.ResetTimer()
 	for n := 0; n < b.N; n++ {
@@ -50,7 +50,7 @@ func BenchmarkNewMiner_16(b *testing.B) {
 }
 
 func BenchmarkNewMiner_32(b *testing.B) {
-	miner := NewMiner(32, coinbase).(*miner)
+	miner := NewMiner(32, beneficiary).(*miner)
 
 	b.ResetTimer()
 	for n := 0; n < b.N; n++ {
@@ -59,7 +59,7 @@ func BenchmarkNewMiner_32(b *testing.B) {
 }
 
 func BenchmarkNewMiner_64(b *testing.B) {
-	miner := NewMiner(64, coinbase).(*miner)
+	miner := NewMiner(64, beneficiary).(*miner)
 
 	b.ResetTimer()
 	for n := 0; n < b.N; n++ {
@@ -68,7 +68,7 @@ func BenchmarkNewMiner_64(b *testing.B) {
 }
 
 func BenchmarkNewMiner_128(b *testing.B) {
-	miner := NewMiner(128, coinbase).(*miner)
+	miner := NewMiner(128, beneficiary).(*miner)
 
 	b.ResetTimer()
 	for n := 0; n < b.N; n++ {
@@ -77,7 +77,7 @@ func BenchmarkNewMiner_128(b *testing.B) {
 }
 
 func BenchmarkNewMiner_256(b *testing.B) {
-	miner := NewMiner(256, coinbase).(*miner)
+	miner := NewMiner(256, beneficiary).(*miner)
 
 	b.ResetTimer()
 	for n := 0; n < b.N; n++ {
@@ -86,7 +86,7 @@ func BenchmarkNewMiner_256(b *testing.B) {
 }
 
 func BenchmarkNewDefaultMiner(b *testing.B) {
-	miner := NewDefaultMiner(coinbase).(*miner)
+	miner := NewDefaultMiner(beneficiary).(*miner)
 
 	b.ResetTimer()
 	for n := 0; n < b.N; n++ {

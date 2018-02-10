@@ -97,16 +97,16 @@ func TestSyncServer_GetHeaders(t *testing.T) {
 }
 
 func saveRandomBlocks(bc blockchain.Blockchain, num int) error {
-	miner := proofofwork.NewDefaultMiner(identity.RandomIdentity())
+	miner := proofofwork.NewDefaultMiner(identity.RandomIdentity().Address())
 
 	for i := 0; i < num; i++ {
-		coinbase := identity.RandomIdentity()
+		beneficiary := identity.RandomIdentity().Address()
 		head, err := bc.GetBestHeader()
 		if err != nil {
 			return fmt.Errorf("error reading best header")
 		}
 
-		transactions := entity.Transactions{entity.NewCoinbaseTx(coinbase, encoding.TransactionProtoEncoder())}
+		transactions := entity.Transactions{entity.NewRewardTx(beneficiary, encoding.TransactionProtoEncoder())}
 		block := miner.MineBlock(head, transactions)
 		bc.SaveBlock(block)
 	}

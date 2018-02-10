@@ -150,16 +150,16 @@ func buildListener(t *testing.T) net.Listener {
 }
 
 func saveRandomBlocks(t *testing.T, bc blockchain.Blockchain, num int) {
-	miner := proofofwork.NewDefaultMiner(identity.RandomIdentity())
+	miner := proofofwork.NewDefaultMiner(identity.RandomIdentity().Address())
 
 	for i := 0; i < num; i++ {
-		coinbase := identity.RandomIdentity()
+		beneficiary := identity.RandomIdentity().Address()
 		head, err := bc.GetBestHeader()
 		if err != nil {
 			t.Fatal("error reading best header")
 		}
 
-		transactions := entity.Transactions{entity.NewCoinbaseTx(coinbase, encoding.TransactionProtoEncoder())}
+		transactions := entity.Transactions{entity.NewRewardTx(beneficiary, encoding.TransactionProtoEncoder())}
 		block := miner.MineBlock(head, transactions)
 		bc.SaveBlock(block)
 	}

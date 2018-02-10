@@ -14,7 +14,7 @@ type Output struct {
 	PublicKeyHash []byte
 }
 
-func NewOutput(value uint32, spender *identity.Identity) *Output {
+func NewOutput(value uint32, spender *identity.Address) *Output {
 	return &Output{Value: value, PublicKeyHash: spender.PublicKeyHash()}
 }
 
@@ -29,7 +29,7 @@ func (output *Output) String() string {
 	return strings.Join(lines, "\n")
 }
 
-func (output *Output) ReceivedBy(receiver *identity.Identity) bool {
+func (output *Output) ReceivedBy(receiver *identity.Address) bool {
 	return bytes.Compare(output.PublicKeyHash, receiver.PublicKeyHash()) == 0
 }
 

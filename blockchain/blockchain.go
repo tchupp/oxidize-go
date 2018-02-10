@@ -12,7 +12,7 @@ import (
 type Blockchain interface {
 	ForEachBlock(consume func(*entity.Block)) error
 
-	ReadBalance(identity *identity.Identity) (uint32, error)
+	Balance(identity *identity.Address) (uint32, error)
 
 	GetBestHeader() (*entity.BlockHeader, error)
 	GetHeader(hash *entity.Hash) (*entity.BlockHeader, error)
@@ -27,7 +27,7 @@ type Blockchain interface {
 	GetBlockByIndex(index uint64) (*entity.Block, error)
 	SaveBlock(block *entity.Block) error
 
-	Send(spender, receiver, coinbase *identity.Identity, expense uint32) error
+	Send(spender *identity.Identity, receiver *identity.Address, expense uint32) error
 }
 
 type blockchain struct {
@@ -53,8 +53,8 @@ func (bc *blockchain) ForEachBlock(consume func(*entity.Block)) error {
 	return iter.ForEachBlock(bc.repository, consume)
 }
 
-func (bc *blockchain) ReadBalance(identity *identity.Identity) (uint32, error) {
-	return engine.ReadBalance(identity, bc.utxoEngine)
+func (bc *blockchain) Balance(address *identity.Address) (uint32, error) {
+	return engine.ReadBalance(address, bc.utxoEngine)
 }
 
 func (bc *blockchain) GetBestHeader() (*entity.BlockHeader, error) {
@@ -121,7 +121,7 @@ func (bc *blockchain) SaveBlock(block *entity.Block) error {
 	return bc.repository.SaveBlock(block)
 }
 
-func (bc *blockchain) Send(spender, receiver, coinbase *identity.Identity, expense uint32) error {
+func (bc *blockchain) Send(spender *identity.Identity, receiver *identity.Address, expense uint32) error {
 	expenseTransaction, err := engine.BuildExpenseTransaction(spender, receiver, expense, bc.utxoEngine)
 	if err != nil {
 		return err

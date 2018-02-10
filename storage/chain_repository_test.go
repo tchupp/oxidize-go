@@ -13,7 +13,7 @@ import (
 
 var (
 	blockEncoder = encoding.BlockProtoEncoder()
-	miner        = proofofwork.NewDefaultMiner(identity.RandomIdentity())
+	miner        = proofofwork.NewDefaultMiner(identity.RandomIdentity().Address())
 
 	block1 = miner.MineBlock(&entity.GenesisParentHeader, entity.Transactions{})
 	block2 = miner.MineBlock(block1.Header(), entity.Transactions{})

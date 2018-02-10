@@ -10,8 +10,8 @@ import (
 	"github.com/tclchiam/oxidize-go/identity"
 )
 
-func BuildExpenseTransaction(spender, receiver *identity.Identity, expense uint32, engine utxo.Engine) (*entity.Transaction, error) {
-	unspentOutputs, err := engine.FindUnspentOutputs(spender)
+func BuildExpenseTransaction(spender *identity.Identity, receiver *identity.Address, expense uint32, engine utxo.Engine) (*entity.Transaction, error) {
+	unspentOutputs, err := engine.FindUnspentOutputs(spender.Address())
 	if err != nil {
 		return nil, err
 	}
@@ -23,7 +23,7 @@ func BuildExpenseTransaction(spender, receiver *identity.Identity, expense uint3
 
 	finalizedOutputs := entity.EmptyOutputs().
 		Add(entity.NewOutput(expense, receiver)).
-		Add(entity.NewOutput(balance-expense, spender)).
+		Add(entity.NewOutput(balance-expense, spender.Address())).
 		Filter(func(output *entity.Output) bool { return output.Value != 0 }).
 		Reduce(make([]*entity.Output, 0), collectOutputs).([]*entity.Output)
 

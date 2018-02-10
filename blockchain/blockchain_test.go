@@ -22,7 +22,7 @@ func TestBlockchain_Workflow(t *testing.T) {
 	t.Run("Sending: expense < balance", func(t *testing.T) {
 		bc := setupBlockchain(t, owner)
 
-		err := bc.Send(owner, actor1, owner, 3)
+		err := bc.Send(owner, actor1.Address(), 3)
 		if err != nil {
 			t.Fatalf("error sending: %s", err)
 		}
@@ -34,7 +34,7 @@ func TestBlockchain_Workflow(t *testing.T) {
 	t.Run("Sending: expense == balance", func(t *testing.T) {
 		bc := setupBlockchain(t, owner)
 
-		err := bc.Send(owner, actor1, owner, 10)
+		err := bc.Send(owner, actor1.Address(), 10)
 		if err != nil {
 			t.Fatalf("error sending: %s", err)
 		}
@@ -46,7 +46,7 @@ func TestBlockchain_Workflow(t *testing.T) {
 	t.Run("Sending: expense > balance", func(t *testing.T) {
 		bc := setupBlockchain(t, owner)
 
-		err := bc.Send(owner, actor1, owner, 13)
+		err := bc.Send(owner, actor1.Address(), 13)
 		if err == nil {
 			t.Fatalf("expected error")
 		}
@@ -63,7 +63,7 @@ func TestBlockchain_Workflow(t *testing.T) {
 	t.Run("Sending: many", func(t *testing.T) {
 		bc := setupBlockchain(t, owner)
 
-		err := bc.Send(owner, actor1, owner, 1)
+		err := bc.Send(owner, actor1.Address(), 1)
 		if err != nil {
 			t.Fatalf("error sending: %s", err)
 		}
@@ -74,7 +74,7 @@ func TestBlockchain_Workflow(t *testing.T) {
 		verifyBalance(t, bc, actor3, 0)
 		verifyBalance(t, bc, actor4, 0)
 
-		err = bc.Send(owner, actor2, owner, 1)
+		err = bc.Send(owner, actor2.Address(), 1)
 		if err != nil {
 			t.Fatalf("error sending: %s", err)
 		}
@@ -85,7 +85,7 @@ func TestBlockchain_Workflow(t *testing.T) {
 		verifyBalance(t, bc, actor3, 0)
 		verifyBalance(t, bc, actor4, 0)
 
-		err = bc.Send(owner, actor3, owner, 1)
+		err = bc.Send(owner, actor3.Address(), 1)
 		if err != nil {
 			t.Fatalf("error sending: %s", err)
 		}
@@ -96,7 +96,7 @@ func TestBlockchain_Workflow(t *testing.T) {
 		verifyBalance(t, bc, actor3, 1)
 		verifyBalance(t, bc, actor4, 0)
 
-		err = bc.Send(owner, actor4, owner, 1)
+		err = bc.Send(owner, actor4.Address(), 1)
 		if err != nil {
 			t.Fatalf("error sending: %s", err)
 		}
@@ -110,7 +110,7 @@ func TestBlockchain_Workflow(t *testing.T) {
 }
 
 func verifyBalance(t *testing.T, bc blockchain.Blockchain, spender *identity.Identity, expectedBalance uint32) {
-	balance, err := bc.ReadBalance(spender)
+	balance, err := bc.Balance(spender.Address())
 
 	if err != nil {
 		t.Fatalf("reading balance for '%s': %s", spender, err)
@@ -122,7 +122,7 @@ func verifyBalance(t *testing.T, bc blockchain.Blockchain, spender *identity.Ide
 
 func setupBlockchain(t *testing.T, owner *identity.Identity) blockchain.Blockchain {
 	repository := memdb.NewChainRepository()
-	miner := proofofwork.NewDefaultMiner(owner)
+	miner := proofofwork.NewDefaultMiner(owner.Address())
 
 	genesisBlock := miner.MineBlock(&entity.GenesisParentHeader, entity.Transactions{})
 	if err := repository.SaveBlock(genesisBlock); err != nil {

@@ -23,20 +23,20 @@ var (
 
 type miner struct {
 	workerCount        uint
-	coinbase           *identity.Identity
+	beneficiary        *identity.Address
 	transactionEncoder entity.TransactionEncoder
 }
 
-func NewMiner(workerCount uint, coinbase *identity.Identity) mining.Miner {
-	return &miner{workerCount: workerCount, coinbase: coinbase, transactionEncoder: encoding.TransactionProtoEncoder()}
+func NewMiner(workerCount uint, beneficiary *identity.Address) mining.Miner {
+	return &miner{workerCount: workerCount, beneficiary: beneficiary, transactionEncoder: encoding.TransactionProtoEncoder()}
 }
 
-func NewDefaultMiner(coinbase *identity.Identity) mining.Miner {
-	return NewMiner(defaultWorkerCount, coinbase)
+func NewDefaultMiner(beneficiary *identity.Address) mining.Miner {
+	return NewMiner(defaultWorkerCount, beneficiary)
 }
 
 func (miner *miner) MineBlock(parent *entity.BlockHeader, transactions entity.Transactions) *entity.Block {
-	reward := entity.NewCoinbaseTx(miner.coinbase, miner.transactionEncoder)
+	reward := entity.NewRewardTx(miner.beneficiary, miner.transactionEncoder)
 
 	return miner.mineBlock(parent, transactions.Add(reward), uint64(time.Now().Unix()))
 }

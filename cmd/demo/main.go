@@ -20,7 +20,7 @@ func main() {
 
 	fmt.Printf("Owner: '%s', receiver: '%s'\n", owner, receiver)
 
-	miner := proofofwork.NewDefaultMiner(owner)
+	miner := proofofwork.NewDefaultMiner(owner.Address())
 
 	repository := boltdb.Builder(blockchainName, encoding.BlockProtoEncoder()).
 		WithCache().
@@ -40,11 +40,11 @@ func main() {
 		log.Panic(err)
 	}
 
-	err = bc.Send(owner, receiver, owner, 7)
+	err = bc.Send(owner, receiver.Address(), 7)
 	if err != nil {
 		log.Panic(err)
 	}
-	err = bc.Send(receiver, owner, owner, 4)
+	err = bc.Send(receiver, owner.Address(), 4)
 	if err != nil {
 		log.Panic(err)
 	}
@@ -56,13 +56,13 @@ func main() {
 		log.Panic(err)
 	}
 
-	balance, err := bc.ReadBalance(owner)
+	balance, err := bc.Balance(owner.Address())
 	if err != nil {
 		log.Panic(err)
 	}
 	fmt.Printf("Balance of '%s': %d\n\n", owner, balance)
 
-	balance, err = bc.ReadBalance(receiver)
+	balance, err = bc.Balance(receiver.Address())
 	if err != nil {
 		log.Panic(err)
 	}
