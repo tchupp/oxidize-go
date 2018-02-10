@@ -1,12 +1,10 @@
 package entity
 
 import (
-	"bytes"
 	"fmt"
 	"strings"
 
 	"github.com/tclchiam/oxidize-go/crypto"
-	"github.com/tclchiam/oxidize-go/identity"
 )
 
 type SignedInput struct {
@@ -31,13 +29,6 @@ func (input *SignedInput) String() string {
 	lines = append(lines, fmt.Sprintf("       PublicKey:     %x", input.PublicKey))
 	lines = append(lines, fmt.Sprintf("       Signature:     %x", input.Signature))
 	return strings.Join(lines, "\n")
-}
-
-func (input *SignedInput) SpentBy(spender *identity.Identity) bool {
-	publicKeyHash := spender.PublicKeyHash()
-	lockingHash := input.PublicKey.Hash()
-
-	return bytes.Compare(lockingHash, publicKeyHash) == 0
 }
 
 func EmptySingedInputs() SignedInputs {

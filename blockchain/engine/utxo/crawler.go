@@ -26,7 +26,7 @@ func (engine *utxoCrawlerEngine) FindUnspentOutputs(spender *identity.Address) (
 	}
 
 	spentOutputs := inputs.
-		Reduce(make(map[*entity.Hash][]*entity.Output), addInputToMap).(map[*entity.Hash][]*entity.Output)
+		Reduce(make(map[string][]*entity.Output), addInputToMap).(map[string][]*entity.Output)
 
 	return outputsByTx.
 		Filter(func(_ *entity.Transaction, output *entity.Output) bool { return output.ReceivedBy(spender) }).
@@ -64,9 +64,9 @@ func findOutputsByTransaction(repository entity.BlockRepository) (*TransactionOu
 	return outputsForAddress, err
 }
 
-var isUnspent = func(spentOutputs map[*entity.Hash][]*entity.Output) func(*entity.Transaction, *entity.Output) bool {
+var isUnspent = func(spentOutputs map[string][]*entity.Output) func(*entity.Transaction, *entity.Output) bool {
 	return func(transaction *entity.Transaction, output *entity.Output) bool {
-		if outputs, ok := spentOutputs[transaction.ID]; ok {
+		if outputs, ok := spentOutputs[transaction.ID.String()]; ok {
 			for _, spentOutput := range outputs {
 				if spentOutput.IsEqual(output) {
 					return false
@@ -78,8 +78,8 @@ var isUnspent = func(spentOutputs map[*entity.Hash][]*entity.Output) func(*entit
 }
 
 var addInputToMap = func(res interface{}, input *entity.SignedInput) interface{} {
-	outputs := res.(map[*entity.Hash][]*entity.Output)
-	transactionId := input.OutputReference.ID
+	outputs := res.(map[string][]*entity.Output)
+	transactionId := input.OutputReference.ID.String()
 	outputs[transactionId] = append(outputs[transactionId], input.OutputReference.Output)
 
 	return res

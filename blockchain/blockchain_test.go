@@ -8,8 +8,9 @@ import (
 	"github.com/tclchiam/oxidize-go/blockchain"
 	"github.com/tclchiam/oxidize-go/blockchain/engine/mining/proofofwork"
 	"github.com/tclchiam/oxidize-go/blockchain/entity"
+	"github.com/tclchiam/oxidize-go/encoding"
 	"github.com/tclchiam/oxidize-go/identity"
-	"github.com/tclchiam/oxidize-go/storage/memdb"
+	"github.com/tclchiam/oxidize-go/storage/boltdb"
 )
 
 func TestBlockchain_Workflow(t *testing.T) {
@@ -20,7 +21,9 @@ func TestBlockchain_Workflow(t *testing.T) {
 	actor4 := identity.RandomIdentity()
 
 	t.Run("Sending: expense < balance", func(t *testing.T) {
-		bc := setupBlockchain(t, owner)
+		const name = "test1"
+		bc := setupBlockchain(t, name, owner)
+		defer boltdb.DeleteBlockchain(name)
 
 		err := bc.Send(owner, actor1.Address(), 3)
 		if err != nil {
@@ -32,7 +35,9 @@ func TestBlockchain_Workflow(t *testing.T) {
 	})
 
 	t.Run("Sending: expense == balance", func(t *testing.T) {
-		bc := setupBlockchain(t, owner)
+		const name = "test2"
+		bc := setupBlockchain(t, name, owner)
+		defer boltdb.DeleteBlockchain(name)
 
 		err := bc.Send(owner, actor1.Address(), 10)
 		if err != nil {
@@ -44,7 +49,9 @@ func TestBlockchain_Workflow(t *testing.T) {
 	})
 
 	t.Run("Sending: expense > balance", func(t *testing.T) {
-		bc := setupBlockchain(t, owner)
+		const name = "test3"
+		bc := setupBlockchain(t, name, owner)
+		defer boltdb.DeleteBlockchain(name)
 
 		err := bc.Send(owner, actor1.Address(), 13)
 		if err == nil {
@@ -61,7 +68,9 @@ func TestBlockchain_Workflow(t *testing.T) {
 	})
 
 	t.Run("Sending: many", func(t *testing.T) {
-		bc := setupBlockchain(t, owner)
+		const name = "test4"
+		bc := setupBlockchain(t, name, owner)
+		defer boltdb.DeleteBlockchain(name)
 
 		err := bc.Send(owner, actor1.Address(), 1)
 		if err != nil {
@@ -120,8 +129,11 @@ func verifyBalance(t *testing.T, bc blockchain.Blockchain, spender *identity.Ide
 	}
 }
 
-func setupBlockchain(t *testing.T, owner *identity.Identity) blockchain.Blockchain {
-	repository := memdb.NewChainRepository()
+func setupBlockchain(t *testing.T, name string, owner *identity.Identity) blockchain.Blockchain {
+	repository := boltdb.Builder(name, encoding.BlockProtoEncoder()).
+		WithCache().
+		WithLogger().
+		Build()
 	miner := proofofwork.NewDefaultMiner(owner.Address())
 
 	genesisBlock := miner.MineBlock(&entity.GenesisParentHeader, entity.Transactions{})
