@@ -74,7 +74,7 @@ func (store *KeyStore) Identity(address string) (*identity.Identity, error) {
 }
 
 func (store *KeyStore) SaveIdentity(identity *identity.Identity) error {
-	filename := buildPemFilename(store.path, identity.Address())
+	filename := buildPemFilename(store.path, identity.Address().Serialize())
 
 	bytes, err := x509.MarshalECPrivateKey(identity.PrivateKey().ToECDSA())
 	if err != nil {

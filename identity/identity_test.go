@@ -10,26 +10,26 @@ import (
 	"golang.org/x/crypto/ripemd160"
 )
 
-func TestAddress_Base58(t *testing.T) {
+func TestIdentity_Base58(t *testing.T) {
 	privateKey := crypto.NewP256PrivateKey()
-	address := NewIdentity(privateKey)
+	identity := NewIdentity(privateKey)
 
 	input := [][]byte{
 		{version},
-		address.PublicKeyHash(),
-		address.Checksum(),
+		identity.PublicKeyHash(),
+		identity.Checksum(),
 	}
 	expectedBase58 := base58.Encode(bytes.Join(input, []byte{}))
 
 	if len(expectedBase58) != 34 {
 		t.Errorf("Expected len did not equal actual. Got: %d, wanted: %d", len(expectedBase58), 34)
 	}
-	if expectedBase58 != address.Address() {
-		t.Errorf("Expected base58 did not equal actual. Got: '%s', wanted: '%s'", address.Address(), expectedBase58)
+	if expectedBase58 != identity.Address().String() {
+		t.Errorf("Expected base58 did not equal actual. Got: '%s', wanted: '%s'", identity.Address(), expectedBase58)
 	}
 }
 
-func TestAddress_Version(t *testing.T) {
+func TestIdentity_Version(t *testing.T) {
 	privateKey := crypto.NewP256PrivateKey()
 	address := NewIdentity(privateKey)
 
@@ -40,7 +40,7 @@ func TestAddress_Version(t *testing.T) {
 	}
 }
 
-func TestAddress_PublicKeyHash(t *testing.T) {
+func TestIdentity_PublicKeyHash(t *testing.T) {
 	privateKey := crypto.NewP256PrivateKey()
 	publicKey := privateKey.PubKey()
 	address := NewIdentity(privateKey)
@@ -59,7 +59,7 @@ func TestAddress_PublicKeyHash(t *testing.T) {
 	}
 }
 
-func TestAddress_Checksum(t *testing.T) {
+func TestIdentity_Checksum(t *testing.T) {
 	privateKey := crypto.NewP256PrivateKey()
 	address := NewIdentity(privateKey)
 

@@ -1,10 +1,8 @@
 package identity
 
 import (
-	"bytes"
 	"crypto/sha256"
 
-	"github.com/mr-tron/base58/base58"
 	"github.com/tclchiam/oxidize-go/crypto"
 	"golang.org/x/crypto/ripemd160"
 )
@@ -60,23 +58,22 @@ func checksum(publicKeyHash []byte) []byte {
 	return secondSHA[:checksumLength]
 }
 
-func (a *Identity) Address() string {
-	input := [][]byte{
-		{version},
+func (a *Identity) Address() *Address {
+	return &Address{
+		version,
 		a.publicKeyHash,
 		a.checksum,
 	}
-	return base58.Encode(bytes.Join(input, []byte{}))
 }
 
 func (a *Identity) Sign(data []byte) (*crypto.Signature, error) {
 	return a.privateKey.Sign(data)
 }
 
-func (a *Identity) String() string                 { return a.Address() }
+func (a *Identity) String() string                 { return a.Address().String() }
 func (a *Identity) Version() byte                  { return a.version }
 func (a *Identity) PrivateKey() *crypto.PrivateKey { return a.privateKey }
 func (a *Identity) PublicKey() *crypto.PublicKey   { return a.publicKey }
 func (a *Identity) PublicKeyHash() []byte          { return a.publicKeyHash }
 func (a *Identity) Checksum() []byte               { return a.checksum }
-func (a *Identity) IsEqual(other *Identity) bool   { return a.Address() == other.Address() }
+func (a *Identity) IsEqual(other *Identity) bool   { return a.Address().IsEqual(other.Address()) }
