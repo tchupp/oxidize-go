@@ -1,16 +1,19 @@
 package wallet
 
 import (
+	"crypto/rand"
+	"fmt"
 	"os"
+	"path/filepath"
 	"testing"
 
-	"github.com/stretchr/testify/assert"
 	"github.com/tclchiam/oxidize-go/identity"
 )
 
 func TestKeyStore_SaveAccount(t *testing.T) {
 	randomIdentity := identity.RandomIdentity()
-	keyStore := NewKeyStore(os.TempDir())
+	keyStore := NewKeyStore(makeKeystoreDir())
+	defer os.RemoveAll(keyStore.path)
 
 	err := keyStore.SaveIdentity(randomIdentity)
 	if err != nil {
@@ -30,7 +33,8 @@ func TestKeyStore_SaveAccount(t *testing.T) {
 func TestKeyStore_ListIdentity(t *testing.T) {
 	randomIdentity1 := identity.RandomIdentity()
 	randomIdentity2 := identity.RandomIdentity()
-	keyStore := NewKeyStore(os.TempDir())
+	keyStore := NewKeyStore(makeKeystoreDir())
+	defer os.RemoveAll(keyStore.path)
 
 	err := keyStore.SaveIdentity(randomIdentity1)
 	if err != nil {
@@ -46,5 +50,18 @@ func TestKeyStore_ListIdentity(t *testing.T) {
 		t.Fatalf("reading identity list: %s", err)
 	}
 
-	assert.Subset(t, identities, []*identity.Identity{randomIdentity1, randomIdentity2})
+	if len(identities) != 2 {
+		t.Errorf("unexpected number of identities. got - %d, wanted - %d", len(identities), 2)
+	}
+	for _, id := range identities {
+		if !id.IsEqual(randomIdentity1) && !id.IsEqual(randomIdentity2) {
+			t.Errorf("unexpected identity. got - %s. not %s or %s", id, randomIdentity1, randomIdentity2)
+		}
+	}
+}
+
+func makeKeystoreDir() string {
+	secret := make([]byte, 10)
+	rand.Read(secret)
+	return filepath.Join(os.TempDir(), fmt.Sprintf("%x", secret))
 }

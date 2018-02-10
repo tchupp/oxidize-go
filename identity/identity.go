@@ -19,6 +19,8 @@ type Identity struct {
 
 	publicKey  *crypto.PublicKey
 	privateKey *crypto.PrivateKey
+
+	address *Address
 }
 
 func RandomIdentity() *Identity {
@@ -59,11 +61,16 @@ func checksum(publicKeyHash []byte) []byte {
 }
 
 func (a *Identity) Address() *Address {
-	return &Address{
+	if a.address != nil {
+		return a.address
+	}
+
+	a.address = &Address{
 		version,
 		a.publicKeyHash,
 		a.checksum,
 	}
+	return a.address
 }
 
 func (a *Identity) Sign(data []byte) (*crypto.Signature, error) {
