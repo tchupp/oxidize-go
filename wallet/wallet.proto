@@ -1,0 +1,23 @@
+syntax = "proto2";
+
+package rpc;
+option go_package = "rpc";
+
+service WalletService {
+    rpc Balance (BalanceRequest) returns (BalanceResponse);
+}
+
+message BalanceRequest {
+    repeated string addresses = 1;
+}
+
+message BalanceResponse {
+    repeated Account accounts = 1;
+}
+
+message Account {
+    required string address = 1;
+    required uint64 total = 2;
+    required uint64 spendable = 3;
+    required uint64 reward = 4;
+}

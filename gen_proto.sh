@@ -11,6 +11,9 @@ main() {
   # gRPC
   protoc --go_out=Mencoding/entities.proto=github.com/tclchiam/oxidize-go/encoding,plugins=grpc:. blockchain/blockrpc/sync.proto
   protoc --go_out=plugins=grpc:. p2p/discovery.proto
+
+  # Wallet
+  protoc -Iwallet --go_out=plugins=grpc:wallet/rpc wallet.proto
 }
 
 main

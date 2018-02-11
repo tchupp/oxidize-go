@@ -1,13 +1,14 @@
 package wallet
 
 import (
+	"github.com/tclchiam/oxidize-go/account"
 	"github.com/tclchiam/oxidize-go/identity"
 )
 
 type Wallet interface {
 	Identities() ([]*identity.Identity, error)
 	NewIdentity() (*identity.Identity, error)
-	Balance() (uint64, error)
+	Balance() ([]*account.Account, error)
 }
 
 type wallet struct {
@@ -32,6 +33,6 @@ func (w *wallet) NewIdentity() (*identity.Identity, error) {
 	return newIdentity, nil
 }
 
-func (w *wallet) Balance() (uint64, error) {
-	return 0, nil
+func (w *wallet) Balance() ([]*account.Account, error) {
+	return nil, nil
 }
