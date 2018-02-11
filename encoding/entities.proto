@@ -27,7 +27,7 @@ message Transaction {
 
 message Output {
     required uint32 index = 1;
-    required uint32 value = 2;
+    required uint64 value = 2;
     required bytes publicKeyHash = 3;
 }
 

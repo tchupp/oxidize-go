@@ -20,6 +20,7 @@ import (
 func TestSyncServer_GetBestHeader(t *testing.T) {
 	bc, err := blockchain.Open(memdb.NewChainRepository(), nil)
 	if err != nil {
+		t.Fatalf("failed to open blockchain")
 	}
 
 	expectedHeader, err := bc.GetBestHeader()

@@ -133,7 +133,7 @@ func FromOutputReference(reference *OutputReference) (*entity.OutputReference, e
 func ToWireOutput(output *entity.Output) *Output {
 	return &Output{
 		Index:         proto.Uint32(output.Index),
-		Value:         proto.Uint32(output.Value),
+		Value:         proto.Uint64(output.Value),
 		PublicKeyHash: output.PublicKeyHash,
 	}
 }

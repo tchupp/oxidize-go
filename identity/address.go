@@ -42,7 +42,11 @@ func (a *Address) Serialize() string {
 		a.publicKeyHash,
 		a.checksum,
 	}
-	return base58.Encode(bytes.Join(input, []byte{}))
+	encoded := base58.Encode(bytes.Join(input, []byte{}))
+	if len(encoded) != 34 {
+		encoded = "0" + encoded
+	}
+	return encoded
 }
 
 func (a *Address) String() string              { return a.Serialize() }

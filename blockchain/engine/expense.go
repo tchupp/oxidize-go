@@ -10,7 +10,7 @@ import (
 	"github.com/tclchiam/oxidize-go/identity"
 )
 
-func BuildExpenseTransaction(spender *identity.Identity, receiver *identity.Address, expense uint32, engine utxo.Engine) (*entity.Transaction, error) {
+func BuildExpenseTransaction(spender *identity.Identity, receiver *identity.Address, expense uint64, engine utxo.Engine) (*entity.Transaction, error) {
 	unspentOutputs, err := engine.FindUnspentOutputs(spender.Address())
 	if err != nil {
 		return nil, err

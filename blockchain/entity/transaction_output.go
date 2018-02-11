@@ -10,11 +10,11 @@ import (
 
 type Output struct {
 	Index         uint32
-	Value         uint32
+	Value         uint64
 	PublicKeyHash []byte
 }
 
-func NewOutput(value uint32, spender *identity.Address) *Output {
+func NewOutput(value uint64, spender *identity.Address) *Output {
 	return &Output{Value: value, PublicKeyHash: spender.PublicKeyHash()}
 }
 

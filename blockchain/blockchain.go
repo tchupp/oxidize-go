@@ -1,6 +1,7 @@
 package blockchain
 
 import (
+	"github.com/tclchiam/oxidize-go/account"
 	"github.com/tclchiam/oxidize-go/blockchain/engine"
 	"github.com/tclchiam/oxidize-go/blockchain/engine/iter"
 	"github.com/tclchiam/oxidize-go/blockchain/engine/mining"
@@ -12,7 +13,7 @@ import (
 type Blockchain interface {
 	ForEachBlock(consume func(*entity.Block)) error
 
-	Balance(identity *identity.Address) (uint32, error)
+	Balance(address *identity.Address) (*account.Account, error)
 
 	GetBestHeader() (*entity.BlockHeader, error)
 	GetHeader(hash *entity.Hash) (*entity.BlockHeader, error)
@@ -27,7 +28,7 @@ type Blockchain interface {
 	GetBlockByIndex(index uint64) (*entity.Block, error)
 	SaveBlock(block *entity.Block) error
 
-	Send(spender *identity.Identity, receiver *identity.Address, expense uint32) error
+	Send(spender *identity.Identity, receiver *identity.Address, expense uint64) error
 }
 
 type blockchain struct {
@@ -53,8 +54,8 @@ func (bc *blockchain) ForEachBlock(consume func(*entity.Block)) error {
 	return iter.ForEachBlock(bc.repository, consume)
 }
 
-func (bc *blockchain) Balance(address *identity.Address) (uint32, error) {
-	return engine.ReadBalance(address, bc.utxoEngine)
+func (bc *blockchain) Balance(address *identity.Address) (*account.Account, error) {
+	return engine.Balance(address, bc.utxoEngine)
 }
 
 func (bc *blockchain) GetBestHeader() (*entity.BlockHeader, error) {
@@ -121,7 +122,7 @@ func (bc *blockchain) SaveBlock(block *entity.Block) error {
 	return bc.repository.SaveBlock(block)
 }
 
-func (bc *blockchain) Send(spender *identity.Identity, receiver *identity.Address, expense uint32) error {
+func (bc *blockchain) Send(spender *identity.Identity, receiver *identity.Address, expense uint64) error {
 	expenseTransaction, err := engine.BuildExpenseTransaction(spender, receiver, expense, bc.utxoEngine)
 	if err != nil {
 		return err

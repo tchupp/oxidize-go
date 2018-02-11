@@ -10,7 +10,7 @@ import (
 	"github.com/tclchiam/oxidize-go/identity"
 )
 
-func TestKeyStore_SaveAccount(t *testing.T) {
+func TestKeyStore_SaveIdentity(t *testing.T) {
 	randomIdentity := identity.RandomIdentity()
 	keyStore := NewKeyStore(makeKeystoreDir())
 	defer os.RemoveAll(keyStore.path)

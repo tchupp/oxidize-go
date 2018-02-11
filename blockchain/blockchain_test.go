@@ -118,13 +118,13 @@ func TestBlockchain_Workflow(t *testing.T) {
 	})
 }
 
-func verifyBalance(t *testing.T, bc blockchain.Blockchain, spender *identity.Identity, expectedBalance uint32) {
+func verifyBalance(t *testing.T, bc blockchain.Blockchain, spender *identity.Identity, expectedBalance uint64) {
 	balance, err := bc.Balance(spender.Address())
 
 	if err != nil {
 		t.Fatalf("reading balance for '%s': %s", spender, err)
 	}
-	if balance != expectedBalance {
+	if balance.Spendable != expectedBalance {
 		t.Fatalf("expected balance for '%s' to be [%d], was: [%d]", spender, expectedBalance, balance)
 	}
 }
