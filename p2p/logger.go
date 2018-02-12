@@ -6,7 +6,9 @@ import (
 )
 
 var log = logger.Disabled
+var grpcLogger = logrus.NewEntry(log)
 
-func UseLogger(logger *logrus.Entry) {
+func UseLogger(logger *logrus.Logger) {
 	log = logger
+	grpcLogger = logrus.NewEntry(log)
 }

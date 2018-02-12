@@ -125,7 +125,7 @@ func startInsecureConnection(address string) (*grpc.ClientConn, error) {
 	return grpc.Dial(address,
 		grpc.WithTimeout(500*time.Millisecond),
 		grpc.WithInsecure(),
-		grpc.WithStreamInterceptor(grpc_logrus.StreamClientInterceptor(log)),
-		grpc.WithUnaryInterceptor(grpc_logrus.UnaryClientInterceptor(log)),
+		grpc.WithStreamInterceptor(grpc_logrus.StreamClientInterceptor(grpcLogger)),
+		grpc.WithUnaryInterceptor(grpc_logrus.UnaryClientInterceptor(grpcLogger)),
 	)
 }

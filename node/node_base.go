@@ -5,6 +5,7 @@ import (
 	"github.com/tclchiam/oxidize-go/blockchain/blockrpc"
 	"github.com/tclchiam/oxidize-go/p2p"
 	"github.com/tclchiam/oxidize-go/rpc"
+	walletRpc "github.com/tclchiam/oxidize-go/wallet/rpc"
 )
 
 type baseNode struct {
@@ -21,6 +22,7 @@ func NewNode(bc blockchain.Blockchain, server *rpc.Server) Node {
 func newNode(bc blockchain.Blockchain, server *rpc.Server) *baseNode {
 	blockrpc.RegisterSyncServer(server, blockrpc.NewSyncServer(bc))
 	p2p.RegisterDiscoveryServer(server, p2p.NewDiscoveryServer(bc))
+	walletRpc.RegisterWalletServer(server, walletRpc.NewWalletServer(bc))
 
 	return &baseNode{
 		bc:          bc,

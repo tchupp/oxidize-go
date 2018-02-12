@@ -9,7 +9,7 @@ import (
 
 var log = logger.Disabled
 
-func UseLogger(logger *logrus.Entry) {
+func UseLogger(logger *logrus.Logger) {
 	log = logger
 }
 

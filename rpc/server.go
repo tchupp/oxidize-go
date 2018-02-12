@@ -19,11 +19,11 @@ func NewServer(listener net.Listener) *Server {
 	grpcServer := grpc.NewServer(
 		grpc.StreamInterceptor(grpc_middleware.ChainStreamServer(
 			grpc_ctxtags.StreamServerInterceptor(),
-			grpc_logrus.StreamServerInterceptor(log),
+			grpc_logrus.StreamServerInterceptor(grpcLogger),
 		)),
 		grpc.UnaryInterceptor(grpc_middleware.ChainUnaryServer(
 			grpc_ctxtags.UnaryServerInterceptor(),
-			grpc_logrus.UnaryServerInterceptor(log),
+			grpc_logrus.UnaryServerInterceptor(grpcLogger),
 		)),
 	)
 

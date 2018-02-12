@@ -12,7 +12,7 @@ import (
 var (
 	rootCmd = &cobra.Command{
 		Use:   "oxy",
-		Short: "Oxidize CLI",
+		Short: "Oxidize client CLI",
 		Long:  "CLI for Oxidize protocol",
 	}
 )
@@ -21,6 +21,7 @@ func init() {
 	rootCmd.AddCommand(walletCmd.WalletCmd)
 
 	viper.SetDefault("data.dir", "~/.oxy/data")
+	viper.SetDefault("node.addr", "localhost:8080")
 }
 
 func main() {

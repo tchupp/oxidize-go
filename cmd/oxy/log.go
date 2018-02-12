@@ -18,7 +18,7 @@ var (
 func init() {
 	nodeLogger.SetLevel(logrus.WarnLevel)
 	p2pLogger.SetLevel(logrus.WarnLevel)
-	rpcLogger.SetLevel(logrus.InfoLevel)
+	rpcLogger.SetLevel(logrus.WarnLevel)
 	storageLogger.SetLevel(logrus.WarnLevel)
 
 	node.UseLogger(nodeLogger)
