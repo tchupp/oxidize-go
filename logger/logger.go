@@ -8,10 +8,13 @@ import (
 
 var (
 	Disabled *logrus.Logger
+	Default  *logrus.Logger
 )
 
 func init() {
-	logger := logrus.New()
-	logger.Out = ioutil.Discard
-	Disabled = logger
+	Disabled = logrus.New()
+	Disabled.Out = ioutil.Discard
+
+	Default = logrus.New()
+	Default.SetLevel(logrus.InfoLevel)
 }

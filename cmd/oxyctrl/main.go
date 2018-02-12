@@ -6,19 +6,19 @@ import (
 	"github.com/fatih/color"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
-	walletCmd "github.com/tclchiam/oxidize-go/wallet/cmd"
+	nodeCmd "github.com/tclchiam/oxidize-go/node/cmd"
 )
 
 var (
 	rootCmd = &cobra.Command{
-		Use:   "oxy",
-		Short: "Oxidize client CLI",
+		Use:   "oxyctrl",
+		Short: "Oxidize control CLI",
 		Long:  "CLI for Oxidize protocol",
 	}
 )
 
 func init() {
-	rootCmd.AddCommand(walletCmd.WalletCmd)
+	rootCmd.AddCommand(nodeCmd.NodeCmd)
 
 	viper.SetDefault("data.dir", "~/.oxy/data")
 	viper.SetDefault("node.addr", "localhost:8080")

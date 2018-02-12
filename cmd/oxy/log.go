@@ -2,6 +2,8 @@ package main
 
 import (
 	"github.com/sirupsen/logrus"
+
+	"github.com/tclchiam/oxidize-go/logger"
 	"github.com/tclchiam/oxidize-go/node"
 	"github.com/tclchiam/oxidize-go/p2p"
 	"github.com/tclchiam/oxidize-go/rpc"
@@ -9,10 +11,10 @@ import (
 )
 
 var (
-	nodeLogger    = logrus.New()
-	p2pLogger     = logrus.New()
-	rpcLogger     = logrus.New()
-	storageLogger = logrus.New()
+	nodeLogger    = logger.Default
+	p2pLogger     = logger.Default
+	rpcLogger     = logger.Default
+	storageLogger = logger.Default
 )
 
 func init() {
