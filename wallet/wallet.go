@@ -3,6 +3,7 @@ package wallet
 import (
 	"github.com/tclchiam/oxidize-go/account"
 	"github.com/tclchiam/oxidize-go/identity"
+	"github.com/tclchiam/oxidize-go/wallet/rpc"
 )
 
 type Wallet interface {
@@ -12,11 +13,12 @@ type Wallet interface {
 }
 
 type wallet struct {
-	store *KeyStore
+	store  *KeyStore
+	client rpc.WalletClient
 }
 
-func NewWallet(store *KeyStore) Wallet {
-	return &wallet{store: store}
+func NewWallet(store *KeyStore, client rpc.WalletClient) Wallet {
+	return &wallet{store: store, client: client}
 }
 
 func (w *wallet) Identities() ([]*identity.Identity, error) {
@@ -34,5 +36,15 @@ func (w *wallet) NewIdentity() (*identity.Identity, error) {
 }
 
 func (w *wallet) Balance() ([]*account.Account, error) {
-	return nil, nil
+	identities, err := w.store.Identities()
+	if err != nil {
+		return nil, err
+	}
+
+	var addrs []*identity.Address
+	for _, id := range identities {
+		addrs = append(addrs, id.Address())
+	}
+
+	return w.client.Balance(addrs)
 }

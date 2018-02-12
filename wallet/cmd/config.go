@@ -18,6 +18,10 @@ func (c *config) walletDataDirectory() string {
 	return filepath.Join(c.getDataDir(), "wallet")
 }
 
+func (*config) nodeAddress() string {
+	return viper.GetString("node.addr")
+}
+
 func (*config) getDataDir() string {
 	dataDir, _ := homedir.Expand(viper.GetString("data.dir"))
 	return dataDir

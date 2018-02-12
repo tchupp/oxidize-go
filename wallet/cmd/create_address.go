@@ -18,7 +18,11 @@ var createAddressCommand = &cobra.Command{
 }
 
 var runCreateAddressCommand = func(cmd *cobra.Command, args []string) {
-	wallet := buildWallet()
+	wallet, err := buildWallet()
+	if err != nil {
+		color.Red("error building wallet: %s\n", err)
+		return
+	}
 
 	newIdentity, err := wallet.NewIdentity()
 	if err != nil {
