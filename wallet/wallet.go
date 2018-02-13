@@ -7,7 +7,7 @@ import (
 )
 
 type Wallet interface {
-	Identities() ([]*identity.Identity, error)
+	Identities() (identity.Identities, error)
 	NewIdentity() (*identity.Identity, error)
 	Balance() ([]*account.Account, error)
 }
@@ -21,7 +21,7 @@ func NewWallet(store *KeyStore, client rpc.WalletClient) Wallet {
 	return &wallet{store: store, client: client}
 }
 
-func (w *wallet) Identities() ([]*identity.Identity, error) {
+func (w *wallet) Identities() (identity.Identities, error) {
 	return w.store.Identities()
 }
 

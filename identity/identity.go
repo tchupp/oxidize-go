@@ -84,3 +84,12 @@ func (a *Identity) PublicKey() *crypto.PublicKey   { return a.publicKey }
 func (a *Identity) PublicKeyHash() []byte          { return a.publicKeyHash }
 func (a *Identity) Checksum() []byte               { return a.checksum }
 func (a *Identity) IsEqual(other *Identity) bool   { return a.Address().IsEqual(other.Address()) }
+
+type Identities []*Identity
+
+func (i Identities) FirstOrNil() *Identity {
+	if len(i) > 0 {
+		return i[0]
+	}
+	return nil
+}

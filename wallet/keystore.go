@@ -30,7 +30,7 @@ func NewKeyStore(path string) *KeyStore {
 	return &KeyStore{path: path}
 }
 
-func (store *KeyStore) Identities() ([]*identity.Identity, error) {
+func (store *KeyStore) Identities() (identity.Identities, error) {
 	infos, err := ioutil.ReadDir(store.path)
 	if err != nil {
 		return nil, err
@@ -45,7 +45,7 @@ func (store *KeyStore) Identities() ([]*identity.Identity, error) {
 	}
 
 	var result *multierror.Error
-	var ids []*identity.Identity
+	var ids identity.Identities
 	for _, addr := range addrs {
 		id, err := store.Identity(addr)
 		if err != nil {
