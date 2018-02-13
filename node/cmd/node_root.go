@@ -3,14 +3,14 @@ package cmd
 import (
 	"fmt"
 	"net"
-	"os"
-	"os/signal"
 
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 
 	"github.com/tclchiam/oxidize-go/blockchain"
 	"github.com/tclchiam/oxidize-go/blockchain/engine/mining/proofofwork"
+	"github.com/tclchiam/oxidize-go/blockchain/entity"
+	"github.com/tclchiam/oxidize-go/cmd/interrupt"
 	"github.com/tclchiam/oxidize-go/encoding"
 	"github.com/tclchiam/oxidize-go/identity"
 	"github.com/tclchiam/oxidize-go/node"
@@ -29,44 +29,41 @@ var (
 )
 
 var showNodeSummaryCommand = func(cmd *cobra.Command, args []string) {
-	nodeName := "test_node"
-	repository := boltdb.Builder(nodeName, encoding.BlockProtoEncoder()).
+	handler := interrupt.NewHandler()
+
+	repository := buildRepository(handler)
+	nodeWallet := buildWallet()
+	beneficiary := getBeneficiary(nodeWallet).Address()
+	bc := buildBlockchain(repository, beneficiary)
+
+	n := buildNode(handler, bc)
+
+	n.Serve()
+
+	handler.WaitForInterrupt()
+}
+
+func buildRepository(handler interrupt.Handler) entity.ChainRepository {
+	config := nodeConfig()
+	networkName := config.nodeName()
+	repository := boltdb.Builder(networkName, encoding.BlockProtoEncoder()).
 		WithCache().
 		WithMetrics().
 		WithLogger().
 		Build()
 
-	nodeWallet := buildWallet()
-	beneficiary := getBeneficiary(nodeWallet)
+	//TODO this should stick around, stop removing it
+	handler.AddInterruptCallback(func() { boltdb.DeleteBlockchain(networkName) })
 
-	bc, err := blockchain.Open(repository, proofofwork.NewDefaultMiner(beneficiary.Address()))
-	if err != nil {
-		log.WithError(err).Panic("failed to open blockchain")
-	}
-	defer boltdb.DeleteBlockchain(nodeName)
+	return repository
+}
 
-	lis, err := net.Listen("tcp", fmt.Sprintf("localhost:%d", 8080))
-	if err != nil {
-		log.WithError(err).Panic("failed to listen")
-	}
+func buildWallet() wallet.Wallet {
+	config := nodeConfig()
+	nodeDataDir := config.dataDirectory()
 
-	server := rpc.NewServer(lis)
-	baseNode := node.WrapWithLogger(node.NewNode(bc, server))
-
-	baseNode.Serve()
-
-	interruptReceived := make(chan bool)
-	signalChan := make(chan os.Signal, 1)
-	signal.Notify(signalChan, os.Interrupt)
-	go func() {
-		for range signalChan {
-			fmt.Println("\nReceived an interrupt, stopping services...")
-			interruptReceived <- true
-		}
-	}()
-	<-interruptReceived
-
-	baseNode.Shutdown()
+	keyStore := wallet.NewKeyStore(nodeDataDir)
+	return wallet.NewWallet(keyStore, nil)
 }
 
 func getBeneficiary(nodeWallet wallet.Wallet) *identity.Identity {
@@ -74,21 +71,36 @@ func getBeneficiary(nodeWallet wallet.Wallet) *identity.Identity {
 	if err != nil {
 		log.WithError(err).Panic("error reading identities")
 	}
-	if len(identities) != 0 {
-		return identities[0]
+
+	if id := identities.FirstOrNil(); id != nil {
+		return id
 	}
+
 	beneficiary, err := nodeWallet.NewIdentity()
 	if err != nil {
 		log.WithError(err).Panic("error creating new identity")
 	}
 	return beneficiary
-
 }
 
-func buildWallet() wallet.Wallet {
-	config := getNodeConfig()
-	nodeDataDir := config.nodeDataDirectory()
+func buildBlockchain(repository entity.ChainRepository, beneficiary *identity.Address) blockchain.Blockchain {
+	bc, err := blockchain.Open(repository, proofofwork.NewDefaultMiner(beneficiary))
+	if err != nil {
+		log.WithError(err).Panic("failed to open blockchain")
+	}
 
-	keyStore := wallet.NewKeyStore(nodeDataDir)
-	return wallet.NewWallet(keyStore, nil)
+	return bc
+}
+
+func buildNode(handler interrupt.Handler, bc blockchain.Blockchain) node.Node {
+	config := nodeConfig()
+	lis, err := net.Listen("tcp", fmt.Sprintf("localhost:%d", config.nodePort()))
+	if err != nil {
+		log.WithError(err).Panic("failed to listen")
+	}
+
+	n := node.WrapWithLogger(node.NewNode(bc, rpc.NewServer(lis)))
+	handler.AddInterruptCallback(n.Shutdown)
+
+	return n
 }

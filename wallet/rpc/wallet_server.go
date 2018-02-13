@@ -5,7 +5,7 @@ import (
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 
-	"github.com/gogo/protobuf/proto"
+	"github.com/golang/protobuf/proto"
 	"github.com/hashicorp/go-multierror"
 	"github.com/tclchiam/oxidize-go/account"
 	"github.com/tclchiam/oxidize-go/identity"

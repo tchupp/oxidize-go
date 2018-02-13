@@ -1,5 +1,5 @@
 hash: 0e21754f77b2d85c8e1203de1a3b37f06241c1a560ec447e9d90a429435ebf29
-updated: 2018-02-07T15:43:13.104167-05:00
+updated: 2018-02-12T22:27:22.758875-05:00
 imports:
 - name: github.com/boltdb/bolt
   version: 2f1ce7a837dcb8da3ec595b1dac9d0632f0f99e8
@@ -69,7 +69,7 @@ imports:
 - name: github.com/sirupsen/logrus
   version: 768a92a02685ee7535069fc1581341b41bab9b72
 - name: github.com/spf13/afero
-  version: bb8f1927f2a9d3ab41c9340aa034f6b803f4359c
+  version: bbf41cb36dffe15dff5bf7e18c447801e7ffe163
   subpackages:
   - mem
 - name: github.com/spf13/cast
@@ -81,7 +81,7 @@ imports:
 - name: github.com/spf13/jwalterweatherman
   version: 7c0cea34c8ece3fbeb2b27ab9b59511d360fb394
 - name: github.com/spf13/pflag
-  version: 4c012f6dcd9546820e378d0bdda4d8fc772cdfea
+  version: 6a877ebacf28c5fc79846f4fcd380a5d9872b997
 - name: github.com/spf13/viper
   version: aafc9e6bc7b7bb53ddaa75a5ef49a17d6e654be5
 - name: golang.org/x/crypto
@@ -141,19 +141,7 @@ imports:
 - name: gopkg.in/yaml.v2
   version: d670f9405373e636a5a2765eea47fac0c9bc91a4
 testImports:
-- name: github.com/davecgh/go-spew
-  version: 346938d642f2ec3594ed81d874461961cd0faa76
-  subpackages:
-  - spew
 - name: github.com/google/go-cmp
   version: 8099a9787ce5dc5984ed879a3bda47dc730a8e97
   subpackages:
   - cmp
-- name: github.com/pmezard/go-difflib
-  version: 792786c7400a136282c1664665ae0a8db921c6c2
-  subpackages:
-  - difflib
-- name: github.com/stretchr/testify
-  version: be8372ae8ec5c6daaed3cc28ebf73c54b737c240
-  subpackages:
-  - assert
