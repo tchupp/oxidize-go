@@ -2,12 +2,9 @@ package identity
 
 import (
 	"bytes"
-	"fmt"
 
 	"github.com/mr-tron/base58/base58"
 )
-
-const addressLength = 34
 
 type Address struct {
 	version       byte
@@ -16,10 +13,6 @@ type Address struct {
 }
 
 func DeserializeAddress(data string) (*Address, error) {
-	if len(data) != addressLength {
-		return nil, fmt.Errorf("unexpected address size: %d", len(data))
-	}
-
 	b, err := base58.Decode(data)
 	if err != nil {
 		return nil, err
@@ -42,15 +35,11 @@ func (a *Address) Serialize() string {
 		a.publicKeyHash,
 		a.checksum,
 	}
-	encoded := base58.Encode(bytes.Join(input, []byte{}))
-	if len(encoded) != 34 {
-		encoded = "0" + encoded
-	}
-	return encoded
+	return base58.Encode(bytes.Join(input, []byte{}))
 }
 
 func (a *Address) String() string              { return a.Serialize() }
 func (a *Address) Version() byte               { return a.version }
 func (a *Address) PublicKeyHash() []byte       { return a.publicKeyHash }
 func (a *Address) Checksum() []byte            { return a.checksum }
-func (a *Address) IsEqual(other *Address) bool { return a.String() == other.String() }
+func (a *Address) IsEqual(other *Address) bool { return a.Serialize() == other.Serialize() }

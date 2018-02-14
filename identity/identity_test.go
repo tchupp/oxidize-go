@@ -19,12 +19,9 @@ func TestIdentity_Base58(t *testing.T) {
 		identity.PublicKeyHash(),
 		identity.Checksum(),
 	}
-	expectedBase58 := base58.Encode(bytes.Join(input, []byte{}))
 
-	if len(expectedBase58) != 34 {
-		t.Errorf("Expected len did not equal actual. Got: %d, wanted: %d", len(expectedBase58), 34)
-	}
-	if expectedBase58 != identity.Address().String() {
+	expectedBase58 := base58.Encode(bytes.Join(input, []byte{}))
+	if expectedBase58 != identity.Address().Serialize() {
 		t.Errorf("Expected base58 did not equal actual. Got: '%s', wanted: '%s'", identity.Address(), expectedBase58)
 	}
 }

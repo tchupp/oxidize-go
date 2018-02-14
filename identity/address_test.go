@@ -24,18 +24,6 @@ func TestDeserializeAddress(t *testing.T) {
 			},
 			wantErr: false,
 		},
-		{
-			name:    "too long",
-			data:    "12GJBjXZr8DvjYwBgeXWjP4pSkhfyXUXT743",
-			want:    nil,
-			wantErr: true,
-		},
-		{
-			name:    "too short",
-			data:    "12GJB8DvjYwBgeXWjP4pSkhfyXUXT743",
-			want:    nil,
-			wantErr: true,
-		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
