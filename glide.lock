@@ -1,10 +1,10 @@
 hash: 0e21754f77b2d85c8e1203de1a3b37f06241c1a560ec447e9d90a429435ebf29
-updated: 2018-02-12T22:27:22.758875-05:00
+updated: 2018-02-13T19:07:59.701902-05:00
 imports:
 - name: github.com/boltdb/bolt
   version: 2f1ce7a837dcb8da3ec595b1dac9d0632f0f99e8
 - name: github.com/fatih/color
-  version: 5df930a27be2502f99b292b7cc09ebad4d0891f4
+  version: 507f6050b8568533fb3f5504de8e5205fa62a114
 - name: github.com/fsnotify/fsnotify
   version: c2828203cd70a50dcccfb2761f8b1f8ceef9a8e9
 - name: github.com/golang/protobuf
@@ -49,7 +49,7 @@ imports:
 - name: github.com/inconshreveable/mousetrap
   version: 76626ae9c91c4f2a10f34cad8ce83ea42c93bb75
 - name: github.com/magiconair/properties
-  version: 49d762b9817ba1c2e9d0c69183c2b4a8b8f1d934
+  version: 50a685e9bc1f5bf289dc4d048cb48ec4c85514c7
 - name: github.com/mattn/go-colorable
   version: 5411d3eea5978e6cdc258b30de592b60df6aba96
   repo: https://github.com/mattn/go-colorable

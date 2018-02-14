@@ -5,7 +5,6 @@ import (
 
 	"github.com/fatih/color"
 	"github.com/spf13/cobra"
-	"github.com/spf13/viper"
 	walletCmd "github.com/tclchiam/oxidize-go/wallet/cmd"
 )
 
@@ -19,9 +18,6 @@ var (
 
 func init() {
 	rootCmd.AddCommand(walletCmd.WalletCmd)
-
-	viper.SetDefault("data.dir", "~/.oxy/data")
-	viper.SetDefault("node.addr", "localhost:8080")
 }
 
 func main() {

@@ -43,7 +43,7 @@ var showWalletSummaryCommand = func(cmd *cobra.Command, args []string) {
 func buildWallet() (wallet.Wallet, error) {
 	config := getWalletConfig()
 
-	walletDataDir := config.walletDataDirectory()
+	walletDataDir := config.dataDirectory()
 	keyStore := wallet.NewKeyStore(walletDataDir)
 
 	conn, err := grpc.Dial(config.nodeAddress(), grpc.WithInsecure())

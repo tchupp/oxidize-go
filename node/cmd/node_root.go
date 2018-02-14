@@ -29,13 +29,12 @@ var (
 )
 
 var showNodeSummaryCommand = func(cmd *cobra.Command, args []string) {
-	handler := interrupt.NewHandler()
-
-	repository := buildRepository(handler)
+	repository := buildRepository()
 	nodeWallet := buildWallet()
 	beneficiary := getBeneficiary(nodeWallet).Address()
 	bc := buildBlockchain(repository, beneficiary)
 
+	handler := interrupt.NewHandler()
 	n := buildNode(handler, bc)
 
 	n.Serve()
@@ -43,24 +42,20 @@ var showNodeSummaryCommand = func(cmd *cobra.Command, args []string) {
 	handler.WaitForInterrupt()
 }
 
-func buildRepository(handler interrupt.Handler) entity.ChainRepository {
+func buildRepository() entity.ChainRepository {
 	config := nodeConfig()
-	networkName := config.nodeName()
-	repository := boltdb.Builder(networkName, encoding.BlockProtoEncoder()).
+	repository := boltdb.Builder(config.nodeName(), encoding.BlockProtoEncoder()).
+		WithPath(config.dataDirectory()).
 		WithCache().
 		WithMetrics().
 		WithLogger().
 		Build()
 
-	//TODO this should stick around, stop removing it
-	handler.AddInterruptCallback(func() { boltdb.DeleteBlockchain(networkName) })
-
 	return repository
 }
 
 func buildWallet() wallet.Wallet {
-	config := nodeConfig()
-	nodeDataDir := config.dataDirectory()
+	nodeDataDir := nodeConfig().dataDirectory()
 
 	keyStore := wallet.NewKeyStore(nodeDataDir)
 	return wallet.NewWallet(keyStore, nil)

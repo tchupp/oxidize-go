@@ -5,6 +5,8 @@ import (
 	"os"
 	"time"
 
+	"path/filepath"
+
 	"github.com/boltdb/bolt"
 	"github.com/tclchiam/oxidize-go/blockchain/entity"
 )
@@ -24,8 +26,8 @@ type chainBoltRepository struct {
 	db           *bolt.DB
 }
 
-func NewChainRepository(name string, blockEncoder entity.BlockEncoder) (entity.ChainRepository, error) {
-	db, err := openDB(name)
+func NewChainRepository(path, name string, blockEncoder entity.BlockEncoder) (entity.ChainRepository, error) {
+	db, err := openDB(path, name)
 	if err != nil {
 		return nil, err
 	}
@@ -45,7 +47,11 @@ func NewChainRepository(name string, blockEncoder entity.BlockEncoder) (entity.C
 }
 
 func DeleteBlockchain(name string) error {
-	path := fmt.Sprintf(dbFile, name)
+	return DeleteBoltFile("./", name)
+}
+
+func DeleteBoltFile(path, name string) error {
+	path = filepath.Join(path, fmt.Sprintf(dbFile, name))
 	if err := os.Remove(path); err != nil {
 		return fmt.Errorf("deleting blockchain file: %s", err)
 	}
@@ -148,8 +154,8 @@ func (r *chainBoltRepository) Close() error {
 	return r.db.Close()
 }
 
-func openDB(name string) (*bolt.DB, error) {
-	path := fmt.Sprintf(dbFile, name)
+func openDB(path, name string) (*bolt.DB, error) {
+	path = filepath.Join(path, fmt.Sprintf(dbFile, name))
 	db, err := bolt.Open(path, 0600, &bolt.Options{Timeout: 1 * time.Second})
 	if err != nil {
 		return nil, fmt.Errorf("opening db: %s", err)
