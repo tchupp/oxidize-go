@@ -7,20 +7,20 @@ import (
 )
 
 type utxoCrawlerEngine struct {
-	repository entity.BlockRepository
+	reader entity.ChainReader
 }
 
-func NewCrawlerEngine(repository entity.BlockRepository) Engine {
-	return &utxoCrawlerEngine{repository: repository}
+func NewCrawlerEngine(reader entity.ChainReader) Engine {
+	return &utxoCrawlerEngine{reader: reader}
 }
 
 func (engine *utxoCrawlerEngine) FindUnspentOutputs(spender *identity.Address) (*TransactionOutputSet, error) {
-	inputs, err := findInputs(engine.repository)
+	inputs, err := findInputs(engine.reader)
 	if err != nil {
 		return nil, err
 	}
 
-	outputsByTx, err := findOutputsByTransaction(engine.repository)
+	outputsByTx, err := findOutputsByTransaction(engine.reader)
 	if err != nil {
 		return nil, err
 	}
@@ -33,24 +33,24 @@ func (engine *utxoCrawlerEngine) FindUnspentOutputs(spender *identity.Address) (
 		Filter(isUnspent(spentOutputs)), nil
 }
 
-func findInputs(repository entity.BlockRepository) (entity.SignedInputs, error) {
+func findInputs(reader entity.ChainReader) (entity.SignedInputs, error) {
 	var gatherInputs = func(res interface{}, tx *entity.Transaction) interface{} {
 		return res.(entity.SignedInputs).Append(entity.NewSignedInputs(tx.Inputs))
 	}
 
 	inputs := entity.EmptySingedInputs()
 
-	err := iter.ForEachBlock(repository, func(block *entity.Block) {
+	err := iter.ForEachBlock(reader, func(block *entity.Block) {
 		inputs = block.Transactions().Reduce(inputs, gatherInputs).(entity.SignedInputs)
 	})
 
 	return inputs, err
 }
 
-func findOutputsByTransaction(repository entity.BlockRepository) (*TransactionOutputSet, error) {
+func findOutputsByTransaction(reader entity.ChainReader) (*TransactionOutputSet, error) {
 	outputsForAddress := NewTransactionSet()
 
-	err := iter.ForEachBlock(repository, func(block *entity.Block) {
+	err := iter.ForEachBlock(reader, func(block *entity.Block) {
 		for _, transaction := range block.Transactions() {
 			addToTxSet := func(res interface{}, output *entity.Output) interface{} {
 				return res.(*TransactionOutputSet).Add(transaction, output)

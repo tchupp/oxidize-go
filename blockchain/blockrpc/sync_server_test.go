@@ -23,7 +23,7 @@ func TestSyncServer_GetBestHeader(t *testing.T) {
 		t.Fatalf("failed to open blockchain")
 	}
 
-	expectedHeader, err := bc.GetBestHeader()
+	expectedHeader, err := bc.BestHeader()
 	if err != nil {
 		t.Fatalf("getting best header: %s", err)
 	}
@@ -62,7 +62,7 @@ func TestSyncServer_GetHeaders(t *testing.T) {
 
 	saveRandomBlocks(bc, rand.Intn(12))
 
-	startingHeader, err := bc.GetHeaderByIndex(uint64(rand.Intn(11)))
+	startingHeader, err := bc.HeaderByIndex(uint64(rand.Intn(11)))
 	if err != nil {
 		t.Fatalf("getting header: %s", err)
 	}
@@ -87,7 +87,7 @@ func TestSyncServer_GetHeaders(t *testing.T) {
 		t.Fatalf("getting remote headers: %s", err)
 	}
 
-	expectedHeaders, err := bc.GetHeaders(startingHeader.Hash, startingHeader.Index)
+	expectedHeaders, err := bc.Headers(startingHeader.Hash, startingHeader.Index)
 	if err != nil {
 		t.Fatalf("getting local headers: %s", err)
 	}
@@ -102,7 +102,7 @@ func saveRandomBlocks(bc blockchain.Blockchain, num int) error {
 
 	for i := 0; i < num; i++ {
 		beneficiary := identity.RandomIdentity().Address()
-		head, err := bc.GetBestHeader()
+		head, err := bc.BestHeader()
 		if err != nil {
 			return fmt.Errorf("error reading best header")
 		}

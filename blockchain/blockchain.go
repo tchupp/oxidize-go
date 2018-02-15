@@ -11,28 +11,20 @@ import (
 )
 
 type Blockchain interface {
+	entity.ChainRepository
 	ForEachBlock(consume func(*entity.Block)) error
 
 	Balance(address *identity.Address) (*account.Account, error)
 
-	GetBestHeader() (*entity.BlockHeader, error)
-	GetHeader(hash *entity.Hash) (*entity.BlockHeader, error)
-	GetHeaderByIndex(index uint64) (*entity.BlockHeader, error)
-	GetHeaders(hash *entity.Hash, index uint64) (entity.BlockHeaders, error)
+	Headers(hash *entity.Hash, index uint64) (entity.BlockHeaders, error)
 
 	SaveHeaders(headers entity.BlockHeaders) error
-	SaveHeader(header *entity.BlockHeader) error
-
-	GetBestBlock() (*entity.Block, error)
-	GetBlock(hash *entity.Hash) (*entity.Block, error)
-	GetBlockByIndex(index uint64) (*entity.Block, error)
-	SaveBlock(block *entity.Block) error
 
 	Send(spender *identity.Identity, receiver *identity.Address, expense uint64) error
 }
 
 type blockchain struct {
-	repository entity.ChainRepository
+	entity.ChainRepository
 	miner      mining.Miner
 	utxoEngine utxo.Engine
 }
@@ -44,34 +36,34 @@ func Open(repository entity.ChainRepository, miner mining.Miner) (Blockchain, er
 	}
 
 	return &blockchain{
-		repository: repository,
-		miner:      miner,
-		utxoEngine: utxo.NewCrawlerEngine(repository),
+		ChainRepository: repository,
+		miner:           miner,
+		utxoEngine:      utxo.NewCrawlerEngine(repository),
 	}, nil
 }
 
 func (bc *blockchain) ForEachBlock(consume func(*entity.Block)) error {
-	return iter.ForEachBlock(bc.repository, consume)
+	return iter.ForEachBlock(bc.ChainRepository, consume)
 }
 
 func (bc *blockchain) Balance(address *identity.Address) (*account.Account, error) {
 	return engine.Balance(address, bc.utxoEngine)
 }
 
-func (bc *blockchain) GetBestHeader() (*entity.BlockHeader, error) {
-	return bc.repository.BestHeader()
+func (bc *blockchain) BestHeader() (*entity.BlockHeader, error) {
+	return bc.ChainRepository.BestHeader()
 }
 
-func (bc *blockchain) GetHeader(hash *entity.Hash) (*entity.BlockHeader, error) {
-	return bc.repository.HeaderByHash(hash)
+func (bc *blockchain) HeaderByHash(hash *entity.Hash) (*entity.BlockHeader, error) {
+	return bc.ChainRepository.HeaderByHash(hash)
 }
 
-func (bc *blockchain) GetHeaderByIndex(index uint64) (*entity.BlockHeader, error) {
-	return bc.repository.HeaderByIndex(index)
+func (bc *blockchain) HeaderByIndex(index uint64) (*entity.BlockHeader, error) {
+	return bc.ChainRepository.HeaderByIndex(index)
 }
 
-func (bc *blockchain) GetHeaders(hash *entity.Hash, index uint64) (entity.BlockHeaders, error) {
-	startingHeader, err := bc.GetHeader(hash)
+func (bc *blockchain) Headers(hash *entity.Hash, index uint64) (entity.BlockHeaders, error) {
+	startingHeader, err := bc.HeaderByHash(hash)
 	if err != nil {
 		return nil, err
 	}
@@ -82,7 +74,7 @@ func (bc *blockchain) GetHeaders(hash *entity.Hash, index uint64) (entity.BlockH
 	headers := entity.BlockHeaders{startingHeader}
 	nextHeader := startingHeader
 	for {
-		nextHeader, err = bc.GetHeaderByIndex(nextHeader.Index + 1)
+		nextHeader, err = bc.HeaderByIndex(nextHeader.Index + 1)
 		if err != nil {
 			return nil, err
 		}
@@ -102,24 +94,24 @@ func (bc *blockchain) SaveHeaders(headers entity.BlockHeaders) error {
 
 func (bc *blockchain) SaveHeader(header *entity.BlockHeader) error {
 	// TODO verify header
-	return bc.repository.SaveHeader(header)
+	return bc.ChainRepository.SaveHeader(header)
 }
 
-func (bc *blockchain) GetBestBlock() (*entity.Block, error) {
-	return bc.repository.BestBlock()
+func (bc *blockchain) BestBlock() (*entity.Block, error) {
+	return bc.ChainRepository.BestBlock()
 }
 
-func (bc *blockchain) GetBlock(hash *entity.Hash) (*entity.Block, error) {
-	return bc.repository.BlockByHash(hash)
+func (bc *blockchain) BlockByHash(hash *entity.Hash) (*entity.Block, error) {
+	return bc.ChainRepository.BlockByHash(hash)
 }
 
-func (bc *blockchain) GetBlockByIndex(index uint64) (*entity.Block, error) {
-	return bc.repository.BlockByIndex(index)
+func (bc *blockchain) BlockByIndex(index uint64) (*entity.Block, error) {
+	return bc.ChainRepository.BlockByIndex(index)
 }
 
 func (bc *blockchain) SaveBlock(block *entity.Block) error {
 	// TODO verify block
-	return bc.repository.SaveBlock(block)
+	return bc.ChainRepository.SaveBlock(block)
 }
 
 func (bc *blockchain) Send(spender *identity.Identity, receiver *identity.Address, expense uint64) error {
@@ -128,9 +120,13 @@ func (bc *blockchain) Send(spender *identity.Identity, receiver *identity.Addres
 		return err
 	}
 
-	newBlock, err := engine.MineBlock(entity.Transactions{expenseTransaction}, bc.miner, bc.repository)
+	newBlock, err := engine.MineBlock(entity.Transactions{expenseTransaction}, bc.miner, bc.ChainRepository)
 	if err != nil {
 		return err
 	}
-	return bc.repository.SaveBlock(newBlock)
+	return bc.ChainRepository.SaveBlock(newBlock)
+}
+
+func (bc *blockchain) Close() error {
+	return bc.ChainRepository.Close()
 }

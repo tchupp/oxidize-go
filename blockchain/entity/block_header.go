@@ -7,15 +7,6 @@ import (
 	"strings"
 )
 
-type HeaderRepository interface {
-	BestHeader() (head *BlockHeader, err error)
-
-	HeaderByHash(hash *Hash) (*BlockHeader, error)
-	HeaderByIndex(index uint64) (*BlockHeader, error)
-
-	SaveHeader(*BlockHeader) error
-}
-
 type BlockHeader struct {
 	Index            uint64
 	PreviousHash     *Hash

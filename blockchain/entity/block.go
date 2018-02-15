@@ -5,18 +5,25 @@ import (
 	"strings"
 )
 
-type BlockRepository interface {
+type ChainReader interface {
 	BestBlock() (head *Block, err error)
-
 	BlockByHash(hash *Hash) (*Block, error)
 	BlockByIndex(index uint64) (*Block, error)
 
+	BestHeader() (head *BlockHeader, err error)
+	HeaderByHash(hash *Hash) (*BlockHeader, error)
+	HeaderByIndex(index uint64) (*BlockHeader, error)
+}
+
+type ChainWriter interface {
 	SaveBlock(*Block) error
+
+	SaveHeader(*BlockHeader) error
 }
 
 type ChainRepository interface {
-	BlockRepository
-	HeaderRepository
+	ChainReader
+	ChainWriter
 
 	Close() error
 }

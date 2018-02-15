@@ -8,8 +8,8 @@ import (
 )
 
 type headerChain interface {
-	GetBestHeader() (*entity.BlockHeader, error)
-	GetHeader(hash *entity.Hash) (*entity.BlockHeader, error)
+	BestHeader() (*entity.BlockHeader, error)
+	HeaderByHash(hash *entity.Hash) (*entity.BlockHeader, error)
 	SaveHeader(*entity.BlockHeader) error
 }
 
@@ -27,7 +27,7 @@ func SaveHeaders(headers entity.BlockHeaders, chain headerChain) error {
 }
 
 func saveHeader(header *entity.BlockHeader, chain headerChain) (bool, error) {
-	currentBestHeader, err := chain.GetBestHeader()
+	currentBestHeader, err := chain.BestHeader()
 	if err != nil {
 		return false, err
 	}

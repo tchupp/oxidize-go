@@ -12,10 +12,10 @@ import (
 )
 
 type syncBackend interface {
-	GetBestHeader() (*entity.BlockHeader, error)
-	GetHeader(hash *entity.Hash) (*entity.BlockHeader, error)
-	GetHeaders(hash *entity.Hash, index uint64) (entity.BlockHeaders, error)
-	GetBlock(hash *entity.Hash) (*entity.Block, error)
+	BestHeader() (*entity.BlockHeader, error)
+	HeaderByHash(hash *entity.Hash) (*entity.BlockHeader, error)
+	Headers(hash *entity.Hash, index uint64) (entity.BlockHeaders, error)
+	BlockByHash(hash *entity.Hash) (*entity.Block, error)
 }
 
 type syncServer struct {
@@ -31,7 +31,7 @@ func RegisterSyncServer(s *rpc.Server, srv SyncServiceServer) {
 }
 
 func (s *syncServer) GetBestHeader(ctx context.Context, req *GetBestHeaderRequest) (*GetBestHeaderResponse, error) {
-	header, err := s.backend.GetBestHeader()
+	header, err := s.backend.BestHeader()
 	if err != nil {
 		return nil, status.Errorf(codes.Internal, "error finding best header: %s", err)
 	}
@@ -47,7 +47,7 @@ func (s *syncServer) GetHeaders(ctx context.Context, req *GetHeadersRequest) (*G
 		return nil, status.Errorf(codes.InvalidArgument, "requested starting header hash was invalid: '%s'", req.GetLatestHash())
 	}
 
-	headers, err := s.backend.GetHeaders(hash, req.GetLatestIndex())
+	headers, err := s.backend.Headers(hash, req.GetLatestIndex())
 	if err != nil {
 		return nil, status.Errorf(codes.Internal, "error finding previous headers")
 	}
@@ -64,7 +64,7 @@ func (s *syncServer) GetBlock(ctx context.Context, req *GetBlockRequest) (*GetBl
 		return nil, status.Errorf(codes.InvalidArgument, "requested starting header hash was invalid: '%s'", req.GetHash())
 	}
 
-	block, err := s.backend.GetBlock(hash)
+	block, err := s.backend.BlockByHash(hash)
 	if err != nil {
 		return nil, status.Errorf(codes.Internal, "error finding previous headers")
 	}

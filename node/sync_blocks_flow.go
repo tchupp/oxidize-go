@@ -9,11 +9,11 @@ import (
 
 func reconcileBlocks(syncClient blockrpc.SyncClient, bc blockchain.Blockchain) error {
 	for {
-		bestHeader, err := bc.GetBestHeader()
+		bestHeader, err := bc.BestHeader()
 		if err != nil {
 			return fmt.Errorf("error reading best header: %s", err)
 		}
-		bestBlock, err := bc.GetBestBlock()
+		bestBlock, err := bc.BestBlock()
 		if err != nil {
 			return fmt.Errorf("error reading best block: %s", err)
 		}

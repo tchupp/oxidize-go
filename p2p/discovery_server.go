@@ -10,16 +10,12 @@ import (
 	"github.com/tclchiam/oxidize-go/rpc"
 )
 
-type discoveryBackend interface {
-	GetBestHeader() (*entity.BlockHeader, error)
-}
-
 type discoveryServer struct {
-	backend discoveryBackend
+	reader entity.ChainReader
 }
 
-func NewDiscoveryServer(backend discoveryBackend) DiscoveryServiceServer {
-	return &discoveryServer{backend: backend}
+func NewDiscoveryServer(backend entity.ChainReader) DiscoveryServiceServer {
+	return &discoveryServer{reader: backend}
 }
 
 func RegisterDiscoveryServer(s *rpc.Server, srv DiscoveryServiceServer) {
@@ -31,7 +27,7 @@ func (s *discoveryServer) Ping(ctx context.Context, req *PingRequest) (*PingResp
 }
 
 func (s *discoveryServer) Version(ctx context.Context, req *VersionRequest) (*VersionResponse, error) {
-	header, err := s.backend.GetBestHeader()
+	header, err := s.reader.BestHeader()
 	if err != nil {
 		return nil, status.Errorf(codes.Internal, "error finding best header: %s", err)
 	}

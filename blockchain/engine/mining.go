@@ -10,8 +10,8 @@ import (
 	"github.com/tclchiam/oxidize-go/encoding"
 )
 
-func MineBlock(transactions entity.Transactions, miner mining.Miner, repository entity.BlockRepository) (*entity.Block, error) {
-	parent, err := repository.BestBlock()
+func MineBlock(transactions entity.Transactions, miner mining.Miner, reader entity.ChainReader) (*entity.Block, error) {
+	parent, err := reader.BestBlock()
 	if err != nil {
 		return nil, err
 	}

@@ -59,7 +59,7 @@ func TestDiscoveryServer_Version(t *testing.T) {
 		t.Fatalf("opening blockchain: %s", err)
 	}
 
-	actualHeader, err := bc.GetBestHeader()
+	actualHeader, err := bc.BestHeader()
 	if err != nil {
 		t.Fatalf("getting best header: %s", err)
 	}

@@ -41,7 +41,7 @@ func TestBaseNode_AddPeer(t *testing.T) {
 		t.Errorf("incorrect peer address. got - %s, wanted - %s", peer.Address, lis.Addr())
 	}
 
-	expectedHeader, err := remoteBc.GetBestHeader()
+	expectedHeader, err := remoteBc.BestHeader()
 	if err != nil {
 		t.Fatalf("getting best header: %s", err)
 	}
@@ -108,11 +108,11 @@ func TestBaseNode_AddPeer_SyncsHeadersWithNewPeer_WhenPeersVersionIsHigher(t *te
 
 	time.Sleep(500 * time.Millisecond)
 
-	localBestHeader, err := localBc.GetBestHeader()
+	localBestHeader, err := localBc.BestHeader()
 	if err != nil {
 		t.Fatalf("getting local best header: %s", err)
 	}
-	remoteBestHeader, err := remoteBc.GetBestHeader()
+	remoteBestHeader, err := remoteBc.BestHeader()
 	if err != nil {
 		t.Fatalf("getting remote best header: %s", err)
 	}
@@ -120,11 +120,11 @@ func TestBaseNode_AddPeer_SyncsHeadersWithNewPeer_WhenPeersVersionIsHigher(t *te
 		t.Errorf("unexpected local best header. got - %s, wanted - %s", localBestHeader, remoteBestHeader)
 	}
 
-	localBestBlock, err := localBc.GetBestBlock()
+	localBestBlock, err := localBc.BestBlock()
 	if err != nil {
 		t.Fatalf("getting local best block: %s", err)
 	}
-	remoteBestBlock, err := remoteBc.GetBestBlock()
+	remoteBestBlock, err := remoteBc.BestBlock()
 	if err != nil {
 		t.Fatalf("getting remote best block: %s", err)
 	}
@@ -154,7 +154,7 @@ func saveRandomBlocks(t *testing.T, bc blockchain.Blockchain, num int) {
 
 	for i := 0; i < num; i++ {
 		beneficiary := identity.RandomIdentity().Address()
-		head, err := bc.GetBestHeader()
+		head, err := bc.BestHeader()
 		if err != nil {
 			t.Fatal("error reading best header")
 		}

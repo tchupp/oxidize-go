@@ -40,7 +40,7 @@ func syncHeadersWithPeer(peer *p2p.Peer, peerManager p2p.PeerManager, bc blockch
 			return fmt.Errorf("error getting peer best header: %s", err)
 		}
 
-		localBestHeader, err := bc.GetBestHeader()
+		localBestHeader, err := bc.BestHeader()
 		if err != nil {
 			return fmt.Errorf("error getting local best header")
 		}
