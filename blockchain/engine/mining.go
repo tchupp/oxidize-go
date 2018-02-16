@@ -10,6 +10,10 @@ import (
 	"github.com/tclchiam/oxidize-go/encoding"
 )
 
+const (
+	TransactionInputHasBadSignatureMessage = "transaction '%s' has input '%d' with bad signature"
+)
+
 func MineBlock(transactions entity.Transactions, miner mining.Miner, reader entity.ChainReader) (*entity.Block, error) {
 	parent, err := reader.BestBlock()
 	if err != nil {
