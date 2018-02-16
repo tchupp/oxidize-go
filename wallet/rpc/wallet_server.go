@@ -12,15 +12,11 @@ import (
 	"github.com/tclchiam/oxidize-go/rpc"
 )
 
-type walletBackend interface {
-	Balance(*identity.Address) (*account.Account, error)
-}
-
 type walletServer struct {
-	backend walletBackend
+	backend account.Engine
 }
 
-func NewWalletServer(backend walletBackend) WalletServiceServer {
+func NewWalletServer(backend account.Engine) WalletServiceServer {
 	return &walletServer{backend: backend}
 }
 

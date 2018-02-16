@@ -19,7 +19,7 @@ func TestWalletServer_Balance(t *testing.T) {
 	owner := identity.RandomIdentity()
 	receiver := identity.RandomIdentity()
 
-	bc := setupBlockchain(t, owner)
+	engine := setupAccountEngine(t, owner)
 
 	lis, err := net.Listen("tcp", "127.0.0.1:0")
 	if err != nil {
@@ -27,7 +27,7 @@ func TestWalletServer_Balance(t *testing.T) {
 	}
 
 	server := rpc.NewServer(lis)
-	RegisterWalletServer(server, NewWalletServer(bc))
+	RegisterWalletServer(server, NewWalletServer(engine))
 	server.Serve()
 
 	conn, err := grpc.Dial(lis.Addr().String(), grpc.WithInsecure())
@@ -52,7 +52,7 @@ func TestWalletServer_Balance(t *testing.T) {
 		t.Errorf("initial owner account incorrect. got - %s, wanted - %s", actualOwnerAccount, expectedOwnerAccount)
 	}
 
-	err = bc.Send(owner, receiver.Address(), 7)
+	err = engine.Send(owner, receiver.Address(), 7)
 	if err != nil {
 		t.Fatalf("failed to send: %s", err)
 	}
@@ -79,10 +79,9 @@ func TestWalletServer_Balance(t *testing.T) {
 	if !actualReceiverAccount.IsEqual(expectedReceiverAccount) {
 		t.Errorf("initial owner account incorrect. got - %s, wanted - %s", actualReceiverAccount, expectedReceiverAccount)
 	}
-
 }
 
-func setupBlockchain(t *testing.T, owner *identity.Identity) blockchain.Blockchain {
+func setupAccountEngine(t *testing.T, owner *identity.Identity) account.Engine {
 	miner := proofofwork.NewDefaultMiner(owner.Address())
 
 	repository := memdb.NewChainRepository()
@@ -96,5 +95,5 @@ func setupBlockchain(t *testing.T, owner *identity.Identity) blockchain.Blockcha
 		t.Fatalf("failed to open blockchain")
 	}
 
-	return bc
+	return account.NewEngine(bc)
 }

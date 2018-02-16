@@ -5,6 +5,7 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/tclchiam/oxidize-go/account"
 	"github.com/tclchiam/oxidize-go/blockchain"
 	"github.com/tclchiam/oxidize-go/blockchain/engine/mining/proofofwork"
 	"github.com/tclchiam/oxidize-go/blockchain/entity"
@@ -22,38 +23,38 @@ func TestBlockchain_Workflow(t *testing.T) {
 
 	t.Run("Sending: expense < balance", func(t *testing.T) {
 		const name = "test1"
-		bc := setupBlockchain(t, name, owner)
+		engine := setupAccountEngine(t, name, owner)
 		defer boltdb.DeleteBlockchain(name)
 
-		err := bc.Send(owner, actor1.Address(), 3)
+		err := engine.Send(owner, actor1.Address(), 3)
 		if err != nil {
 			t.Fatalf("error sending: %s", err)
 		}
 
-		verifyBalance(t, bc, owner, 17)
-		verifyBalance(t, bc, actor1, 3)
+		verifyBalance(t, engine, owner, 17)
+		verifyBalance(t, engine, actor1, 3)
 	})
 
 	t.Run("Sending: expense == balance", func(t *testing.T) {
 		const name = "test2"
-		bc := setupBlockchain(t, name, owner)
+		engine := setupAccountEngine(t, name, owner)
 		defer boltdb.DeleteBlockchain(name)
 
-		err := bc.Send(owner, actor1.Address(), 10)
+		err := engine.Send(owner, actor1.Address(), 10)
 		if err != nil {
 			t.Fatalf("error sending: %s", err)
 		}
 
-		verifyBalance(t, bc, owner, 10)
-		verifyBalance(t, bc, actor1, 10)
+		verifyBalance(t, engine, owner, 10)
+		verifyBalance(t, engine, actor1, 10)
 	})
 
 	t.Run("Sending: expense > balance", func(t *testing.T) {
 		const name = "test3"
-		bc := setupBlockchain(t, name, owner)
+		engine := setupAccountEngine(t, name, owner)
 		defer boltdb.DeleteBlockchain(name)
 
-		err := bc.Send(owner, actor1.Address(), 13)
+		err := engine.Send(owner, actor1.Address(), 13)
 		if err == nil {
 			t.Fatalf("expected error")
 		}
@@ -63,63 +64,63 @@ func TestBlockchain_Workflow(t *testing.T) {
 			t.Fatalf("Expected string to contain: \"%s\", was '%s'", expectedMessage, err.Error())
 		}
 
-		verifyBalance(t, bc, owner, 10)
-		verifyBalance(t, bc, actor1, 0)
+		verifyBalance(t, engine, owner, 10)
+		verifyBalance(t, engine, actor1, 0)
 	})
 
 	t.Run("Sending: many", func(t *testing.T) {
 		const name = "test4"
-		bc := setupBlockchain(t, name, owner)
+		engine := setupAccountEngine(t, name, owner)
 		defer boltdb.DeleteBlockchain(name)
 
-		err := bc.Send(owner, actor1.Address(), 1)
+		err := engine.Send(owner, actor1.Address(), 1)
 		if err != nil {
 			t.Fatalf("error sending: %s", err)
 		}
 
-		verifyBalance(t, bc, owner, 19)
-		verifyBalance(t, bc, actor1, 1)
-		verifyBalance(t, bc, actor2, 0)
-		verifyBalance(t, bc, actor3, 0)
-		verifyBalance(t, bc, actor4, 0)
+		verifyBalance(t, engine, owner, 19)
+		verifyBalance(t, engine, actor1, 1)
+		verifyBalance(t, engine, actor2, 0)
+		verifyBalance(t, engine, actor3, 0)
+		verifyBalance(t, engine, actor4, 0)
 
-		err = bc.Send(owner, actor2.Address(), 1)
+		err = engine.Send(owner, actor2.Address(), 1)
 		if err != nil {
 			t.Fatalf("error sending: %s", err)
 		}
 
-		verifyBalance(t, bc, owner, 28)
-		verifyBalance(t, bc, actor1, 1)
-		verifyBalance(t, bc, actor1, 1)
-		verifyBalance(t, bc, actor3, 0)
-		verifyBalance(t, bc, actor4, 0)
+		verifyBalance(t, engine, owner, 28)
+		verifyBalance(t, engine, actor1, 1)
+		verifyBalance(t, engine, actor1, 1)
+		verifyBalance(t, engine, actor3, 0)
+		verifyBalance(t, engine, actor4, 0)
 
-		err = bc.Send(owner, actor3.Address(), 1)
+		err = engine.Send(owner, actor3.Address(), 1)
 		if err != nil {
 			t.Fatalf("error sending: %s", err)
 		}
 
-		verifyBalance(t, bc, owner, 37)
-		verifyBalance(t, bc, actor1, 1)
-		verifyBalance(t, bc, actor1, 1)
-		verifyBalance(t, bc, actor3, 1)
-		verifyBalance(t, bc, actor4, 0)
+		verifyBalance(t, engine, owner, 37)
+		verifyBalance(t, engine, actor1, 1)
+		verifyBalance(t, engine, actor1, 1)
+		verifyBalance(t, engine, actor3, 1)
+		verifyBalance(t, engine, actor4, 0)
 
-		err = bc.Send(owner, actor4.Address(), 1)
+		err = engine.Send(owner, actor4.Address(), 1)
 		if err != nil {
 			t.Fatalf("error sending: %s", err)
 		}
 
-		verifyBalance(t, bc, owner, 46)
-		verifyBalance(t, bc, actor1, 1)
-		verifyBalance(t, bc, actor1, 1)
-		verifyBalance(t, bc, actor3, 1)
-		verifyBalance(t, bc, actor4, 1)
+		verifyBalance(t, engine, owner, 46)
+		verifyBalance(t, engine, actor1, 1)
+		verifyBalance(t, engine, actor1, 1)
+		verifyBalance(t, engine, actor3, 1)
+		verifyBalance(t, engine, actor4, 1)
 	})
 }
 
-func verifyBalance(t *testing.T, bc blockchain.Blockchain, spender *identity.Identity, expectedBalance uint64) {
-	balance, err := bc.Balance(spender.Address())
+func verifyBalance(t *testing.T, engine account.Engine, spender *identity.Identity, expectedBalance uint64) {
+	balance, err := engine.Balance(spender.Address())
 
 	if err != nil {
 		t.Fatalf("reading balance for '%s': %s", spender, err)
@@ -129,7 +130,7 @@ func verifyBalance(t *testing.T, bc blockchain.Blockchain, spender *identity.Ide
 	}
 }
 
-func setupBlockchain(t *testing.T, name string, owner *identity.Identity) blockchain.Blockchain {
+func setupAccountEngine(t *testing.T, name string, owner *identity.Identity) account.Engine {
 	repository := boltdb.Builder(name, encoding.BlockProtoEncoder()).
 		WithCache().
 		WithLogger().
@@ -146,5 +147,5 @@ func setupBlockchain(t *testing.T, name string, owner *identity.Identity) blockc
 		t.Fatalf("failed to open test blockchain: %s", err)
 	}
 
-	return bc
+	return account.NewEngine(bc)
 }

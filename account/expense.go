@@ -1,10 +1,10 @@
-package engine
+package account
 
 import (
 	"fmt"
 
+	"github.com/tclchiam/oxidize-go/account/utxo"
 	"github.com/tclchiam/oxidize-go/blockchain/engine/txsigning"
-	"github.com/tclchiam/oxidize-go/blockchain/engine/utxo"
 	"github.com/tclchiam/oxidize-go/blockchain/entity"
 	"github.com/tclchiam/oxidize-go/encoding"
 	"github.com/tclchiam/oxidize-go/identity"

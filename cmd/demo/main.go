@@ -5,6 +5,7 @@ import (
 
 	log "github.com/sirupsen/logrus"
 
+	"github.com/tclchiam/oxidize-go/account"
 	"github.com/tclchiam/oxidize-go/blockchain"
 	"github.com/tclchiam/oxidize-go/blockchain/engine/mining/proofofwork"
 	"github.com/tclchiam/oxidize-go/blockchain/entity"
@@ -39,12 +40,13 @@ func main() {
 	if err != nil {
 		log.Panic(err)
 	}
+	accountEngine := account.NewEngine(bc)
 
-	err = bc.Send(owner, receiver.Address(), 7)
+	err = accountEngine.Send(owner, receiver.Address(), 7)
 	if err != nil {
 		log.Panic(err)
 	}
-	err = bc.Send(receiver, owner.Address(), 4)
+	err = accountEngine.Send(receiver, owner.Address(), 4)
 	if err != nil {
 		log.Panic(err)
 	}
@@ -56,13 +58,13 @@ func main() {
 		log.Panic(err)
 	}
 
-	balance, err := bc.Balance(owner.Address())
+	balance, err := accountEngine.Balance(owner.Address())
 	if err != nil {
 		log.Panic(err)
 	}
 	fmt.Printf("Balance of '%s': %d\n\n", owner, balance)
 
-	balance, err = bc.Balance(receiver.Address())
+	balance, err = accountEngine.Balance(receiver.Address())
 	if err != nil {
 		log.Panic(err)
 	}
