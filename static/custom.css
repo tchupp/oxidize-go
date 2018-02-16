@@ -1,0 +1,35 @@
+.header-bg {
+  background-size: cover;
+  background-image: url("images/oxidize-hd.jpg");
+  height: 902px;
+}
+
+.blur {
+  background: url("images/oxidize-hd.jpg") no-repeat center center fixed;
+  background-size: cover;
+  overflow: hidden;
+  filter: blur(13px);
+  position: absolute;
+  height: 300px;
+  top: -50px;
+  left: -50px;
+  right: -50px;
+  bottom: -50px;
+}
+
+.widget {
+  border-top: 2px solid rgba(255, 255, 255, .5);
+  border-bottom: 2px solid rgba(255, 255, 255, .5);
+  height: 200px;
+  width: 100%;
+  overflow: hidden;
+}
+
+.center {
+  position: absolute;
+  margin: auto;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+}
