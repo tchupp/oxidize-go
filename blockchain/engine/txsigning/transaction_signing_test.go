@@ -39,7 +39,7 @@ func TestGenerateInputSignature(t *testing.T) {
 			input: &entity.UnsignedInput{
 				OutputReference: &entity.OutputReference{
 					ID:     entity.NewHashOrPanic("b0093d332b4c5bbb5f3c4aa2c9ada8632f9efb2489799a74c55168f3487ec256"),
-					Output: &entity.Output{Index: 1, Value: 3, PublicKeyHash: []byte("52a530c258e53e04116f66d9cae093d0a38950a5"),},
+					Output: &entity.Output{Index: 1, Value: 3, PublicKeyHash: []byte("52a530c258e53e04116f66d9cae093d0a38950a5")},
 				},
 				PublicKey: spender.PublicKey(),
 			},
@@ -51,7 +51,7 @@ func TestGenerateInputSignature(t *testing.T) {
 			input: &entity.UnsignedInput{
 				OutputReference: &entity.OutputReference{
 					ID:     entity.NewHashOrPanic("caf99368d2abd229d6ff7ec5abdbfdfc7c0b2a2938f23fcb5965a30b4d70ebf8"),
-					Output: &entity.Output{Index: 5, Value: 18, PublicKeyHash: []byte("31d6128eb6fbb09e477640ed59252e44c779639f"),},
+					Output: &entity.Output{Index: 5, Value: 18, PublicKeyHash: []byte("31d6128eb6fbb09e477640ed59252e44c779639f")},
 				},
 				PublicKey: spender.PublicKey(),
 			},
@@ -65,7 +65,7 @@ func TestGenerateInputSignature(t *testing.T) {
 
 	for index, testParams := range tests {
 		const testVerifyFailedStr = "GenerateSignature #%d %s was a bad signature"
-		const realVerifyResultMismatchStr = "VerifySignature #%d did not agree with test, got: %s, expected: %s"
+		const realVerifyResultMismatchStr = "VerifySignature #%d did not agree with test, got: %t, expected: %t"
 
 		signatureData, err := serializeSignatureTestData(testParams.input, testParams.outputs, encoding.TransactionProtoEncoder())
 		if err != nil {

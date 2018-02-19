@@ -26,7 +26,7 @@ func TestRepository_ReturnsNilIfBlockDoesNotExist(t *testing.T) {
 			t.Fatalf("failed to read block by hash: %s", err)
 		}
 		if blockByHash != nil {
-			t.Errorf("expected block to be nil. Got - %s, wanted - %s", blockByHash, nil)
+			t.Errorf("expected block to be nil. Got - %s, wanted - %v", blockByHash, nil)
 		}
 
 		blockByIndex, err := repository.BlockByIndex(block1.Index())
@@ -34,7 +34,7 @@ func TestRepository_ReturnsNilIfBlockDoesNotExist(t *testing.T) {
 			t.Fatalf("failed to read block by index: %s", err)
 		}
 		if blockByIndex != nil {
-			t.Errorf("expected block to be nil. Got - %s, wanted - %s", blockByIndex, nil)
+			t.Errorf("expected block to be nil. Got - %s, wanted - %v", blockByIndex, nil)
 		}
 	}
 
@@ -105,7 +105,7 @@ func TestRepository_ReturnsNilIfHeaderDoesNotExist(t *testing.T) {
 			t.Fatalf("failed to read header by hash: %s", err)
 		}
 		if headerByHash != nil {
-			t.Errorf("expected header to be nil. Got - %s, wanted - %s", headerByHash, nil)
+			t.Errorf("expected header to be nil. Got - %s, wanted - %v", headerByHash, nil)
 		}
 
 		headerByIndex, err := repository.HeaderByIndex(block1.Index())
@@ -113,7 +113,7 @@ func TestRepository_ReturnsNilIfHeaderDoesNotExist(t *testing.T) {
 			t.Fatalf("failed to read header by index: %s", err)
 		}
 		if headerByIndex != nil {
-			t.Errorf("expected header to be nil. Got - %s, wanted - %s", headerByIndex, nil)
+			t.Errorf("expected header to be nil. Got - %s, wanted - %v", headerByIndex, nil)
 		}
 	}
 

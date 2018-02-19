@@ -33,7 +33,7 @@ func TestIdentity_Version(t *testing.T) {
 	expectedVersion := byte(0x00)
 
 	if expectedVersion != address.Version() {
-		t.Errorf("Expected version did not equal actual. Got: '%s', wanted: '%s'", address, expectedVersion)
+		t.Errorf("Expected version did not equal actual. Got: '%b', wanted: '%b'", address.Version(), expectedVersion)
 	}
 }
 
