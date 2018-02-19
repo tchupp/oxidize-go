@@ -51,6 +51,9 @@ func (c *connectionManager) OpenConnection(address string) (*grpc.ClientConn, er
 }
 
 func (c *connectionManager) HasConnection(address string) bool {
+	c.lock.RLock()
+	defer c.lock.RUnlock()
+
 	_, ok := c.cache[address]
 	return ok
 }
