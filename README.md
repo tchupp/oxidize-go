@@ -1,6 +1,6 @@
 # Oxidize: golang
 
-Super simple blockchain implementation in Go!
+Learn blockchain development, one bit at a time!
 
 This project is meant for people interested in understanding how blockchain works by building one from scratch.
 
