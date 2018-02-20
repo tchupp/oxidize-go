@@ -7,8 +7,8 @@ import (
 	"github.com/tclchiam/oxidize-go/blockchain/engine"
 	"github.com/tclchiam/oxidize-go/blockchain/engine/mining/proofofwork"
 	"github.com/tclchiam/oxidize-go/blockchain/entity"
+	"github.com/tclchiam/oxidize-go/blockchain/testdata"
 	"github.com/tclchiam/oxidize-go/identity"
-	"github.com/tclchiam/oxidize-go/storage/memdb"
 )
 
 var (
@@ -77,9 +77,7 @@ func TestSaveHeaders(t *testing.T) {
 }
 
 func buildBlockchain(t *testing.T) blockchain.Blockchain {
-	bc, err := blockchain.Open(memdb.NewChainRepository(), nil)
-	if err != nil {
-		t.Fatalf("failed to open test blockchain: %s", err)
-	}
-	return bc
+	return testdata.NewBlockchainBuilder(t).
+		Build().
+		ToBlockchain()
 }

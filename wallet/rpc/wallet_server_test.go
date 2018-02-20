@@ -7,12 +7,9 @@ import (
 	"google.golang.org/grpc"
 
 	"github.com/tclchiam/oxidize-go/account"
-	"github.com/tclchiam/oxidize-go/blockchain"
-	"github.com/tclchiam/oxidize-go/blockchain/engine/mining/proofofwork"
-	"github.com/tclchiam/oxidize-go/blockchain/entity"
+	"github.com/tclchiam/oxidize-go/blockchain/testdata"
 	"github.com/tclchiam/oxidize-go/identity"
 	"github.com/tclchiam/oxidize-go/rpc"
-	"github.com/tclchiam/oxidize-go/storage/memdb"
 )
 
 func TestWalletServer_Balance(t *testing.T) {
@@ -82,18 +79,11 @@ func TestWalletServer_Balance(t *testing.T) {
 }
 
 func setupAccountEngine(t *testing.T, owner *identity.Identity) account.Engine {
-	miner := proofofwork.NewDefaultMiner(owner.Address())
-
-	repository := memdb.NewChainRepository()
-	genesisBlock := miner.MineBlock(&entity.GenesisParentHeader, entity.Transactions{})
-	if err := repository.SaveBlock(genesisBlock); err != nil {
-		t.Fatalf("failed to save genesis")
-	}
-
-	bc, err := blockchain.Open(repository, miner)
-	if err != nil {
-		t.Fatalf("failed to open blockchain")
-	}
+	bc := testdata.NewBlockchainBuilder(t).
+		WithBeneficiary(owner).
+		Build().
+		AddBalance(owner.Address(), 0).
+		ToBlockchain()
 
 	return account.NewEngine(bc)
 }

@@ -9,10 +9,10 @@ import (
 	"github.com/tclchiam/oxidize-go/blockchain"
 	"github.com/tclchiam/oxidize-go/blockchain/engine/mining/proofofwork"
 	"github.com/tclchiam/oxidize-go/blockchain/entity"
+	"github.com/tclchiam/oxidize-go/blockchain/testdata"
 	"github.com/tclchiam/oxidize-go/encoding"
 	"github.com/tclchiam/oxidize-go/identity"
 	"github.com/tclchiam/oxidize-go/rpc"
-	"github.com/tclchiam/oxidize-go/storage/memdb"
 )
 
 func TestBaseNode_AddPeer(t *testing.T) {
@@ -134,11 +134,9 @@ func TestBaseNode_AddPeer_SyncsHeadersWithNewPeer_WhenPeersVersionIsHigher(t *te
 }
 
 func buildBlockchain(t *testing.T) blockchain.Blockchain {
-	bc, err := blockchain.Open(memdb.NewChainRepository(), nil)
-	if err != nil {
-		t.Fatalf("opening blockchain: %s", err)
-	}
-	return bc
+	return testdata.NewBlockchainBuilder(t).
+		Build().
+		ToBlockchain()
 }
 
 func buildListener(t *testing.T) net.Listener {

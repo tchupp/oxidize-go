@@ -6,9 +6,7 @@ import (
 	"testing"
 
 	"github.com/tclchiam/oxidize-go/account"
-	"github.com/tclchiam/oxidize-go/blockchain"
-	"github.com/tclchiam/oxidize-go/blockchain/engine/mining/proofofwork"
-	"github.com/tclchiam/oxidize-go/blockchain/entity"
+	"github.com/tclchiam/oxidize-go/blockchain/testdata"
 	"github.com/tclchiam/oxidize-go/encoding"
 	"github.com/tclchiam/oxidize-go/identity"
 	"github.com/tclchiam/oxidize-go/storage/boltdb"
@@ -126,7 +124,7 @@ func verifyBalance(t *testing.T, engine account.Engine, spender *identity.Identi
 		t.Fatalf("reading balance for '%s': %s", spender, err)
 	}
 	if balance.Spendable != expectedBalance {
-		t.Fatalf("expected balance for '%s' to be [%d], was: [%d]", spender, expectedBalance, balance)
+		t.Fatalf("expected balance for '%s' to be [%d], was: [%d]", spender, expectedBalance, balance.Spendable)
 	}
 }
 
@@ -135,17 +133,13 @@ func setupAccountEngine(t *testing.T, name string, owner *identity.Identity) acc
 		WithCache().
 		WithLogger().
 		Build()
-	miner := proofofwork.NewDefaultMiner(owner.Address())
 
-	genesisBlock := miner.MineBlock(&entity.GenesisParentHeader, entity.Transactions{})
-	if err := repository.SaveBlock(genesisBlock); err != nil {
-		t.Fatalf("saving genesis block: %s", err)
-	}
-
-	bc, err := blockchain.Open(repository, miner)
-	if err != nil {
-		t.Fatalf("failed to open test blockchain: %s", err)
-	}
+	bc := testdata.NewBlockchainBuilder(t).
+		WithRepository(repository).
+		WithBeneficiary(owner).
+		Build().
+		AddBalance(owner.Address(), 0).
+		ToBlockchain()
 
 	return account.NewEngine(bc)
 }

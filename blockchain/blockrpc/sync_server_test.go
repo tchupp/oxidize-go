@@ -11,17 +11,16 @@ import (
 	"github.com/tclchiam/oxidize-go/blockchain"
 	"github.com/tclchiam/oxidize-go/blockchain/engine/mining/proofofwork"
 	"github.com/tclchiam/oxidize-go/blockchain/entity"
+	"github.com/tclchiam/oxidize-go/blockchain/testdata"
 	"github.com/tclchiam/oxidize-go/encoding"
 	"github.com/tclchiam/oxidize-go/identity"
 	"github.com/tclchiam/oxidize-go/rpc"
-	"github.com/tclchiam/oxidize-go/storage/memdb"
 )
 
 func TestSyncServer_GetBestHeader(t *testing.T) {
-	bc, err := blockchain.Open(memdb.NewChainRepository(), nil)
-	if err != nil {
-		t.Fatalf("failed to open blockchain")
-	}
+	bc := testdata.NewBlockchainBuilder(t).
+		Build().
+		ToBlockchain()
 
 	expectedHeader, err := bc.BestHeader()
 	if err != nil {
@@ -55,10 +54,9 @@ func TestSyncServer_GetBestHeader(t *testing.T) {
 }
 
 func TestSyncServer_GetHeaders(t *testing.T) {
-	bc, err := blockchain.Open(memdb.NewChainRepository(), nil)
-	if err != nil {
-		t.Fatalf("opening blockchain: %s", err)
-	}
+	bc := testdata.NewBlockchainBuilder(t).
+		Build().
+		ToBlockchain()
 
 	saveRandomBlocks(bc, rand.Intn(12))
 

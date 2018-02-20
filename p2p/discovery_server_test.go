@@ -8,9 +8,8 @@ import (
 
 	"google.golang.org/grpc"
 
-	"github.com/tclchiam/oxidize-go/blockchain"
+	"github.com/tclchiam/oxidize-go/blockchain/testdata"
 	"github.com/tclchiam/oxidize-go/rpc"
-	"github.com/tclchiam/oxidize-go/storage/memdb"
 )
 
 func TestDiscoveryServer_Ping(t *testing.T) {
@@ -54,10 +53,9 @@ func TestDiscoveryServer_Ping_TargetIsOffline(t *testing.T) {
 }
 
 func TestDiscoveryServer_Version(t *testing.T) {
-	bc, err := blockchain.Open(memdb.NewChainRepository(), nil)
-	if err != nil {
-		t.Fatalf("opening blockchain: %s", err)
-	}
+	bc := testdata.NewBlockchainBuilder(t).
+		Build().
+		ToBlockchain()
 
 	actualHeader, err := bc.BestHeader()
 	if err != nil {
