@@ -9,6 +9,7 @@ import (
 
 type Engine interface {
 	Balance(address *identity.Address) (*Account, error)
+	Transactions(address *identity.Address) (Transactions, error)
 
 	Send(spender *identity.Identity, receiver *identity.Address, expense uint64) error
 }
@@ -18,15 +19,21 @@ type engine struct {
 }
 
 func NewEngine(bc blockchain.Blockchain) Engine {
-	return &engine{bc: bc}
+	return &engine{
+		bc: bc,
+	}
 }
 
 func (e *engine) Balance(address *identity.Address) (*Account, error) {
 	return balance(address, utxo.NewCrawlerEngine(e.bc))
 }
 
+func (e *engine) Transactions(address *identity.Address) (Transactions, error) {
+	return Transactions{}, nil
+}
+
 func (e *engine) Send(spender *identity.Identity, receiver *identity.Address, expense uint64) error {
-	expenseTransaction, err := BuildExpenseTransaction(spender, receiver, expense, utxo.NewCrawlerEngine(e.bc))
+	expenseTransaction, err := buildExpenseTransaction(spender, receiver, expense, utxo.NewCrawlerEngine(e.bc))
 	if err != nil {
 		return err
 	}
