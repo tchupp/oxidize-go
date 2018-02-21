@@ -20,7 +20,10 @@ type Address struct {
 }
 
 func FromPublicKey(publicKey *crypto.PublicKey) *Address {
-	publicKeyHash := publicKey.Hash()
+	return FromPublicKeyHash(publicKey.Hash())
+}
+
+func FromPublicKeyHash(publicKeyHash []byte) *Address {
 	checksum := checksum(publicKeyHash)
 
 	return &Address{

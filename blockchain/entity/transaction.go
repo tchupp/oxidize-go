@@ -98,10 +98,10 @@ func serializeTxData(inputs []*SignedInput, outputs []*Output, secret []byte, en
 	return encoded
 }
 
-func (txs Transactions) Len() int                         { return len(txs) }
-func (txs Transactions) Swap(i, j int)                    { txs[i], txs[j] = txs[j], txs[i] }
-func (txs Transactions) Less(i, j int) bool               { return txs[i].ID.Cmp(txs[j].ID) == -1 }
-func (txs Transactions) Add(tx *Transaction) Transactions { return append(txs, tx) }
+func (txs Transactions) Len() int                            { return len(txs) }
+func (txs Transactions) Swap(i, j int)                       { txs[i], txs[j] = txs[j], txs[i] }
+func (txs Transactions) Less(i, j int) bool                  { return txs[i].ID.Cmp(txs[j].ID) == -1 }
+func (txs Transactions) Add(tx ...*Transaction) Transactions { return append(txs, tx...) }
 
 func (txs Transactions) Sort() Transactions {
 	copies := append(Transactions(nil), txs...)
@@ -129,6 +129,20 @@ func (txs Transactions) IsEqual(other Transactions) bool {
 	}
 
 	return true
+}
+
+func (txs Transactions) FilterReward(isReward bool) Transactions {
+	return txs.Filter(func(tx *Transaction) bool { return tx.IsReward() == isReward })
+}
+
+func (txs Transactions) Filter(predicate func(tx *Transaction) bool) Transactions {
+	filtered := Transactions{}
+	for _, tx := range txs {
+		if predicate(tx) {
+			filtered = filtered.Add(tx)
+		}
+	}
+	return filtered
 }
 
 func (txs Transactions) Reduce(res interface{}, apply func(res interface{}, tx *Transaction) interface{}) interface{} {

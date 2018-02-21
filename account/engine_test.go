@@ -56,39 +56,74 @@ func Test_engine_Balance(t *testing.T) {
 }
 
 func Test_engine_Transactions(t *testing.T) {
-	type testRun struct {
-		name    string
-		bc      blockchain.Blockchain
-		address *identity.Address
-		want    Transactions
-		wantErr bool
-	}
-
-	brokeIdentity := identity.RandomIdentity()
-	brokeAccount := testRun{
-		name: "balance zero",
-		bc: testdata.NewBlockchainBuilder(t).
+	t.Run("engine.Transactions() - none", func(t *testing.T) {
+		engine := NewEngine(testdata.NewBlockchainBuilder(t).
 			Build().
-			ToBlockchain(),
-		wantErr: false,
-		want:    Transactions{},
-		address: brokeIdentity.Address(),
-	}
+			ToBlockchain())
 
-	for _, tt := range []testRun{brokeAccount} {
-		t.Run(tt.name, func(t *testing.T) {
-			engine := NewEngine(tt.bc)
+		brokeIdentity := identity.RandomIdentity()
 
-			got, err := engine.Transactions(tt.address)
-			if (err != nil) != tt.wantErr {
-				t.Errorf("engine.Transactions() error = %v, wantErr %v", err, tt.wantErr)
-				return
-			}
-			if !reflect.DeepEqual(got, tt.want) {
-				t.Errorf("engine.Transactions() = %v, want %v", got, tt.want)
-			}
-		})
-	}
+		got, err := engine.Transactions(brokeIdentity.Address())
+		if err != nil {
+			t.Errorf("engine.Transactions() error = %v, wantErr %v", err, false)
+			return
+		}
+		if !reflect.DeepEqual(got, Transactions{}) {
+			t.Errorf("engine.Transactions() = %v, want %v", got, Transactions{})
+		}
+	})
+
+	t.Run("engine.Transactions() - spending", func(t *testing.T) {
+		spendingIdentity := identity.RandomIdentity()
+		receivingIdentity := identity.RandomIdentity()
+
+		engine := NewEngine(testdata.NewBlockchainBuilder(t).
+			Build().
+			AddBalance(spendingIdentity.Address(), 10).
+			ToBlockchain())
+
+		err := engine.Send(spendingIdentity, receivingIdentity.Address(), 10)
+		if err != nil {
+			t.Errorf("engine.Send() error = %v, wantErr %v", err, false)
+			return
+		}
+
+		got, err := engine.Transactions(spendingIdentity.Address())
+		if err != nil {
+			t.Errorf("engine.Transactions() error = %v, wantErr %v", err, false)
+			return
+		}
+		expectedTxs := Transactions{{amount: 10, from: spendingIdentity.Address(), to: receivingIdentity.Address()}}
+		if !reflect.DeepEqual(got, expectedTxs) {
+			t.Errorf("engine.Transactions() = %v, want %v", got, expectedTxs)
+		}
+	})
+
+	t.Run("engine.Transactions() - receiving", func(t *testing.T) {
+		spendingIdentity := identity.RandomIdentity()
+		receivingIdentity := identity.RandomIdentity()
+
+		engine := NewEngine(testdata.NewBlockchainBuilder(t).
+			Build().
+			AddBalance(spendingIdentity.Address(), 10).
+			ToBlockchain())
+
+		err := engine.Send(spendingIdentity, receivingIdentity.Address(), 10)
+		if err != nil {
+			t.Errorf("engine.Send() error = %v, wantErr %v", err, false)
+			return
+		}
+
+		got, err := engine.Transactions(receivingIdentity.Address())
+		if err != nil {
+			t.Errorf("engine.Transactions() error = %v, wantErr %v", err, false)
+			return
+		}
+		expectedTxs := Transactions{{amount: 10, from: spendingIdentity.Address(), to: receivingIdentity.Address()}}
+		if !reflect.DeepEqual(got, expectedTxs) {
+			t.Errorf("engine.Transactions() = %v, want %v", got, expectedTxs)
+		}
+	})
 }
 
 func Test_engine_Send(t *testing.T) {
