@@ -7,8 +7,9 @@ import (
 )
 
 type Account struct {
-	Address   *identity.Address
-	Spendable uint64
+	Address      *identity.Address
+	Spendable    uint64
+	Transactions Transactions
 }
 
 func (a *Account) IsEqual(other *Account) bool {
@@ -32,5 +33,5 @@ func (a *Account) IsEqual(other *Account) bool {
 }
 
 func (a *Account) String() string {
-	return fmt.Sprintf("{address: %s, spendable: %d}", a.Address, a.Spendable)
+	return fmt.Sprintf("{address: '%s', spendable: %d}", a.Address, a.Spendable)
 }

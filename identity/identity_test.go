@@ -1,4 +1,4 @@
-package identity
+package identity_test
 
 import (
 	"bytes"
@@ -6,71 +6,30 @@ import (
 	"testing"
 
 	"github.com/mr-tron/base58/base58"
-	"github.com/tclchiam/oxidize-go/crypto"
-	"golang.org/x/crypto/ripemd160"
+	"github.com/tclchiam/oxidize-go/identity"
 )
 
-func TestIdentity_Base58(t *testing.T) {
-	privateKey := crypto.NewP256PrivateKey()
-	identity := NewIdentity(privateKey)
+func TestIdentity_Address(t *testing.T) {
+	id := identity.RandomIdentity()
+	publicKey := id.PublicKey()
 
 	input := [][]byte{
-		{version},
-		identity.PublicKeyHash(),
-		identity.Checksum(),
+		{0x00},
+		publicKey.Hash(),
+		checksum(publicKey.Hash()),
 	}
 
 	expectedBase58 := base58.Encode(bytes.Join(input, []byte{}))
-	if expectedBase58 != identity.Address().Serialize() {
-		t.Errorf("Expected base58 did not equal actual. Got: '%s', wanted: '%s'", identity.Address(), expectedBase58)
+	if expectedBase58 != id.Address().Serialize() {
+		t.Errorf("Expected base58 did not equal actual. Got: '%s', wanted: '%s'", id.Address(), expectedBase58)
 	}
 }
 
-func TestIdentity_Version(t *testing.T) {
-	privateKey := crypto.NewP256PrivateKey()
-	address := NewIdentity(privateKey)
-
-	expectedVersion := byte(0x00)
-
-	if expectedVersion != address.Version() {
-		t.Errorf("Expected version did not equal actual. Got: '%b', wanted: '%b'", address.Version(), expectedVersion)
-	}
-}
-
-func TestIdentity_PublicKeyHash(t *testing.T) {
-	privateKey := crypto.NewP256PrivateKey()
-	publicKey := privateKey.PubKey()
-	address := NewIdentity(privateKey)
-
-	publicSHA256 := sha256.Sum256(publicKey.Serialize())
-
-	hashImpl := ripemd160.New()
-	hashImpl.Write(publicSHA256[:])
-	expectedHash := hashImpl.Sum(nil)
-
-	if len(expectedHash) != 20 {
-		t.Errorf("Expected len did not equal actual. Got: %d, wanted: %d", len(expectedHash), 20)
-	}
-	if bytes.Compare(expectedHash, address.PublicKeyHash()) != 0 {
-		t.Errorf("Expected hash did not equal actual. Got: '%s', wanted: '%s'", address, expectedHash)
-	}
-}
-
-func TestIdentity_Checksum(t *testing.T) {
-	privateKey := crypto.NewP256PrivateKey()
-	address := NewIdentity(privateKey)
-
-	payload := append([]byte{address.Version()}, address.PublicKeyHash()...)
+func checksum(publicKeyHash []byte) []byte {
+	payload := append([]byte{0x00}, publicKeyHash...)
 
 	firstSHA := sha256.Sum256(payload)
 	secondSHA := sha256.Sum256(firstSHA[:])
 
-	expectedChecksum := secondSHA[:checksumLength]
-
-	if len(expectedChecksum) != 4 {
-		t.Errorf("Expected len did not equal actual. Got: %d, wanted: %d", len(expectedChecksum), 4)
-	}
-	if bytes.Compare(expectedChecksum, address.Checksum()) != 0 {
-		t.Errorf("Expected checksum did not equal actual. Got: '%s', wanted: '%s'", address.Checksum(), expectedChecksum)
-	}
+	return secondSHA[:4]
 }

@@ -58,15 +58,15 @@ func main() {
 		log.Panic(err)
 	}
 
-	balance, err := accountEngine.Balance(owner.Address())
+	account, err := accountEngine.Balance(owner.Address())
 	if err != nil {
 		log.Panic(err)
 	}
-	fmt.Printf("Balance of '%s': %d\n\n", owner, balance)
+	fmt.Printf("Account: %s\n\n", account)
 
-	balance, err = accountEngine.Balance(receiver.Address())
+	account, err = accountEngine.Balance(receiver.Address())
 	if err != nil {
 		log.Panic(err)
 	}
-	fmt.Printf("Balance of '%s': %d\n\n", receiver, balance)
+	fmt.Printf("Account: %s\n\n", account)
 }
