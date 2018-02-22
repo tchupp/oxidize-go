@@ -5,7 +5,9 @@ import (
 	"testing"
 
 	"github.com/tclchiam/oxidize-go/blockchain"
+	"github.com/tclchiam/oxidize-go/blockchain/entity"
 	"github.com/tclchiam/oxidize-go/blockchain/testdata"
+	"github.com/tclchiam/oxidize-go/encoding"
 	"github.com/tclchiam/oxidize-go/identity"
 )
 
@@ -93,7 +95,10 @@ func Test_engine_Transactions(t *testing.T) {
 			t.Errorf("engine.Transactions() error = %v, wantErr %v", err, false)
 			return
 		}
-		expectedTxs := Transactions{{amount: 10, from: spendingIdentity.Address(), to: receivingIdentity.Address()}}
+		expectedTxs := Transactions{
+			{amount: 10, from: spendingIdentity.Address(), to: receivingIdentity.Address()},
+			{amount: 10, from: nil, to: spendingIdentity.Address()},
+		}
 		if !reflect.DeepEqual(got, expectedTxs) {
 			t.Errorf("engine.Transactions() = %v, want %v", got, expectedTxs)
 		}
@@ -120,6 +125,34 @@ func Test_engine_Transactions(t *testing.T) {
 			return
 		}
 		expectedTxs := Transactions{{amount: 10, from: spendingIdentity.Address(), to: receivingIdentity.Address()}}
+		if !reflect.DeepEqual(got, expectedTxs) {
+			t.Errorf("engine.Transactions() = %v, want %v", got, expectedTxs)
+		}
+	})
+
+	t.Run("engine.Transactions() - reward", func(t *testing.T) {
+		spendingIdentity := identity.RandomIdentity()
+		receivingIdentity := identity.RandomIdentity()
+
+		bc := testdata.NewBlockchainBuilder(t).
+			Build().
+			AddBalance(spendingIdentity.Address(), 10).
+			ToBlockchain()
+
+		rewardTx := entity.NewRewardTx(receivingIdentity.Address(), encoding.TransactionProtoEncoder())
+		block, err := bc.MineBlock(entity.Transactions{rewardTx})
+		if bc.SaveBlock(block); err != nil {
+			t.Errorf("engine.Send() error = %v, wantErr %v", err, false)
+			return
+		}
+
+		engine := NewEngine(bc)
+		got, err := engine.Transactions(receivingIdentity.Address())
+		if err != nil {
+			t.Errorf("engine.Transactions() error = %v, wantErr %v", err, false)
+			return
+		}
+		expectedTxs := Transactions{{amount: 10, from: nil, to: receivingIdentity.Address()}}
 		if !reflect.DeepEqual(got, expectedTxs) {
 			t.Errorf("engine.Transactions() = %v, want %v", got, expectedTxs)
 		}

@@ -34,7 +34,6 @@ func (e *engine) Transactions(address *identity.Address) (Transactions, error) {
 	entityTxs := entity.Transactions{}
 	e.bc.ForEachBlock(func(block *entity.Block) {
 		filteredTxs := block.Transactions().
-			FilterReward(false).
 			Filter(func(tx *entity.Transaction) bool {
 				for _, in := range tx.Inputs {
 					if identity.FromPublicKey(in.PublicKey).IsEqual(address) {
@@ -57,10 +56,15 @@ func (e *engine) Transactions(address *identity.Address) (Transactions, error) {
 	accountTxs := Transactions{}
 	for _, tx := range entityTxs {
 		for _, out := range tx.Outputs {
+			var fromAddress *identity.Address
+			if len(tx.Inputs) > 0 {
+				fromAddress = identity.FromPublicKey(tx.Inputs[0].PublicKey)
+			}
+
 			accountTxs = accountTxs.Add(
 				&Transaction{
 					amount: out.Value,
-					from:   identity.FromPublicKey(tx.Inputs[0].PublicKey),
+					from:   fromAddress,
 					to:     identity.FromPublicKeyHash(out.PublicKeyHash),
 				},
 			)

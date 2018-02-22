@@ -131,10 +131,6 @@ func (txs Transactions) IsEqual(other Transactions) bool {
 	return true
 }
 
-func (txs Transactions) FilterReward(isReward bool) Transactions {
-	return txs.Filter(func(tx *Transaction) bool { return tx.IsReward() == isReward })
-}
-
 func (txs Transactions) Filter(predicate func(tx *Transaction) bool) Transactions {
 	filtered := Transactions{}
 	for _, tx := range txs {
