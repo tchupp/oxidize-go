@@ -15,11 +15,14 @@ type Blockchain interface {
 	Headers(hash *entity.Hash, index uint64) (entity.BlockHeaders, error)
 	SaveHeaders(headers entity.BlockHeaders) error
 	MineBlock(transactions entity.Transactions) (*entity.Block, error)
+
+	Subscribe(channel chan<- Event) Subscription
 }
 
 type blockchain struct {
 	entity.ChainRepository
 	miner mining.Miner
+	feed  *Feed
 }
 
 func Open(repository entity.ChainRepository, miner mining.Miner) (Blockchain, error) {
@@ -31,6 +34,7 @@ func Open(repository entity.ChainRepository, miner mining.Miner) (Blockchain, er
 	return &blockchain{
 		ChainRepository: repository,
 		miner:           miner,
+		feed:            NewFeed(),
 	}, nil
 }
 
@@ -70,14 +74,20 @@ func (bc *blockchain) SaveHeaders(headers entity.BlockHeaders) error {
 
 func (bc *blockchain) SaveHeader(header *entity.BlockHeader) error {
 	// TODO verify header
+	bc.feed.Send(HeaderSaved)
 	return bc.ChainRepository.SaveHeader(header)
 }
 
 func (bc *blockchain) SaveBlock(block *entity.Block) error {
 	// TODO verify block
+	bc.feed.Send(BlockSaved)
 	return bc.ChainRepository.SaveBlock(block)
 }
 
 func (bc *blockchain) MineBlock(transactions entity.Transactions) (*entity.Block, error) {
 	return engine.MineBlock(transactions, bc.miner, bc.ChainRepository)
+}
+
+func (bc *blockchain) Subscribe(channel chan<- Event) Subscription {
+	return bc.feed.Subscribe(channel)
 }
