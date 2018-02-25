@@ -3,6 +3,7 @@ package account
 import (
 	"reflect"
 	"testing"
+	"time"
 
 	"github.com/tclchiam/oxidize-go/blockchain"
 	"github.com/tclchiam/oxidize-go/blockchain/entity"
@@ -70,8 +71,8 @@ func Test_engine_Transactions(t *testing.T) {
 			t.Errorf("engine.Transactions() error = %v, wantErr %v", err, false)
 			return
 		}
-		if !reflect.DeepEqual(got, Transactions{}) {
-			t.Errorf("engine.Transactions() = %v, want %v", got, Transactions{})
+		if !reflect.DeepEqual(got, Transactions(nil)) {
+			t.Errorf("engine.Transactions() = %v, want %v", got, Transactions(nil))
 		}
 	})
 
@@ -90,14 +91,15 @@ func Test_engine_Transactions(t *testing.T) {
 			return
 		}
 
+		time.Sleep(10 * time.Millisecond)
 		got, err := engine.Transactions(spendingIdentity.Address())
 		if err != nil {
 			t.Errorf("engine.Transactions() error = %v, wantErr %v", err, false)
 			return
 		}
 		expectedTxs := Transactions{
-			{amount: 10, from: spendingIdentity.Address(), to: receivingIdentity.Address()},
-			{amount: 10, from: nil, to: spendingIdentity.Address()},
+			{amount: 10, spender: nil, receiver: spendingIdentity.Address()},
+			{amount: 10, spender: spendingIdentity.Address(), receiver: receivingIdentity.Address()},
 		}
 		if !reflect.DeepEqual(got, expectedTxs) {
 			t.Errorf("engine.Transactions() = %v, want %v", got, expectedTxs)
@@ -119,12 +121,13 @@ func Test_engine_Transactions(t *testing.T) {
 			return
 		}
 
+		time.Sleep(10 * time.Millisecond)
 		got, err := engine.Transactions(receivingIdentity.Address())
 		if err != nil {
 			t.Errorf("engine.Transactions() error = %v, wantErr %v", err, false)
 			return
 		}
-		expectedTxs := Transactions{{amount: 10, from: spendingIdentity.Address(), to: receivingIdentity.Address()}}
+		expectedTxs := Transactions{{amount: 10, spender: spendingIdentity.Address(), receiver: receivingIdentity.Address()}}
 		if !reflect.DeepEqual(got, expectedTxs) {
 			t.Errorf("engine.Transactions() = %v, want %v", got, expectedTxs)
 		}
@@ -147,12 +150,13 @@ func Test_engine_Transactions(t *testing.T) {
 		}
 
 		engine := NewEngine(bc)
+		time.Sleep(10 * time.Millisecond)
 		got, err := engine.Transactions(receivingIdentity.Address())
 		if err != nil {
 			t.Errorf("engine.Transactions() error = %v, wantErr %v", err, false)
 			return
 		}
-		expectedTxs := Transactions{{amount: 10, from: nil, to: receivingIdentity.Address()}}
+		expectedTxs := Transactions{{amount: 10, spender: nil, receiver: receivingIdentity.Address()}}
 		if !reflect.DeepEqual(got, expectedTxs) {
 			t.Errorf("engine.Transactions() = %v, want %v", got, expectedTxs)
 		}

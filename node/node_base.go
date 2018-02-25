@@ -1,6 +1,9 @@
 package node
 
 import (
+	"io"
+
+	"github.com/hashicorp/go-multierror"
 	"github.com/tclchiam/oxidize-go/account"
 	"github.com/tclchiam/oxidize-go/blockchain"
 	"github.com/tclchiam/oxidize-go/blockchain/blockrpc"
@@ -44,4 +47,16 @@ func (n *baseNode) AddPeer(address string) (*p2p.Peer, error) {
 	go startSyncHeadersFlow(peer, n.PeerManager, n)
 
 	return peer, nil
+}
+
+func (n *baseNode) Close() error {
+	closers := []io.Closer{n.Blockchain, n.Engine, n.Server}
+
+	var result *multierror.Error
+	for _, closer := range closers {
+		if err := closer.Close(); err != nil {
+			result = multierror.Append(result, err)
+		}
+	}
+	return result.ErrorOrNil()
 }

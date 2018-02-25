@@ -21,7 +21,7 @@ func TestBaseNode_AddPeer(t *testing.T) {
 
 	remoteNode := newNode(remoteBc, rpc.NewServer(lis))
 	remoteNode.Serve()
-	defer remoteNode.Shutdown()
+	defer remoteNode.Close()
 
 	localBc := buildBlockchain(t)
 	localNode := newNode(localBc, rpc.NewServer(nil))
@@ -68,7 +68,7 @@ func TestBaseNode_AddPeer_PeerLoosesConnection(t *testing.T) {
 
 	verifyPeerCount(localNode, 1, t)
 
-	remoteNode.Shutdown()
+	remoteNode.Close()
 
 	time.Sleep(600 * time.Millisecond)
 
@@ -97,7 +97,7 @@ func TestBaseNode_AddPeer_SyncsHeadersWithNewPeer_WhenPeersVersionIsHigher(t *te
 
 	remoteNode := newNode(remoteBc, rpc.NewServer(lis))
 	remoteNode.Serve()
-	defer remoteNode.Shutdown()
+	defer remoteNode.Close()
 
 	localBc := buildBlockchain(t)
 	localNode := newNode(localBc, rpc.NewServer(nil))

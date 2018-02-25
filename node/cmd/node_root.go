@@ -95,7 +95,7 @@ func buildNode(handler interrupt.Handler, bc blockchain.Blockchain) node.Node {
 	}
 
 	n := node.WrapWithLogger(node.NewNode(bc, rpc.NewServer(lis)))
-	handler.AddInterruptCallback(n.Shutdown)
+	handler.AddInterruptCallback(func() { n.Close() })
 
 	return n
 }
