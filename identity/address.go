@@ -67,11 +67,21 @@ func (a *Address) Serialize() string {
 	return base58.Encode(bytes.Join(input, []byte{}))
 }
 
-func (a *Address) String() string              { return a.Serialize() }
-func (a *Address) Version() byte               { return a.version }
-func (a *Address) PublicKeyHash() []byte       { return a.publicKeyHash }
-func (a *Address) Checksum() []byte            { return a.checksum }
-func (a *Address) IsEqual(other *Address) bool { return a.Serialize() == other.Serialize() }
+func (a *Address) String() string        { return a.Serialize() }
+func (a *Address) Version() byte         { return a.version }
+func (a *Address) PublicKeyHash() []byte { return a.publicKeyHash }
+func (a *Address) Checksum() []byte      { return a.checksum }
+
+func (a *Address) IsEqual(other *Address) bool {
+	if a == nil && other == nil {
+		return true
+	}
+	if a == nil || other == nil {
+		return false
+	}
+
+	return a.Serialize() == other.Serialize()
+}
 
 func checksum(publicKeyHash []byte) []byte {
 	payload := append([]byte{version}, publicKeyHash...)
