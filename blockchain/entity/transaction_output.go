@@ -3,7 +3,6 @@ package entity
 import (
 	"bytes"
 	"fmt"
-	"strings"
 
 	"github.com/tclchiam/oxidize-go/identity"
 )
@@ -19,14 +18,17 @@ func NewOutput(value uint64, spender *identity.Address) *Output {
 }
 
 func (output *Output) String() string {
-	var lines []string
+	return output.string("")
+}
 
-	lines = append(lines, fmt.Sprintf("     Output:"))
-	lines = append(lines, fmt.Sprintf("       Index:         %d", output.Index))
-	lines = append(lines, fmt.Sprintf("       Value:         %d", output.Value))
-	lines = append(lines, fmt.Sprintf("       PublicKeyHash: %x", output.PublicKeyHash))
-
-	return strings.Join(lines, "\n")
+func (output *Output) string(indent string) string {
+	return fmt.Sprintf(
+		"%sentity.Output{Index: %d, Value: %d, PublicKeyHash: %x}",
+		indent,
+		output.Index,
+		output.Value,
+		output.PublicKeyHash,
+	)
 }
 
 func (output *Output) ReceivedBy(receiver *identity.Address) bool {

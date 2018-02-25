@@ -39,16 +39,18 @@ func (tx *Transaction) IsReward() bool {
 func (tx *Transaction) String() string {
 	var lines []string
 
-	lines = append(lines, fmt.Sprintf("--- Transaction %s:", tx.ID))
-	lines = append(lines, fmt.Sprintf("     Is Reward: %s", strconv.FormatBool(tx.IsReward())))
-	lines = append(lines, fmt.Sprintf("     Secret:      %x", tx.Secret))
+	lines = append(lines, fmt.Sprintf("-Transaction %s:", tx.ID))
+	lines = append(lines, fmt.Sprintf("  Is Reward: %s", strconv.FormatBool(tx.IsReward())))
+	lines = append(lines, fmt.Sprintf("  Secret:    %x", tx.Secret))
 
+	lines = append(lines, "  Inputs: ")
 	for _, input := range tx.Inputs {
-		lines = append(lines, input.String())
+		lines = append(lines, input.string("    "))
 	}
 
+	lines = append(lines, "  Outputs: ")
 	for _, output := range tx.Outputs {
-		lines = append(lines, output.String())
+		lines = append(lines, output.string("    "))
 	}
 
 	return strings.Join(lines, "\n")

@@ -2,7 +2,6 @@ package entity
 
 import (
 	"fmt"
-	"strings"
 
 	"github.com/tclchiam/oxidize-go/crypto"
 )
@@ -22,13 +21,18 @@ func NewSignedInput(input *UnsignedInput, signature *crypto.Signature) *SignedIn
 }
 
 func (input *SignedInput) String() string {
-	var lines []string
-	lines = append(lines, fmt.Sprintf("     SignedInput:"))
-	lines = append(lines, fmt.Sprintf("       TransactionId: %s", input.OutputReference.ID))
-	lines = append(lines, fmt.Sprintf("       OutputIndex:   %d", input.OutputReference.Output.Index))
-	lines = append(lines, fmt.Sprintf("       PublicKey:     %x", input.PublicKey))
-	lines = append(lines, fmt.Sprintf("       Signature:     %x", input.Signature))
-	return strings.Join(lines, "\n")
+	return input.string("")
+}
+
+func (input *SignedInput) string(indent string) string {
+	return fmt.Sprintf(
+		"%sentity.SignedInput{TransactionId: %s, OutputIndex: %d, PublicKey: %x, Signature: %x}",
+		indent,
+		input.OutputReference.ID,
+		input.OutputReference.Output.Index,
+		input.PublicKey,
+		input.Signature,
+	)
 }
 
 func EmptySingedInputs() SignedInputs {
