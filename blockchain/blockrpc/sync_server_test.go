@@ -18,9 +18,7 @@ import (
 )
 
 func TestSyncServer_GetBestHeader(t *testing.T) {
-	bc := testdata.NewBlockchainBuilder(t).
-		Build().
-		ToBlockchain()
+	bc := testdata.NewBlockchainBuilder(t).Build()
 
 	expectedHeader, err := bc.BestHeader()
 	if err != nil {
@@ -54,9 +52,7 @@ func TestSyncServer_GetBestHeader(t *testing.T) {
 }
 
 func TestSyncServer_GetHeaders(t *testing.T) {
-	bc := testdata.NewBlockchainBuilder(t).
-		Build().
-		ToBlockchain()
+	bc := testdata.NewBlockchainBuilder(t).Build()
 
 	saveRandomBlocks(bc, rand.Intn(12))
 

@@ -77,7 +77,5 @@ func TestSaveHeaders(t *testing.T) {
 }
 
 func buildBlockchain(t *testing.T) blockchain.Blockchain {
-	return testdata.NewBlockchainBuilder(t).
-		Build().
-		ToBlockchain()
+	return testdata.NewBlockchainBuilder(t).Build()
 }

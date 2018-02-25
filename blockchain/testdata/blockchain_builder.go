@@ -43,5 +43,5 @@ func (b *BlockchainBuilder) Build() *TestBlockchain {
 	if err != nil {
 		b.t.Fatalf("error opening blockchain: %s", err)
 	}
-	return &TestBlockchain{t: b.t, bc: bc}
+	return &TestBlockchain{t: b.t, Blockchain: bc}
 }

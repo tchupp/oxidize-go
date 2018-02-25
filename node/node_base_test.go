@@ -16,14 +16,14 @@ import (
 )
 
 func TestBaseNode_AddPeer(t *testing.T) {
-	remoteBc := buildBlockchain(t)
+	remoteBc := testdata.NewBlockchainBuilder(t).Build()
 	lis := buildListener(t)
 
 	remoteNode := newNode(remoteBc, rpc.NewServer(lis))
 	remoteNode.Serve()
 	defer remoteNode.Close()
 
-	localBc := buildBlockchain(t)
+	localBc := testdata.NewBlockchainBuilder(t).Build()
 	localNode := newNode(localBc, rpc.NewServer(nil))
 
 	verifyPeerCount(localNode, 0, t)
@@ -51,13 +51,13 @@ func TestBaseNode_AddPeer(t *testing.T) {
 }
 
 func TestBaseNode_AddPeer_PeerLoosesConnection(t *testing.T) {
-	remoteBc := buildBlockchain(t)
+	remoteBc := testdata.NewBlockchainBuilder(t).Build()
 	lis := buildListener(t)
 
 	remoteNode := newNode(remoteBc, rpc.NewServer(lis))
 	remoteNode.Serve()
 
-	localBc := buildBlockchain(t)
+	localBc := testdata.NewBlockchainBuilder(t).Build()
 	localNode := newNode(localBc, rpc.NewServer(nil))
 
 	verifyPeerCount(localNode, 0, t)
@@ -76,7 +76,7 @@ func TestBaseNode_AddPeer_PeerLoosesConnection(t *testing.T) {
 }
 
 func TestBaseNode_AddPeer_TargetIsOffline(t *testing.T) {
-	localBc := buildBlockchain(t)
+	localBc := testdata.NewBlockchainBuilder(t).Build()
 	localNode := newNode(localBc, rpc.NewServer(nil))
 
 	verifyPeerCount(localNode, 0, t)
@@ -91,7 +91,7 @@ func TestBaseNode_AddPeer_TargetIsOffline(t *testing.T) {
 }
 
 func TestBaseNode_AddPeer_SyncsHeadersWithNewPeer_WhenPeersVersionIsHigher(t *testing.T) {
-	remoteBc := buildBlockchain(t)
+	remoteBc := testdata.NewBlockchainBuilder(t).Build()
 	saveRandomBlocks(t, remoteBc, rand.Intn(12))
 	lis := buildListener(t)
 
@@ -99,7 +99,7 @@ func TestBaseNode_AddPeer_SyncsHeadersWithNewPeer_WhenPeersVersionIsHigher(t *te
 	remoteNode.Serve()
 	defer remoteNode.Close()
 
-	localBc := buildBlockchain(t)
+	localBc := testdata.NewBlockchainBuilder(t).Build()
 	localNode := newNode(localBc, rpc.NewServer(nil))
 
 	if _, err := localNode.AddPeer(lis.Addr().String()); err != nil {
@@ -131,12 +131,6 @@ func TestBaseNode_AddPeer_SyncsHeadersWithNewPeer_WhenPeersVersionIsHigher(t *te
 	if !remoteBestBlock.IsEqual(localBestBlock) {
 		t.Errorf("unexpected local best block. got - %s, wanted - %s", localBestBlock, remoteBestBlock)
 	}
-}
-
-func buildBlockchain(t *testing.T) blockchain.Blockchain {
-	return testdata.NewBlockchainBuilder(t).
-		Build().
-		ToBlockchain()
 }
 
 func buildListener(t *testing.T) net.Listener {

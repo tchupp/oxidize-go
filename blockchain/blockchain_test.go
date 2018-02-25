@@ -6,7 +6,7 @@ import (
 	"testing"
 
 	"github.com/tclchiam/oxidize-go/account"
-	"github.com/tclchiam/oxidize-go/blockchain/testdata"
+	"github.com/tclchiam/oxidize-go/account/testdata"
 	"github.com/tclchiam/oxidize-go/encoding"
 	"github.com/tclchiam/oxidize-go/identity"
 	"github.com/tclchiam/oxidize-go/storage/boltdb"
@@ -134,12 +134,9 @@ func setupAccountEngine(t *testing.T, name string, owner *identity.Identity) acc
 		WithLogger().
 		Build()
 
-	bc := testdata.NewBlockchainBuilder(t).
+	return testdata.NewAccountEngineBuilder(t).
 		WithRepository(repository).
 		WithBeneficiary(owner).
 		Build().
-		AddBalance(owner.Address(), 0).
-		ToBlockchain()
-
-	return account.NewEngine(bc)
+		AddBalance(owner.Address(), 0)
 }

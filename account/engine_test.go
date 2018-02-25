@@ -23,10 +23,8 @@ func Test_engine_Balance(t *testing.T) {
 
 	brokeAddress := identity.RandomIdentity().Address()
 	brokeAccount := testRun{
-		name: "broke account",
-		bc: testdata.NewBlockchainBuilder(t).
-			Build().
-			ToBlockchain(),
+		name:    "broke account",
+		bc:      testdata.NewBlockchainBuilder(t).Build(),
 		want:    &Account{Address: brokeAddress, Spendable: 0},
 		address: brokeAddress,
 	}
@@ -36,8 +34,7 @@ func Test_engine_Balance(t *testing.T) {
 		name: "rich account",
 		bc: testdata.NewBlockchainBuilder(t).
 			Build().
-			AddBalance(richAddress, 1000).
-			ToBlockchain(),
+			AddBalance(richAddress, 1000),
 		want:    &Account{Address: richAddress, Spendable: 1000},
 		address: richAddress,
 	}
@@ -60,9 +57,7 @@ func Test_engine_Balance(t *testing.T) {
 
 func Test_engine_Transactions(t *testing.T) {
 	t.Run("engine.Transactions() - none", func(t *testing.T) {
-		engine := NewEngine(testdata.NewBlockchainBuilder(t).
-			Build().
-			ToBlockchain())
+		engine := NewEngine(testdata.NewBlockchainBuilder(t).Build())
 
 		brokeIdentity := identity.RandomIdentity()
 
@@ -82,8 +77,7 @@ func Test_engine_Transactions(t *testing.T) {
 
 		engine := NewEngine(testdata.NewBlockchainBuilder(t).
 			Build().
-			AddBalance(spendingIdentity.Address(), 10).
-			ToBlockchain())
+			AddBalance(spendingIdentity.Address(), 10))
 
 		err := engine.Send(spendingIdentity, receivingIdentity.Address(), 10)
 		if err != nil {
@@ -112,8 +106,7 @@ func Test_engine_Transactions(t *testing.T) {
 
 		engine := NewEngine(testdata.NewBlockchainBuilder(t).
 			Build().
-			AddBalance(spendingIdentity.Address(), 10).
-			ToBlockchain())
+			AddBalance(spendingIdentity.Address(), 10))
 
 		err := engine.Send(spendingIdentity, receivingIdentity.Address(), 10)
 		if err != nil {
@@ -139,8 +132,7 @@ func Test_engine_Transactions(t *testing.T) {
 
 		bc := testdata.NewBlockchainBuilder(t).
 			Build().
-			AddBalance(spendingIdentity.Address(), 10).
-			ToBlockchain()
+			AddBalance(spendingIdentity.Address(), 10)
 
 		rewardTx := entity.NewRewardTx(receivingIdentity.Address(), encoding.TransactionProtoEncoder())
 		block, err := bc.MineBlock(entity.Transactions{rewardTx})
@@ -185,19 +177,15 @@ func Test_engine_Send(t *testing.T) {
 		after   testState
 	}{
 		{
-			name: "sending 0",
-			bc: testdata.NewBlockchainBuilder(t).
-				Build().
-				ToBlockchain(),
+			name:   "sending 0",
+			bc:     testdata.NewBlockchainBuilder(t).Build(),
 			args:   args{spender: spender, receiver: receiver, expense: 0},
 			before: testState{spenderBalance: 0, receiverBalance: 0},
 			after:  testState{spenderBalance: 0, receiverBalance: 0},
 		},
 		{
-			name: "over spending",
-			bc: testdata.NewBlockchainBuilder(t).
-				Build().
-				ToBlockchain(),
+			name:    "over spending",
+			bc:      testdata.NewBlockchainBuilder(t).Build(),
 			args:    args{spender: spender, receiver: receiver, expense: 10},
 			wantErr: true,
 			before:  testState{spenderBalance: 0, receiverBalance: 0},
@@ -207,8 +195,7 @@ func Test_engine_Send(t *testing.T) {
 			name: "under spending",
 			bc: testdata.NewBlockchainBuilder(t).
 				Build().
-				AddBalance(spender.Address(), 20).
-				ToBlockchain(),
+				AddBalance(spender.Address(), 20),
 			args:   args{spender: spender, receiver: receiver, expense: 10},
 			before: testState{spenderBalance: 20, receiverBalance: 0},
 			after:  testState{spenderBalance: 10, receiverBalance: 10},
@@ -217,8 +204,7 @@ func Test_engine_Send(t *testing.T) {
 			name: "exact spending",
 			bc: testdata.NewBlockchainBuilder(t).
 				Build().
-				AddBalance(spender.Address(), 10).
-				ToBlockchain(),
+				AddBalance(spender.Address(), 10),
 			args:   args{spender: spender, receiver: receiver, expense: 10},
 			before: testState{spenderBalance: 10, receiverBalance: 0},
 			after:  testState{spenderBalance: 0, receiverBalance: 10},

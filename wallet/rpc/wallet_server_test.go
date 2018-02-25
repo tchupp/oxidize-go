@@ -7,7 +7,7 @@ import (
 	"google.golang.org/grpc"
 
 	"github.com/tclchiam/oxidize-go/account"
-	"github.com/tclchiam/oxidize-go/blockchain/testdata"
+	"github.com/tclchiam/oxidize-go/account/testdata"
 	"github.com/tclchiam/oxidize-go/identity"
 	"github.com/tclchiam/oxidize-go/rpc"
 )
@@ -79,11 +79,8 @@ func TestWalletServer_Balance(t *testing.T) {
 }
 
 func setupAccountEngine(t *testing.T, owner *identity.Identity) account.Engine {
-	bc := testdata.NewBlockchainBuilder(t).
+	return testdata.NewAccountEngineBuilder(t).
 		WithBeneficiary(owner).
 		Build().
-		AddBalance(owner.Address(), 0).
-		ToBlockchain()
-
-	return account.NewEngine(bc)
+		AddBalance(owner.Address(), 0)
 }

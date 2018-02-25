@@ -53,9 +53,7 @@ func TestDiscoveryServer_Ping_TargetIsOffline(t *testing.T) {
 }
 
 func TestDiscoveryServer_Version(t *testing.T) {
-	bc := testdata.NewBlockchainBuilder(t).
-		Build().
-		ToBlockchain()
+	bc := testdata.NewBlockchainBuilder(t).Build()
 
 	actualHeader, err := bc.BestHeader()
 	if err != nil {
