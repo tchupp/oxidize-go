@@ -11,6 +11,16 @@ const (
 	HeaderSaved
 )
 
+func (e Event) String() string {
+	switch e {
+	case BlockSaved:
+		return "BlockSaved"
+	case HeaderSaved:
+		return "HeaderSaved"
+	}
+	return ""
+}
+
 type Feed struct {
 	lock sync.RWMutex
 	subs []Subscription

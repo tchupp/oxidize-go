@@ -74,14 +74,20 @@ func (bc *blockchain) SaveHeaders(headers entity.BlockHeaders) error {
 
 func (bc *blockchain) SaveHeader(header *entity.BlockHeader) error {
 	// TODO verify header
-	bc.feed.Send(HeaderSaved)
-	return bc.ChainRepository.SaveHeader(header)
+	err := bc.ChainRepository.SaveHeader(header)
+	if err == nil {
+		bc.feed.Send(HeaderSaved)
+	}
+	return err
 }
 
 func (bc *blockchain) SaveBlock(block *entity.Block) error {
 	// TODO verify block
-	bc.feed.Send(BlockSaved)
-	return bc.ChainRepository.SaveBlock(block)
+	err := bc.ChainRepository.SaveBlock(block)
+	if err == nil {
+		bc.feed.Send(BlockSaved)
+	}
+	return err
 }
 
 func (bc *blockchain) MineBlock(transactions entity.Transactions) (*entity.Block, error) {
