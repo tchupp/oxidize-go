@@ -18,3 +18,9 @@ func init() {
 	Default = logrus.New()
 	Default.SetLevel(logrus.InfoLevel)
 }
+
+func NewLogger(level logrus.Level) *logrus.Logger {
+	logger := logrus.New()
+	logger.SetLevel(level)
+	return logger
+}

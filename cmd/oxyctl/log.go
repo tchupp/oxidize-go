@@ -12,22 +12,13 @@ import (
 	"github.com/tclchiam/oxidize-go/storage"
 )
 
-var (
-	accountLogger   = logger.Default
-	interruptLogger = logger.Default
-	nodeLogger      = logger.Default
-	p2pLogger       = logger.Default
-	rpcLogger       = logger.Default
-	storageLogger   = logger.Default
-)
-
 func init() {
-	accountLogger.SetLevel(logrus.InfoLevel)
-	interruptLogger.SetLevel(logrus.InfoLevel)
-	nodeLogger.SetLevel(logrus.InfoLevel)
-	p2pLogger.SetLevel(logrus.InfoLevel)
-	rpcLogger.SetLevel(logrus.InfoLevel)
-	storageLogger.SetLevel(logrus.InfoLevel)
+	accountLogger := logger.NewLogger(logrus.InfoLevel)
+	interruptLogger := logger.NewLogger(logrus.InfoLevel)
+	nodeLogger := logger.NewLogger(logrus.InfoLevel)
+	p2pLogger := logger.NewLogger(logrus.InfoLevel)
+	rpcLogger := logger.NewLogger(logrus.InfoLevel)
+	storageLogger := logger.NewLogger(logrus.InfoLevel)
 
 	account.UseLogger(accountLogger)
 	interrupt.UseLogger(interruptLogger)

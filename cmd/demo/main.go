@@ -5,6 +5,8 @@ import (
 
 	log "github.com/sirupsen/logrus"
 
+	"time"
+
 	"github.com/tclchiam/oxidize-go/account"
 	"github.com/tclchiam/oxidize-go/blockchain"
 	"github.com/tclchiam/oxidize-go/blockchain/engine/iter"
@@ -43,10 +45,12 @@ func main() {
 	}
 	accountEngine := account.NewEngine(bc)
 
+	time.Sleep(10 * time.Millisecond)
 	err = accountEngine.Send(owner, receiver.Address(), 7)
 	if err != nil {
 		log.Panic(err)
 	}
+	time.Sleep(10 * time.Millisecond)
 	err = accountEngine.Send(receiver, owner.Address(), 4)
 	if err != nil {
 		log.Panic(err)
