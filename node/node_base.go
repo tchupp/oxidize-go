@@ -1,12 +1,10 @@
 package node
 
 import (
-	"io"
-
-	"github.com/hashicorp/go-multierror"
 	"github.com/tclchiam/oxidize-go/account"
 	"github.com/tclchiam/oxidize-go/blockchain"
 	"github.com/tclchiam/oxidize-go/blockchain/blockrpc"
+	"github.com/tclchiam/oxidize-go/closer"
 	"github.com/tclchiam/oxidize-go/p2p"
 	"github.com/tclchiam/oxidize-go/rpc"
 	walletRpc "github.com/tclchiam/oxidize-go/wallet/rpc"
@@ -50,13 +48,5 @@ func (n *baseNode) AddPeer(address string) (*p2p.Peer, error) {
 }
 
 func (n *baseNode) Close() error {
-	closers := []io.Closer{n.Blockchain, n.Engine, n.Server}
-
-	var result *multierror.Error
-	for _, closer := range closers {
-		if err := closer.Close(); err != nil {
-			result = multierror.Append(result, err)
-		}
-	}
-	return result.ErrorOrNil()
+	return closer.CloseMany(n.Blockchain, n.Engine, n.Server)
 }

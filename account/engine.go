@@ -1,12 +1,10 @@
 package account
 
 import (
-	"io"
-
-	"github.com/hashicorp/go-multierror"
 	"github.com/tclchiam/oxidize-go/account/utxo"
 	"github.com/tclchiam/oxidize-go/blockchain"
 	"github.com/tclchiam/oxidize-go/blockchain/entity"
+	"github.com/tclchiam/oxidize-go/closer"
 	"github.com/tclchiam/oxidize-go/identity"
 )
 
@@ -63,13 +61,5 @@ func (e *engine) Send(spender *identity.Identity, receiver *identity.Address, ex
 }
 
 func (e *engine) Close() error {
-	closers := []io.Closer{e.bc, e.processor}
-
-	var result *multierror.Error
-	for _, closer := range closers {
-		if err := closer.Close(); err != nil {
-			result = multierror.Append(result, err)
-		}
-	}
-	return result.ErrorOrNil()
+	return closer.CloseMany(e.bc, e.processor)
 }
