@@ -7,6 +7,7 @@ import (
 
 	"github.com/tclchiam/oxidize-go/account"
 	"github.com/tclchiam/oxidize-go/blockchain"
+	"github.com/tclchiam/oxidize-go/blockchain/engine/iter"
 	"github.com/tclchiam/oxidize-go/blockchain/engine/mining/proofofwork"
 	"github.com/tclchiam/oxidize-go/blockchain/entity"
 	"github.com/tclchiam/oxidize-go/encoding"
@@ -51,7 +52,7 @@ func main() {
 		log.Panic(err)
 	}
 
-	err = bc.ForEachBlock(func(block *entity.Block) {
+	err = iter.ForEachBlock(repository, func(block *entity.Block) {
 		fmt.Println(block)
 	})
 	if err != nil {

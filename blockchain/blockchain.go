@@ -2,15 +2,12 @@ package blockchain
 
 import (
 	"github.com/tclchiam/oxidize-go/blockchain/engine"
-	"github.com/tclchiam/oxidize-go/blockchain/engine/iter"
 	"github.com/tclchiam/oxidize-go/blockchain/engine/mining"
 	"github.com/tclchiam/oxidize-go/blockchain/entity"
 )
 
 type Blockchain interface {
 	entity.ChainRepository
-
-	ForEachBlock(consume func(*entity.Block)) error
 
 	Headers(hash *entity.Hash, index uint64) (entity.BlockHeaders, error)
 	SaveHeaders(headers entity.BlockHeaders) error
@@ -36,10 +33,6 @@ func Open(repository entity.ChainRepository, miner mining.Miner) (Blockchain, er
 		miner:           miner,
 		feed:            NewFeed(),
 	}, nil
-}
-
-func (bc *blockchain) ForEachBlock(consume func(*entity.Block)) error {
-	return iter.ForEachBlock(bc.ChainRepository, consume)
 }
 
 func (bc *blockchain) Headers(hash *entity.Hash, index uint64) (entity.BlockHeaders, error) {

@@ -18,20 +18,19 @@ type Engine interface {
 }
 
 type engine struct {
-	bc        blockchain.Blockchain
-	repo      *accountRepo
-	processor *blockProcessor
+	bc      blockchain.Blockchain
+	repo    *accountRepo
+	indexer *chainIndexer
 }
 
 func NewEngine(bc blockchain.Blockchain) Engine {
 	repo := NewAccountRepository()
-	processor := NewBlockProcessor(bc, repo)
-	processor.Start()
+	indexer := NewChainIndexer(bc, repo)
 
 	return &engine{
-		bc:        bc,
-		repo:      repo,
-		processor: processor,
+		bc:      bc,
+		repo:    repo,
+		indexer: indexer,
 	}
 }
 
@@ -61,5 +60,5 @@ func (e *engine) Send(spender *identity.Identity, receiver *identity.Address, ex
 }
 
 func (e *engine) Close() error {
-	return closer.CloseMany(e.bc, e.processor)
+	return closer.CloseMany(e.bc, e.indexer)
 }
