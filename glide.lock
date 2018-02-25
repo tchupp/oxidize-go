@@ -1,5 +1,5 @@
 hash: 0e21754f77b2d85c8e1203de1a3b37f06241c1a560ec447e9d90a429435ebf29
-updated: 2018-02-13T19:07:59.701902-05:00
+updated: 2018-02-25T13:19:44.88425-05:00
 imports:
 - name: github.com/boltdb/bolt
   version: 2f1ce7a837dcb8da3ec595b1dac9d0632f0f99e8
@@ -49,17 +49,15 @@ imports:
 - name: github.com/inconshreveable/mousetrap
   version: 76626ae9c91c4f2a10f34cad8ce83ea42c93bb75
 - name: github.com/magiconair/properties
-  version: 50a685e9bc1f5bf289dc4d048cb48ec4c85514c7
+  version: 2c9e9502788518c97fe44e8955cd069417ee89df
 - name: github.com/mattn/go-colorable
   version: 5411d3eea5978e6cdc258b30de592b60df6aba96
-  repo: https://github.com/mattn/go-colorable
 - name: github.com/mattn/go-isatty
   version: 57fdcb988a5c543893cc61bce354a6e24ab70022
-  repo: https://github.com/mattn/go-isatty
 - name: github.com/mitchellh/go-homedir
   version: b8bc1bf767474819792c23f32d8286a45736f1c6
 - name: github.com/mitchellh/mapstructure
-  version: a4e142e9c047c904fa2f1e144d9a84e6133024bc
+  version: 00c29f56e2386353d58c599509e8dc3801b0d716
 - name: github.com/mr-tron/base58
   version: c1bdf7c52f59d6685ca597b9955a443ff95eeee6
   subpackages:
@@ -73,7 +71,7 @@ imports:
   subpackages:
   - mem
 - name: github.com/spf13/cast
-  version: acbeb36b902d72a7a4c18e8f3241075e7ab763e4
+  version: 8965335b8c7107321228e3e3702cab9832751bac
 - name: github.com/spf13/cobra
   version: 7b2c5ac9fc04fc5efafb60700713d4fa609b777b
   subpackages:
@@ -81,7 +79,7 @@ imports:
 - name: github.com/spf13/jwalterweatherman
   version: 7c0cea34c8ece3fbeb2b27ab9b59511d360fb394
 - name: github.com/spf13/pflag
-  version: 6a877ebacf28c5fc79846f4fcd380a5d9872b997
+  version: ee5fd03fd6acfd43e44aea0b4135958546ed8e73
 - name: github.com/spf13/viper
   version: aafc9e6bc7b7bb53ddaa75a5ef49a17d6e654be5
 - name: golang.org/x/crypto
@@ -139,7 +137,7 @@ imports:
   - tap
   - transport
 - name: gopkg.in/yaml.v2
-  version: d670f9405373e636a5a2765eea47fac0c9bc91a4
+  version: 7f97868eec74b32b0982dd158a51a446d1da7eb5
 testImports:
 - name: github.com/google/go-cmp
   version: 8099a9787ce5dc5984ed879a3bda47dc730a8e97
