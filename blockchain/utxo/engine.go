@@ -1,8 +1,6 @@
 package utxo
 
 import (
-	"sync"
-
 	"github.com/tclchiam/oxidize-go/blockchain/entity"
 	"github.com/tclchiam/oxidize-go/identity"
 )
@@ -12,35 +10,45 @@ type BlockIndex struct {
 	index uint64
 }
 
+func (i *BlockIndex) Hash() *entity.Hash {
+	if i == nil {
+		return nil
+	}
+	return i.hash
+}
+
+func (i *BlockIndex) Index() uint64 {
+	if i == nil {
+		return 0
+	}
+	return i.index
+}
+
 type Engine interface {
 	UpdateIndex(block *entity.Block) (*BlockIndex, error)
 	FirstSpendableIndex() (*BlockIndex, error)
 	FirstSpendableIndexForAddress(*identity.Address) (*BlockIndex, error)
 
 	SpendableOutputs(*identity.Address) (*OutputSet, error)
-	IsSpendable(*BlockIndex, *entity.Output) (bool, error)
+	IsSpendable(*entity.Hash, *entity.Output) (bool, error)
 }
 
 type engine struct {
-	lock sync.RWMutex
-
-	blockIndex   *BlockIndex
-	chainReader  entity.ChainReader
-	txRepository Repository
+	chainReader entity.ChainReader
+	repository  Repository
 }
 
-func NewUtxoEngine(txRepository Repository, chainReader entity.ChainReader) Engine {
+func NewUtxoEngine(repository Repository, chainReader entity.ChainReader) Engine {
 	return &engine{
-		txRepository: txRepository,
-		chainReader:  chainReader,
-		blockIndex:   &BlockIndex{index: 0},
+		repository:  repository,
+		chainReader: chainReader,
 	}
 }
 
 func (e *engine) UpdateIndex(block *entity.Block) (*BlockIndex, error) {
 	err := e.processToBlock(block)
 	if err != nil {
-		return e.blockIndex, err
+		return nil, err
 	}
 
 	return e.updateIndex(block)
@@ -55,10 +63,7 @@ func (e *engine) FirstSpendableIndexForAddress(*identity.Address) (*BlockIndex, 
 }
 
 func (e *engine) SpendableOutputs(address *identity.Address) (*OutputSet, error) {
-	e.lock.RLock()
-	defer e.lock.RUnlock()
-
-	outputs, err := e.txRepository.SpendableOutputs()
+	outputs, err := e.repository.SpendableOutputs()
 	if err != nil {
 		return nil, err
 	}
@@ -66,18 +71,23 @@ func (e *engine) SpendableOutputs(address *identity.Address) (*OutputSet, error)
 	return outputs.FilterByOutput(func(output *entity.Output) bool { return output.ReceivedBy(address) }), nil
 }
 
-func (e *engine) IsSpendable(*BlockIndex, *entity.Output) (bool, error) {
+func (e *engine) IsSpendable(txId *entity.Hash, output *entity.Output) (bool, error) {
 	panic("implement me")
 }
 
 func (e *engine) processToBlock(block *entity.Block) error {
-	for e.blockIndex.index+1 < block.Index() {
-		b, err := e.chainReader.BlockByIndex(e.blockIndex.index)
+	blockIndex, err := e.repository.BlockIndex()
+	if err != nil {
+		return err
+	}
+
+	for blockIndex.Index()+1 < block.Index() {
+		b, err := e.chainReader.BlockByIndex(blockIndex.Index())
 		if err != nil {
 			return err
 		}
 
-		_, err = e.updateIndex(b)
+		blockIndex, err = e.updateIndex(b)
 		if err != nil {
 			return err
 		}
@@ -87,22 +97,18 @@ func (e *engine) processToBlock(block *entity.Block) error {
 }
 
 func (e *engine) updateIndex(block *entity.Block) (*BlockIndex, error) {
-	e.lock.Lock()
-	defer e.lock.Unlock()
-
 	for _, tx := range block.Transactions() {
-		for _, output := range tx.Outputs {
-			if err := e.txRepository.SaveSpendableOutput(tx.ID, output); err != nil {
-				return e.blockIndex, err
-			}
+		if err := e.repository.SaveSpendableOutputs(tx.ID, tx.Outputs); err != nil {
+			return nil, err
 		}
+
 		for _, input := range tx.Inputs {
-			if err := e.txRepository.RemoveSpendableOutput(input.OutputReference.ID, input.OutputReference.Output); err != nil {
-				return e.blockIndex, err
+			if err := e.repository.RemoveSpendableOutput(input.OutputReference.ID, input.OutputReference.Output); err != nil {
+				return nil, err
 			}
 		}
 	}
 
-	e.blockIndex = &BlockIndex{hash: block.Hash(), index: block.Index()}
-	return e.blockIndex, nil
+	blockIndex := &BlockIndex{hash: block.Hash(), index: block.Index()}
+	return blockIndex, e.repository.SaveBlockIndex(blockIndex)
 }

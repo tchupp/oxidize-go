@@ -3,6 +3,7 @@ package proofofwork
 import (
 	"testing"
 
+	"github.com/tclchiam/oxidize-go/blockchain/engine/mining"
 	"github.com/tclchiam/oxidize-go/blockchain/entity"
 	"github.com/tclchiam/oxidize-go/identity"
 )
@@ -91,5 +92,25 @@ func BenchmarkNewDefaultMiner(b *testing.B) {
 	b.ResetTimer()
 	for n := 0; n < b.N; n++ {
 		miner.mineBlock(parent, transactions, timestamp)
+	}
+}
+
+func TestMiner_MineBlock(t *testing.T) {
+	expectedHeader := entity.NewBlockHeader(
+		parent.Index+1,
+		parent.Hash,
+		mining.CalculateTransactionsHash(transactions),
+		timestamp,
+		12408,
+		entity.NewHashOrPanic("0000aff0376b81589ead4920032fd032f0f4257da9ef47af4810ba12d9acc059"),
+		parent.Difficulty,
+	)
+	expected := entity.NewBlock(expectedHeader, transactions)
+
+	miner := NewDefaultMiner(beneficiary).(*miner)
+	newBlock := miner.mineBlock(parent, transactions, timestamp)
+
+	if !expected.IsEqual(newBlock) {
+		t.Errorf("expected blocks to be equal. got - %s, wanted - %s", newBlock, expected)
 	}
 }

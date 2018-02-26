@@ -6,13 +6,14 @@ import (
 	"github.com/tclchiam/oxidize-go/blockchain/entity"
 	"github.com/tclchiam/oxidize-go/blockchain/utxo"
 	"github.com/tclchiam/oxidize-go/identity"
+	"github.com/tclchiam/oxidize-go/storage/memdb"
 )
 
 type Blockchain interface {
 	entity.ChainRepository
 
 	SpendableOutputs(*identity.Address) (*utxo.OutputSet, error)
-	IsSpendable(*utxo.BlockIndex, *entity.Output) (bool, error)
+	IsSpendable(*entity.Hash, *entity.Output) (bool, error)
 
 	Headers(hash *entity.Hash, index uint64) (entity.BlockHeaders, error)
 	SaveHeaders(headers entity.BlockHeaders) error
@@ -23,15 +24,15 @@ type Blockchain interface {
 
 type blockchain struct {
 	entity.ChainRepository
-	utxo.Engine
-	miner mining.Miner
-	feed  *Feed
+	utxoEngine utxo.Engine
+	miner      mining.Miner
+	feed       *Feed
 }
 
-func Open(repository entity.ChainRepository, miner mining.Miner) (Blockchain, error) {
+func Open(chainRepository entity.ChainRepository, miner mining.Miner) (Blockchain, error) {
 	bc := &blockchain{
-		ChainRepository: repository,
-		Engine:          utxo.NewUtxoEngine(utxo.NewUtxoRepository(), repository),
+		ChainRepository: chainRepository,
+		utxoEngine:      utxo.NewUtxoEngine(memdb.NewUtxoRepository(), chainRepository),
 		miner:           miner,
 		feed:            NewFeed(),
 	}
@@ -46,11 +47,19 @@ func Open(repository entity.ChainRepository, miner mining.Miner) (Blockchain, er
 		return nil, err
 	}
 
-	_, err = bc.Engine.UpdateIndex(block)
+	_, err = bc.utxoEngine.UpdateIndex(block)
 	if err != nil {
 		return nil, err
 	}
 	return bc, nil
+}
+
+func (bc *blockchain) SpendableOutputs(address *identity.Address) (*utxo.OutputSet, error) {
+	return bc.utxoEngine.SpendableOutputs(address)
+}
+
+func (bc *blockchain) IsSpendable(txId *entity.Hash, output *entity.Output) (bool, error) {
+	return bc.utxoEngine.IsSpendable(txId, output)
 }
 
 func (bc *blockchain) Headers(hash *entity.Hash, index uint64) (entity.BlockHeaders, error) {
@@ -102,7 +111,7 @@ func (bc *blockchain) SaveBlock(block *entity.Block) error {
 	}
 
 	bc.feed.Send(BlockSaved)
-	bc.Engine.UpdateIndex(block)
+	bc.utxoEngine.UpdateIndex(block)
 	return nil
 }
 

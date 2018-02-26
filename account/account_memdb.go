@@ -27,7 +27,7 @@ func (r *accountRepo) SaveTx(address *identity.Address, tx *Transaction) error {
 		return err
 	}
 
-	account.Transactions = append(account.Transactions, tx)
+	account.Transactions = account.Transactions.Add(tx)
 	if tx.spender.IsEqual(address) {
 		account.Spendable -= tx.amount
 	}

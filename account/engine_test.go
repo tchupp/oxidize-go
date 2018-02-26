@@ -4,6 +4,7 @@ import (
 	"reflect"
 	"testing"
 
+	"github.com/stretchr/testify/assert"
 	"github.com/tclchiam/oxidize-go/blockchain"
 	"github.com/tclchiam/oxidize-go/blockchain/entity"
 	"github.com/tclchiam/oxidize-go/blockchain/testdata"
@@ -47,9 +48,11 @@ func Test_engine_Balance(t *testing.T) {
 				t.Errorf("engine.Balance() error = %v, wantErr %v", err, tt.wantErr)
 				return
 			}
-			if !reflect.DeepEqual(got, tt.want) {
+			if !got.IsEqual(tt.want) {
 				t.Errorf("engine.Balance() = %v, want %v", got, tt.want)
 			}
+
+			assert.NoError(t, engine.Close())
 		})
 	}
 }
@@ -68,6 +71,8 @@ func Test_engine_Transactions(t *testing.T) {
 		if !reflect.DeepEqual(got, Transactions(nil)) {
 			t.Errorf("engine.Transactions() = %v, want %v", got, Transactions(nil))
 		}
+
+		assert.NoError(t, engine.Close())
 	})
 
 	t.Run("engine.Transactions() - spending", func(t *testing.T) {
@@ -96,6 +101,8 @@ func Test_engine_Transactions(t *testing.T) {
 		if !reflect.DeepEqual(got, expectedTxs) {
 			t.Errorf("engine.Transactions() = %v, want %v", got, expectedTxs)
 		}
+
+		assert.NoError(t, engine.Close())
 	})
 
 	t.Run("engine.Transactions() - receiving", func(t *testing.T) {
@@ -121,6 +128,8 @@ func Test_engine_Transactions(t *testing.T) {
 		if !reflect.DeepEqual(got, expectedTxs) {
 			t.Errorf("engine.Transactions() = %v, want %v", got, expectedTxs)
 		}
+
+		assert.NoError(t, engine.Close())
 	})
 
 	t.Run("engine.Transactions() - reward", func(t *testing.T) {
@@ -148,6 +157,8 @@ func Test_engine_Transactions(t *testing.T) {
 		if !reflect.DeepEqual(got, expectedTxs) {
 			t.Errorf("engine.Transactions() = %v, want %v", got, expectedTxs)
 		}
+
+		assert.NoError(t, engine.Close())
 	})
 }
 
@@ -235,6 +246,8 @@ func Test_engine_Send(t *testing.T) {
 					t.Errorf("receiver does not have expected after balance. want - %d, got - %d", tt.after.receiverBalance, account.Spendable)
 				}
 			}
+
+			assert.NoError(t, engine.Close())
 		})
 	}
 }
