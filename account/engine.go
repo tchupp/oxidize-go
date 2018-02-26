@@ -83,9 +83,11 @@ func (e *engine) waitForIndexer() <-chan struct{} {
 	c := make(chan struct{})
 
 	go func() {
+		time.Sleep(1 * time.Millisecond) // give the indexer a moment to actually update
+
 		status := e.indexer.Status()
 		for status != Idle && status != Done {
-			time.Sleep(1 * time.Millisecond) // give the indexer a mSecond to actually update
+			time.Sleep(1 * time.Millisecond) // give the indexer a moment to actually update
 			status = e.indexer.Status()
 		}
 		close(c)
