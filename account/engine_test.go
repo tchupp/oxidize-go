@@ -3,7 +3,6 @@ package account
 import (
 	"reflect"
 	"testing"
-	"time"
 
 	"github.com/tclchiam/oxidize-go/blockchain"
 	"github.com/tclchiam/oxidize-go/blockchain/entity"
@@ -85,7 +84,6 @@ func Test_engine_Transactions(t *testing.T) {
 			return
 		}
 
-		time.Sleep(10 * time.Millisecond)
 		got, err := engine.Transactions(spendingIdentity.Address())
 		if err != nil {
 			t.Errorf("engine.Transactions() error = %v, wantErr %v", err, false)
@@ -114,7 +112,6 @@ func Test_engine_Transactions(t *testing.T) {
 			return
 		}
 
-		time.Sleep(10 * time.Millisecond)
 		got, err := engine.Transactions(receivingIdentity.Address())
 		if err != nil {
 			t.Errorf("engine.Transactions() error = %v, wantErr %v", err, false)
@@ -142,7 +139,6 @@ func Test_engine_Transactions(t *testing.T) {
 		}
 
 		engine := NewEngine(bc)
-		time.Sleep(10 * time.Millisecond)
 		got, err := engine.Transactions(receivingIdentity.Address())
 		if err != nil {
 			t.Errorf("engine.Transactions() error = %v, wantErr %v", err, false)

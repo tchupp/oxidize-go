@@ -1,6 +1,9 @@
 package account
 
 import (
+	"fmt"
+	"sync"
+
 	"github.com/tclchiam/oxidize-go/blockchain"
 	"github.com/tclchiam/oxidize-go/blockchain/entity"
 )
@@ -17,16 +20,43 @@ func (ps BlockProcessors) Process(block *entity.Block) {
 	}
 }
 
+type IndexerStatus uint
+
+const (
+	Starting IndexerStatus = iota
+	Idle
+	Syncing
+	Done
+)
+
+func (s IndexerStatus) String() string {
+	switch s {
+	case Starting:
+		return "Starting"
+	case Idle:
+		return "Idle"
+	case Syncing:
+		return "Syncing"
+	case Done:
+		return "Done"
+	default:
+		return ""
+	}
+}
+
 type chainIndexer struct {
 	bc         blockchain.Blockchain
 	processors BlockProcessors
+	lock       sync.RWMutex
+	status     IndexerStatus
 	quit       chan struct{}
 }
 
-func NewChainIndexer(bc blockchain.Blockchain, repo *accountRepo) *chainIndexer {
+func NewChainIndexer(bc blockchain.Blockchain, processors ...BlockProcessor) *chainIndexer {
 	indexer := &chainIndexer{
 		bc:         bc,
-		processors: BlockProcessors{NewAccountUpdater(repo)},
+		processors: processors,
+		status:     Starting,
 		quit:       make(chan struct{}),
 	}
 
@@ -35,39 +65,57 @@ func NewChainIndexer(bc blockchain.Blockchain, repo *accountRepo) *chainIndexer 
 	return indexer
 }
 
+func (indexer *chainIndexer) Status() IndexerStatus {
+	indexer.lock.RLock()
+	defer indexer.lock.RUnlock()
+
+	return indexer.status
+}
+
+func (indexer *chainIndexer) updateStatus(status IndexerStatus, msg string) {
+	indexer.lock.Lock()
+	defer indexer.lock.Unlock()
+
+	indexer.status = status
+	log.WithField("state", status).Debug(msg)
+}
+
 func (indexer *chainIndexer) indexingLoop() {
 	c := make(chan blockchain.Event, 10)
 	sub := indexer.bc.Subscribe(c)
 	defer sub.Unsubscribe()
 
-	log.Debugf("starting indexing...")
+	indexer.updateStatus(Syncing, "starting indexing...")
 	currentIndex := indexer.handleNewBlocks(0)
-	log.Debugf("caught up with index '%d', waiting for event...", currentIndex)
+	indexer.updateStatus(Idle, fmt.Sprintf("caught up with index '%d', waiting for event...", currentIndex))
 
 	for {
 		select {
 		case <-indexer.quit:
-			log.Debug("quitting indexing")
+			indexer.updateStatus(Done, "quitting indexing")
 			return
 		case event, ok := <-c:
+			indexer.updateStatus(Syncing, fmt.Sprintf("resuming indexing with index '%d'...", currentIndex))
+
 			if !ok {
-				log.Debug("quitting indexing")
+				indexer.updateStatus(Done, "quitting indexing")
 				return
 			}
-			if event != blockchain.BlockSaved {
-				break
+			if event == blockchain.BlockSaved {
+				currentIndex = indexer.handleNewBlocks(currentIndex)
 			}
-
-			log.Debugf("resuming indexing with index '%d'...", currentIndex)
-			currentIndex = indexer.handleNewBlocks(currentIndex)
-			log.Debugf("caught up with index '%d', waiting for event...", currentIndex)
+			indexer.updateStatus(Idle, fmt.Sprintf("caught up with index '%d', waiting for event...", currentIndex))
 		}
 	}
 }
 
 func (indexer *chainIndexer) handleNewBlocks(currentIndex uint64) uint64 {
 	bestBlock, err := indexer.bc.BestBlock()
-	for ; err == nil && currentIndex <= bestBlock.Index(); currentIndex += 1 {
+	if err != nil {
+		return currentIndex
+	}
+
+	for ; currentIndex <= bestBlock.Index(); currentIndex += 1 {
 		block, err := indexer.bc.BlockByIndex(currentIndex)
 		if err != nil {
 			log.WithField("index", currentIndex).

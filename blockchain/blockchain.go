@@ -4,10 +4,15 @@ import (
 	"github.com/tclchiam/oxidize-go/blockchain/engine"
 	"github.com/tclchiam/oxidize-go/blockchain/engine/mining"
 	"github.com/tclchiam/oxidize-go/blockchain/entity"
+	"github.com/tclchiam/oxidize-go/blockchain/utxo"
+	"github.com/tclchiam/oxidize-go/identity"
 )
 
 type Blockchain interface {
 	entity.ChainRepository
+
+	SpendableOutputs(*identity.Address) (*utxo.OutputSet, error)
+	IsSpendable(*utxo.BlockIndex, *entity.Output) (bool, error)
 
 	Headers(hash *entity.Hash, index uint64) (entity.BlockHeaders, error)
 	SaveHeaders(headers entity.BlockHeaders) error
@@ -18,21 +23,34 @@ type Blockchain interface {
 
 type blockchain struct {
 	entity.ChainRepository
+	utxo.Engine
 	miner mining.Miner
 	feed  *Feed
 }
 
 func Open(repository entity.ChainRepository, miner mining.Miner) (Blockchain, error) {
-	err := engine.ResetGenesis(repository)
+	bc := &blockchain{
+		ChainRepository: repository,
+		Engine:          utxo.NewUtxoEngine(utxo.NewUtxoRepository(), repository),
+		miner:           miner,
+		feed:            NewFeed(),
+	}
+
+	err := engine.ResetGenesis(bc)
 	if err != nil {
 		return nil, err
 	}
 
-	return &blockchain{
-		ChainRepository: repository,
-		miner:           miner,
-		feed:            NewFeed(),
-	}, nil
+	block, err := bc.BestBlock()
+	if err != nil {
+		return nil, err
+	}
+
+	_, err = bc.Engine.UpdateIndex(block)
+	if err != nil {
+		return nil, err
+	}
+	return bc, nil
 }
 
 func (bc *blockchain) Headers(hash *entity.Hash, index uint64) (entity.BlockHeaders, error) {
@@ -68,19 +86,24 @@ func (bc *blockchain) SaveHeaders(headers entity.BlockHeaders) error {
 func (bc *blockchain) SaveHeader(header *entity.BlockHeader) error {
 	// TODO verify header
 	err := bc.ChainRepository.SaveHeader(header)
-	if err == nil {
-		bc.feed.Send(HeaderSaved)
+	if err != nil {
+		return err
 	}
-	return err
+
+	bc.feed.Send(HeaderSaved)
+	return nil
 }
 
 func (bc *blockchain) SaveBlock(block *entity.Block) error {
 	// TODO verify block
 	err := bc.ChainRepository.SaveBlock(block)
-	if err == nil {
-		bc.feed.Send(BlockSaved)
+	if err != nil {
+		return err
 	}
-	return err
+
+	bc.feed.Send(BlockSaved)
+	bc.Engine.UpdateIndex(block)
+	return nil
 }
 
 func (bc *blockchain) MineBlock(transactions entity.Transactions) (*entity.Block, error) {
