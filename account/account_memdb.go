@@ -15,17 +15,34 @@ func NewAccountRepository() *accountRepo {
 	return &accountRepo{accountStore: make(map[string]*Account)}
 }
 
-func (r *accountRepo) SaveTx(address *identity.Address, tx *Transaction) error {
-	if address == nil {
-		return nil
-	}
-
+func (r *accountRepo) SaveTxs(txs Transactions) error {
 	r.lock.Lock()
 	defer r.lock.Unlock()
-	account, err := r.account(address)
-	if err != nil {
-		return err
+
+	for _, tx := range txs {
+		r.saveTx(tx.spender, tx)
+		r.saveTx(tx.receiver, tx)
 	}
+
+	return nil
+}
+
+func (r *accountRepo) SaveTx(tx *Transaction) error {
+	r.lock.Lock()
+	defer r.lock.Unlock()
+
+	r.saveTx(tx.spender, tx)
+	r.saveTx(tx.receiver, tx)
+
+	return nil
+}
+
+func (r *accountRepo) saveTx(address *identity.Address, tx *Transaction) {
+	if address == nil {
+		return
+	}
+
+	account := r.account(address)
 
 	account.Transactions = account.Transactions.Add(tx)
 	if tx.spender.IsEqual(address) {
@@ -36,21 +53,19 @@ func (r *accountRepo) SaveTx(address *identity.Address, tx *Transaction) error {
 	}
 
 	r.accountStore[address.Serialize()] = account
-
-	return nil
 }
 
 func (r *accountRepo) Account(address *identity.Address) (*Account, error) {
 	r.lock.RLock()
 	defer r.lock.RUnlock()
 
-	return r.account(address)
+	return r.account(address), nil
 }
 
-func (r *accountRepo) account(address *identity.Address) (*Account, error) {
+func (r *accountRepo) account(address *identity.Address) *Account {
 	if a, ok := r.accountStore[address.Serialize()]; ok {
-		return a, nil
+		return a
 	} else {
-		return &Account{Address: address}, nil
+		return &Account{Address: address}
 	}
 }
