@@ -20,13 +20,19 @@ func TestDeserializeAddress(t *testing.T) {
 		wantErr bool
 	}{
 		{
-			name: "parses correctly",
+			name: "parses valid correctly",
 			data: "12GJBjXZr8DvjYwBgeXWjP4pSkhfyXUXT7",
 			want: identity.NewAddress(
 				byte(0x00),
 				[]byte{13, 220, 181, 232, 21, 237, 117, 95, 95, 103, 189, 221, 213, 173, 42, 66, 22, 138, 41, 112},
 				[]byte{174, 246, 175, 186},
 			),
+			wantErr: false,
+		},
+		{
+			name:    "parses empty correctly",
+			data:    "",
+			want:    nil,
 			wantErr: false,
 		},
 	}

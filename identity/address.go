@@ -42,6 +42,10 @@ func NewAddress(version byte, publicKeyHash []byte, checksum []byte) *Address {
 }
 
 func DeserializeAddress(data string) (*Address, error) {
+	if len(data) == 0 {
+		return nil, nil
+	}
+
 	b, err := base58.Decode(data)
 	if err != nil {
 		return nil, err
@@ -59,6 +63,10 @@ func DeserializeAddress(data string) (*Address, error) {
 }
 
 func (a *Address) Serialize() string {
+	if a == nil {
+		return ""
+	}
+
 	input := [][]byte{
 		{a.version},
 		a.publicKeyHash,
