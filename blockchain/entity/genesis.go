@@ -17,7 +17,7 @@ func DefaultGenesisBlock() *Block {
 			{
 				ID: NewHashOrPanic("d81f935f0c45cd0df0ccf073ae0e33432dd14cd925262a51a5bb43a77f433862"),
 				Outputs: []*Output{
-					{Index: 0, Value: 10, PublicKeyHash: []byte("75a53812febc119e562265a250552182274fd970")},
+					{Index: 0, Value: 10, PublicKeyHash: []byte{117, 165, 56, 18, 254, 188, 17, 158, 86, 34, 101, 162, 80, 85, 33, 130, 39, 79, 217, 112}},
 				},
 				Secret: []byte("39f39efae3884e28f5a5c4a62dd994e2943ac9cc7f9684070dfd4add7353722f"),
 			},
