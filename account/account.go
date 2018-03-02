@@ -7,9 +7,37 @@ import (
 )
 
 type Account struct {
-	Address      *identity.Address
-	Spendable    uint64
-	Transactions Transactions
+	address      *identity.Address
+	spendable    uint64
+	transactions Transactions
+}
+
+func NewAccount(address *identity.Address, spendable uint64, transactions Transactions) *Account {
+	return &Account{
+		address:      address,
+		spendable:    spendable,
+		transactions: transactions,
+	}
+}
+
+func (a *Account) Address() *identity.Address { return a.address }
+func (a *Account) Spendable() uint64          { return a.spendable }
+func (a *Account) Transactions() Transactions { return a.transactions }
+
+func (a *Account) AddTransaction(tx *Transaction) *Account {
+	spendable := a.spendable
+	if a.address.IsEqual(tx.spender) {
+		spendable -= tx.amount
+	}
+	if a.address.IsEqual(tx.receiver) {
+		spendable += tx.amount
+	}
+
+	return &Account{
+		address:      a.address,
+		spendable:    spendable,
+		transactions: a.transactions.Add(tx),
+	}
 }
 
 func (a *Account) IsEqual(other *Account) bool {
@@ -23,15 +51,15 @@ func (a *Account) IsEqual(other *Account) bool {
 		return true
 	}
 
-	if !a.Address.IsEqual(other.Address) {
+	if !a.address.IsEqual(other.address) {
 		return false
 	}
-	if a.Spendable != other.Spendable {
+	if a.spendable != other.spendable {
 		return false
 	}
 	return true
 }
 
 func (a *Account) String() string {
-	return fmt.Sprintf("{address: '%s', spendable: %d}", a.Address, a.Spendable)
+	return fmt.Sprintf("{address: '%s', spendable: %d}", a.Address(), a.Spendable())
 }

@@ -10,8 +10,7 @@ import (
 )
 
 type Engine interface {
-	Balance(address *identity.Address) (*Account, error)
-	Transactions(address *identity.Address) (Transactions, error)
+	Account(address *identity.Address) (*Account, error)
 
 	Send(spender *identity.Identity, receiver *identity.Address, expense uint64) error
 
@@ -35,26 +34,14 @@ func NewEngine(bc blockchain.Blockchain) Engine {
 	}
 }
 
-func (e *engine) Balance(address *identity.Address) (*Account, error) {
-	spendableOutputs, err := e.bc.SpendableOutputs(address)
-	if err != nil {
-		return nil, err
-	}
-
-	return &Account{
-		Address:   address,
-		Spendable: calculateBalance(spendableOutputs),
-	}, nil
-}
-
-func (e *engine) Transactions(address *identity.Address) (Transactions, error) {
+func (e *engine) Account(address *identity.Address) (*Account, error) {
 	<-e.waitForIndexer()
 
 	account, err := e.repo.Account(address)
 	if err != nil {
 		return nil, err
 	}
-	return account.Transactions, nil
+	return account, nil
 }
 
 func (e *engine) Send(spender *identity.Identity, receiver *identity.Address, expense uint64) error {

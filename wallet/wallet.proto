@@ -4,20 +4,25 @@ package rpc;
 option go_package = "rpc";
 
 service WalletService {
-    rpc Balance (BalanceRequest) returns (BalanceResponse);
+    rpc Account (AccountRequest) returns (AccountResponse);
 }
 
-message BalanceRequest {
+message AccountRequest {
     repeated string addresses = 1;
 }
 
-message BalanceResponse {
+message AccountResponse {
     repeated Account accounts = 1;
 }
 
 message Account {
     required string address = 1;
-    required uint64 total = 2;
     required uint64 spendable = 3;
-    required uint64 reward = 4;
+    repeated Transaction transactions = 5;
+}
+
+message Transaction {
+    required uint64 amount = 1;
+    required string spender = 2;
+    required string receiver = 3;
 }

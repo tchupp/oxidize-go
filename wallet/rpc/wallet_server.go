@@ -24,21 +24,21 @@ func RegisterWalletServer(s *rpc.Server, srv WalletServiceServer) {
 	s.Register(&_WalletService_serviceDesc, srv)
 }
 
-func (s *walletServer) Balance(ctx context.Context, req *BalanceRequest) (*BalanceResponse, error) {
+func (s *walletServer) Account(ctx context.Context, req *AccountRequest) (*AccountResponse, error) {
 	addresses, err := mapAddresses(req)
 	if err != nil {
 		return nil, status.Errorf(codes.InvalidArgument, "requested addresses were invalid: %s", err)
 	}
 
-	accounts, err := s.findBalances(addresses)
+	accounts, err := s.findAccounts(addresses)
 	if err != nil {
 		return nil, status.Errorf(codes.InvalidArgument, "requested addresses were invalid: %s", err)
 	}
 
-	return &BalanceResponse{Accounts: mapAccountsForResponse(accounts)}, nil
+	return &AccountResponse{Accounts: mapAccountsForResponse(accounts)}, nil
 }
 
-func mapAddresses(req *BalanceRequest) ([]*identity.Address, error) {
+func mapAddresses(req *AccountRequest) ([]*identity.Address, error) {
 	var result *multierror.Error
 	var addresses []*identity.Address
 
@@ -55,11 +55,11 @@ func mapAddresses(req *BalanceRequest) ([]*identity.Address, error) {
 	return addresses, result.ErrorOrNil()
 }
 
-func (s *walletServer) findBalances(addresses []*identity.Address) ([]*account.Account, error) {
+func (s *walletServer) findAccounts(addresses []*identity.Address) ([]*account.Account, error) {
 	var result *multierror.Error
 	var accounts []*account.Account
 	for _, address := range addresses {
-		acc, err := s.backend.Balance(address)
+		acc, err := s.backend.Account(address)
 		if err != nil {
 			result = multierror.Append(result, err)
 			continue
@@ -73,11 +73,19 @@ func (s *walletServer) findBalances(addresses []*identity.Address) ([]*account.A
 func mapAccountsForResponse(accounts []*account.Account) []*Account {
 	var res []*Account
 	for _, acc := range accounts {
+		var txs []*Transaction
+		for _, tx := range acc.Transactions() {
+			txs = append(txs, &Transaction{
+				Amount:   proto.Uint64(tx.Amount()),
+				Spender:  proto.String(tx.Spender().Serialize()),
+				Receiver: proto.String(tx.Receiver().Serialize()),
+			})
+		}
+
 		res = append(res, &Account{
-			Address:   proto.String(acc.Address.Serialize()),
-			Total:     proto.Uint64(0),
-			Spendable: proto.Uint64(acc.Spendable),
-			Reward:    proto.Uint64(0),
+			Address:      proto.String(acc.Address().Serialize()),
+			Spendable:    proto.Uint64(acc.Spendable()),
+			Transactions: txs,
 		})
 	}
 	return res

@@ -9,7 +9,7 @@ import (
 type Wallet interface {
 	Identities() (identity.Identities, error)
 	NewIdentity() (*identity.Identity, error)
-	Balance() ([]*account.Account, error)
+	Account() ([]*account.Account, error)
 }
 
 type wallet struct {
@@ -35,7 +35,7 @@ func (w *wallet) NewIdentity() (*identity.Identity, error) {
 	return newIdentity, nil
 }
 
-func (w *wallet) Balance() ([]*account.Account, error) {
+func (w *wallet) Account() ([]*account.Account, error) {
 	identities, err := w.store.Identities()
 	if err != nil {
 		return nil, err
@@ -46,5 +46,5 @@ func (w *wallet) Balance() ([]*account.Account, error) {
 		addrs = append(addrs, id.Address())
 	}
 
-	return w.client.Balance(addrs)
+	return w.client.Account(addrs)
 }

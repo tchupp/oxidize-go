@@ -33,7 +33,7 @@ func TestWalletServer_Balance(t *testing.T) {
 	}
 
 	client := NewWalletClient(conn)
-	accounts, err := client.Balance([]*identity.Address{owner.Address()})
+	accounts, err := client.Account([]*identity.Address{owner.Address()})
 	if err != nil {
 		t.Fatalf("error getting balance: %s", err)
 	}
@@ -43,7 +43,7 @@ func TestWalletServer_Balance(t *testing.T) {
 	}
 
 	actualOwnerAccount := accounts[0]
-	expectedOwnerAccount := &account.Account{Address: owner.Address(), Spendable: 10}
+	expectedOwnerAccount := account.NewAccount(owner.Address(), 10, nil)
 
 	if !actualOwnerAccount.IsEqual(expectedOwnerAccount) {
 		t.Errorf("initial owner account incorrect. got - %s, wanted - %s", actualOwnerAccount, expectedOwnerAccount)
@@ -54,7 +54,7 @@ func TestWalletServer_Balance(t *testing.T) {
 		t.Fatalf("failed to send: %s", err)
 	}
 
-	accounts, err = client.Balance([]*identity.Address{owner.Address(), receiver.Address()})
+	accounts, err = client.Account([]*identity.Address{owner.Address(), receiver.Address()})
 	if err != nil {
 		t.Fatalf("error getting balance: %s", err)
 	}
@@ -64,14 +64,14 @@ func TestWalletServer_Balance(t *testing.T) {
 	}
 
 	actualOwnerAccount = accounts[0]
-	expectedOwnerAccount = &account.Account{Address: owner.Address(), Spendable: 13}
+	expectedOwnerAccount = account.NewAccount(owner.Address(), 13, nil)
 
 	if !actualOwnerAccount.IsEqual(expectedOwnerAccount) {
 		t.Errorf("initial owner account incorrect. got - %s, wanted - %s", actualOwnerAccount, expectedOwnerAccount)
 	}
 
 	actualReceiverAccount := accounts[1]
-	expectedReceiverAccount := &account.Account{Address: receiver.Address(), Spendable: 7}
+	expectedReceiverAccount := account.NewAccount(receiver.Address(), 7, nil)
 
 	if !actualReceiverAccount.IsEqual(expectedReceiverAccount) {
 		t.Errorf("initial owner account incorrect. got - %s, wanted - %s", actualReceiverAccount, expectedReceiverAccount)

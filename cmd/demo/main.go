@@ -59,13 +59,13 @@ func main() {
 		log.Panic(err)
 	}
 
-	ownerAccount, err := accountEngine.Balance(owner.Address())
+	ownerAccount, err := accountEngine.Account(owner.Address())
 	if err != nil {
 		log.Panic(err)
 	}
 	fmt.Printf("Account: %s\n\n", ownerAccount)
 
-	receiverAccount, err := accountEngine.Balance(receiver.Address())
+	receiverAccount, err := accountEngine.Account(receiver.Address())
 	if err != nil {
 		log.Panic(err)
 	}

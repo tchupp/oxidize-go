@@ -12,7 +12,7 @@ import (
 	"github.com/tclchiam/oxidize-go/identity"
 )
 
-func Test_engine_Balance(t *testing.T) {
+func Test_engine_Account(t *testing.T) {
 	type testRun struct {
 		name    string
 		bc      blockchain.Blockchain
@@ -25,7 +25,7 @@ func Test_engine_Balance(t *testing.T) {
 	brokeAccount := testRun{
 		name:    "broke account",
 		bc:      testdata.NewBlockchainBuilder(t).Build(),
-		want:    &Account{Address: brokeAddress, Spendable: 0},
+		want:    &Account{address: brokeAddress, spendable: 0},
 		address: brokeAddress,
 	}
 
@@ -35,7 +35,7 @@ func Test_engine_Balance(t *testing.T) {
 		bc: testdata.NewBlockchainBuilder(t).
 			Build().
 			AddBalance(richAddress, 1000),
-		want:    &Account{Address: richAddress, Spendable: 1000},
+		want:    &Account{address: richAddress, spendable: 1000},
 		address: richAddress,
 	}
 
@@ -43,13 +43,13 @@ func Test_engine_Balance(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			engine := NewEngine(tt.bc)
 
-			got, err := engine.Balance(tt.address)
+			got, err := engine.Account(tt.address)
 			if (err != nil) != tt.wantErr {
-				t.Errorf("engine.Balance() error = %v, wantErr %v", err, tt.wantErr)
+				t.Errorf("engine.Account() error = %v, wantErr %v", err, tt.wantErr)
 				return
 			}
 			if !got.IsEqual(tt.want) {
-				t.Errorf("engine.Balance() = %v, want %v", got, tt.want)
+				t.Errorf("engine.Account() = %v, want %v", got, tt.want)
 			}
 
 			assert.NoError(t, engine.Close())
@@ -58,24 +58,24 @@ func Test_engine_Balance(t *testing.T) {
 }
 
 func Test_engine_Transactions(t *testing.T) {
-	t.Run("engine.Transactions() - none", func(t *testing.T) {
+	t.Run("engine.Account() - none", func(t *testing.T) {
 		engine := NewEngine(testdata.NewBlockchainBuilder(t).Build())
 
 		brokeIdentity := identity.RandomIdentity()
 
-		got, err := engine.Transactions(brokeIdentity.Address())
+		got, err := engine.Account(brokeIdentity.Address())
 		if err != nil {
-			t.Errorf("engine.Transactions() error = %v, wantErr %v", err, false)
+			t.Errorf("engine.Account() error = %v, wantErr %v", err, false)
 			return
 		}
-		if !reflect.DeepEqual(got, Transactions(nil)) {
-			t.Errorf("engine.Transactions() = %v, want %v", got, Transactions(nil))
+		if !reflect.DeepEqual(got.Transactions(), Transactions(nil)) {
+			t.Errorf("engine.Account() = %v, want %v", got.Transactions(), Transactions(nil))
 		}
 
 		assert.NoError(t, engine.Close())
 	})
 
-	t.Run("engine.Transactions() - spending", func(t *testing.T) {
+	t.Run("engine.Account() - spending", func(t *testing.T) {
 		spendingIdentity := identity.RandomIdentity()
 		receivingIdentity := identity.RandomIdentity()
 
@@ -89,23 +89,23 @@ func Test_engine_Transactions(t *testing.T) {
 			return
 		}
 
-		got, err := engine.Transactions(spendingIdentity.Address())
+		got, err := engine.Account(spendingIdentity.Address())
 		if err != nil {
-			t.Errorf("engine.Transactions() error = %v, wantErr %v", err, false)
+			t.Errorf("engine.Account() error = %v, wantErr %v", err, false)
 			return
 		}
 		expectedTxs := Transactions{
 			{amount: 10, spender: nil, receiver: spendingIdentity.Address()},
 			{amount: 10, spender: spendingIdentity.Address(), receiver: receivingIdentity.Address()},
 		}
-		if !reflect.DeepEqual(got, expectedTxs) {
-			t.Errorf("engine.Transactions() = %v, want %v", got, expectedTxs)
+		if !reflect.DeepEqual(got.Transactions(), expectedTxs) {
+			t.Errorf("engine.Account() = %v, want %v", got.Transactions(), expectedTxs)
 		}
 
 		assert.NoError(t, engine.Close())
 	})
 
-	t.Run("engine.Transactions() - receiving", func(t *testing.T) {
+	t.Run("engine.Account() - receiving", func(t *testing.T) {
 		spendingIdentity := identity.RandomIdentity()
 		receivingIdentity := identity.RandomIdentity()
 
@@ -119,20 +119,20 @@ func Test_engine_Transactions(t *testing.T) {
 			return
 		}
 
-		got, err := engine.Transactions(receivingIdentity.Address())
+		got, err := engine.Account(receivingIdentity.Address())
 		if err != nil {
-			t.Errorf("engine.Transactions() error = %v, wantErr %v", err, false)
+			t.Errorf("engine.Account() error = %v, wantErr %v", err, false)
 			return
 		}
 		expectedTxs := Transactions{{amount: 10, spender: spendingIdentity.Address(), receiver: receivingIdentity.Address()}}
-		if !reflect.DeepEqual(got, expectedTxs) {
-			t.Errorf("engine.Transactions() = %v, want %v", got, expectedTxs)
+		if !reflect.DeepEqual(got.Transactions(), expectedTxs) {
+			t.Errorf("engine.Account() = %v, want %v", got.Transactions(), expectedTxs)
 		}
 
 		assert.NoError(t, engine.Close())
 	})
 
-	t.Run("engine.Transactions() - reward", func(t *testing.T) {
+	t.Run("engine.Account() - reward", func(t *testing.T) {
 		spendingIdentity := identity.RandomIdentity()
 		receivingIdentity := identity.RandomIdentity()
 
@@ -148,14 +148,14 @@ func Test_engine_Transactions(t *testing.T) {
 		}
 
 		engine := NewEngine(bc)
-		got, err := engine.Transactions(receivingIdentity.Address())
+		got, err := engine.Account(receivingIdentity.Address())
 		if err != nil {
-			t.Errorf("engine.Transactions() error = %v, wantErr %v", err, false)
+			t.Errorf("engine.Account() error = %v, wantErr %v", err, false)
 			return
 		}
 		expectedTxs := Transactions{{amount: 10, spender: nil, receiver: receivingIdentity.Address()}}
-		if !reflect.DeepEqual(got, expectedTxs) {
-			t.Errorf("engine.Transactions() = %v, want %v", got, expectedTxs)
+		if !reflect.DeepEqual(got.Transactions(), expectedTxs) {
+			t.Errorf("engine.Account() = %v, want %v", got.Transactions(), expectedTxs)
 		}
 
 		assert.NoError(t, engine.Close())
@@ -221,14 +221,14 @@ func Test_engine_Send(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			engine := NewEngine(tt.bc)
 
-			if account, err := engine.Balance(tt.args.spender.Address()); err != nil {
-				if account.Spendable != tt.before.spenderBalance {
-					t.Errorf("spender does not have expected before balance. want - %d, got - %d", tt.before.spenderBalance, account.Spendable)
+			if account, err := engine.Account(tt.args.spender.Address()); err != nil {
+				if account.Spendable() != tt.before.spenderBalance {
+					t.Errorf("spender does not have expected before balance. want - %d, got - %d", tt.before.spenderBalance, account.Spendable())
 				}
 			}
-			if account, err := engine.Balance(tt.args.receiver); err != nil {
-				if account.Spendable != tt.before.receiverBalance {
-					t.Errorf("receiver does not have expected before balance. want - %d, got - %d", tt.before.receiverBalance, account.Spendable)
+			if account, err := engine.Account(tt.args.receiver); err != nil {
+				if account.Spendable() != tt.before.receiverBalance {
+					t.Errorf("receiver does not have expected before balance. want - %d, got - %d", tt.before.receiverBalance, account.Spendable())
 				}
 			}
 
@@ -236,14 +236,14 @@ func Test_engine_Send(t *testing.T) {
 				t.Errorf("engine.Send() error = %v, wantErr %v", err, tt.wantErr)
 			}
 
-			if account, err := engine.Balance(tt.args.spender.Address()); err != nil {
-				if account.Spendable != tt.after.spenderBalance {
-					t.Errorf("spender does not have expected after balance. want - %d, got - %d", tt.after.spenderBalance, account.Spendable)
+			if account, err := engine.Account(tt.args.spender.Address()); err != nil {
+				if account.Spendable() != tt.after.spenderBalance {
+					t.Errorf("spender does not have expected after balance. want - %d, got - %d", tt.after.spenderBalance, account.Spendable())
 				}
 			}
-			if account, err := engine.Balance(tt.args.receiver); err != nil {
-				if account.Spendable != tt.after.receiverBalance {
-					t.Errorf("receiver does not have expected after balance. want - %d, got - %d", tt.after.receiverBalance, account.Spendable)
+			if account, err := engine.Account(tt.args.receiver); err != nil {
+				if account.Spendable() != tt.after.receiverBalance {
+					t.Errorf("receiver does not have expected after balance. want - %d, got - %d", tt.after.receiverBalance, account.Spendable())
 				}
 			}
 
