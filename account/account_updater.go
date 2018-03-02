@@ -13,7 +13,7 @@ func NewAccountUpdater(repo *accountRepo) BlockProcessor {
 	return &accountUpdater{repo: repo}
 }
 
-func (p *accountUpdater) Process(block *entity.Block) {
+func (updater *accountUpdater) Process(block *entity.Block) {
 	var accountTxs Transactions
 	for _, tx := range block.Transactions() {
 		spenderAddress := findSpenderAddress(tx)
@@ -28,7 +28,7 @@ func (p *accountUpdater) Process(block *entity.Block) {
 		}
 	}
 
-	p.repo.SaveTxs(accountTxs)
+	updater.repo.SaveTxs(accountTxs)
 }
 
 // We trust that every transaction with one or more inputs has one sender, rewards have no sender

@@ -94,13 +94,9 @@ func (indexer *chainIndexer) indexingLoop() {
 		case <-indexer.quit:
 			indexer.updateStatus(Done, "quitting indexing")
 			return
-		case event, ok := <-c:
+		case event := <-c:
 			indexer.updateStatus(Syncing, fmt.Sprintf("resuming indexing with index '%d'...", currentIndex))
 
-			if !ok {
-				indexer.updateStatus(Done, "quitting indexing")
-				return
-			}
 			if event == blockchain.BlockSaved {
 				currentIndex = indexer.handleNewBlocks(currentIndex)
 			}
