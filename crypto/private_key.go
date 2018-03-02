@@ -10,7 +10,7 @@ import (
 
 type PrivateKey ecdsa.PrivateKey
 
-func NewPrivateKey(curve elliptic.Curve) (*PrivateKey) {
+func NewPrivateKey(curve elliptic.Curve) *PrivateKey {
 	key, err := ecdsa.GenerateKey(curve, rand.Reader)
 	if err != nil {
 		log.Panic(err)
@@ -19,8 +19,12 @@ func NewPrivateKey(curve elliptic.Curve) (*PrivateKey) {
 	return (*PrivateKey)(key)
 }
 
-func NewP256PrivateKey() (*PrivateKey) {
+func NewP256PrivateKey() *PrivateKey {
 	return NewPrivateKey(elliptic.P256())
+}
+
+func FromPrivateKey(key *ecdsa.PrivateKey) *PrivateKey {
+	return (*PrivateKey)(key)
 }
 
 func (p *PrivateKey) ToECDSA() *ecdsa.PrivateKey {

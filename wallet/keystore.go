@@ -50,6 +50,7 @@ func (store *KeyStore) Identities() (identity.Identities, error) {
 		id, err := store.Identity(addr)
 		if err != nil {
 			result = multierror.Append(result, err)
+			continue
 		}
 
 		ids = append(ids, id)
@@ -70,7 +71,7 @@ func (store *KeyStore) Identity(address string) (*identity.Identity, error) {
 	if err != nil {
 		return nil, err
 	}
-	return identity.NewIdentity((*crypto.PrivateKey)(privateKey)), nil
+	return identity.NewIdentity(crypto.FromPrivateKey(privateKey)), nil
 }
 
 func (store *KeyStore) SaveIdentity(identity *identity.Identity) error {

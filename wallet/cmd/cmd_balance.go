@@ -10,9 +10,11 @@ func init() {
 }
 
 var checkBalanceCommand = &cobra.Command{
-	Use:  "balance",
-	Long: "Read the balance of the wallet",
-	Run:  runReadBalanceCommand,
+	Use:     "balance",
+	Aliases: []string{"b"},
+	Short:   "View wallet balance",
+	Long:    "View the balance of the wallet",
+	Run:     runReadBalanceCommand,
 }
 
 var runReadBalanceCommand = func(cmd *cobra.Command, args []string) {
@@ -22,14 +24,14 @@ var runReadBalanceCommand = func(cmd *cobra.Command, args []string) {
 		return
 	}
 
-	accounts, err := wallet.Balance()
+	accounts, err := wallet.Account()
 	if err != nil {
 		color.Red("error reading balance: %s\n", err)
 		return
 	}
 
-	color.White("Balance: \n")
+	color.White("Account: \n")
 	for _, account := range accounts {
-		color.Cyan("%s: %d\n", account.Address, account.Spendable)
+		color.Cyan("%s: %d\n", account.Address(), account.Spendable)
 	}
 }

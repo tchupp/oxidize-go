@@ -12,9 +12,10 @@ func init() {
 }
 
 var createAddressCommand = &cobra.Command{
-	Use:  "new",
-	Long: "Create a new address for the wallet",
-	Run:  runCreateAddressCommand,
+	Use:   "new",
+	Short: "Create new address",
+	Long:  "Create a new address for the wallet",
+	Run:   runCreateAddressCommand,
 }
 
 var runCreateAddressCommand = func(cmd *cobra.Command, args []string) {
