@@ -23,20 +23,28 @@ func main() {
 
 	miner := proofofwork.NewDefaultMiner(owner.Address())
 
-	repository := boltdb.ChainBuilder(blockchainName).
+	chainRepository := boltdb.ChainBuilder(blockchainName).
 		WithCache().
 		WithMetrics().
 		WithLogger().
 		Build()
-	defer repository.Close()
+	defer chainRepository.Close()
 	defer boltdb.DeleteBlockchain(blockchainName)
 
+	utxoRepository := boltdb.UtxoBuilder(blockchainName).
+		WithCache().
+		WithMetrics().
+		WithLogger().
+		Build()
+	defer utxoRepository.Close()
+	defer boltdb.DeleteUtxo(blockchainName)
+
 	genesisBlock := miner.MineBlock(&entity.GenesisParentHeader, entity.Transactions{})
-	if err := repository.SaveBlock(genesisBlock); err != nil {
+	if err := chainRepository.SaveBlock(genesisBlock); err != nil {
 		log.Panic(err)
 	}
 
-	bc, err := blockchain.Open(repository, miner)
+	bc, err := blockchain.Open(chainRepository, utxoRepository, miner)
 	if err != nil {
 		log.Panic(err)
 	}
@@ -51,7 +59,7 @@ func main() {
 		log.Panic(err)
 	}
 
-	err = iter.ForEachBlock(repository, func(block *entity.Block) {
+	err = iter.ForEachBlock(chainRepository, func(block *entity.Block) {
 		fmt.Println(block)
 	})
 	if err != nil {

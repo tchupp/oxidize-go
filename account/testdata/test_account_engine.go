@@ -27,7 +27,7 @@ func (b *AccountEngineBuilder) WithBeneficiary(beneficiary *identity.Identity) *
 }
 
 func (b *AccountEngineBuilder) WithRepository(repository entity.ChainRepository) *AccountEngineBuilder {
-	b.BlockchainBuilder.WithRepository(repository)
+	b.BlockchainBuilder.WithChainRepository(repository)
 	return b
 }
 

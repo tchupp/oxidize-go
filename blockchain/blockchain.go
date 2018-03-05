@@ -6,7 +6,6 @@ import (
 	"github.com/tclchiam/oxidize-go/blockchain/entity"
 	"github.com/tclchiam/oxidize-go/blockchain/utxo"
 	"github.com/tclchiam/oxidize-go/identity"
-	"github.com/tclchiam/oxidize-go/storage/memdb"
 )
 
 type Blockchain interface {
@@ -29,10 +28,10 @@ type blockchain struct {
 	feed       *Feed
 }
 
-func Open(chainRepository entity.ChainRepository, miner mining.Miner) (Blockchain, error) {
+func Open(chainRepository entity.ChainRepository, utxoRepository utxo.Repository, miner mining.Miner) (Blockchain, error) {
 	bc := &blockchain{
 		ChainRepository: chainRepository,
-		utxoEngine:      utxo.NewUtxoEngine(memdb.NewUtxoRepository(), chainRepository),
+		utxoEngine:      utxo.NewUtxoEngine(utxoRepository, chainRepository),
 		miner:           miner,
 		feed:            NewFeed(),
 	}

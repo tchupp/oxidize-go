@@ -10,6 +10,7 @@ import (
 	"github.com/tclchiam/oxidize-go/blockchain"
 	"github.com/tclchiam/oxidize-go/blockchain/engine/mining/proofofwork"
 	"github.com/tclchiam/oxidize-go/blockchain/entity"
+	"github.com/tclchiam/oxidize-go/blockchain/utxo"
 	"github.com/tclchiam/oxidize-go/cmd/interrupt"
 	"github.com/tclchiam/oxidize-go/identity"
 	"github.com/tclchiam/oxidize-go/node"
@@ -28,10 +29,11 @@ var (
 )
 
 var showNodeSummaryCommand = func(cmd *cobra.Command, args []string) {
-	repository := buildRepository()
+	chainRepository := buildChainRepository()
+	utxoRepository := buildUtxoRepository()
 	nodeWallet := buildWallet()
 	beneficiary := getBeneficiary(nodeWallet).Address()
-	bc := buildBlockchain(repository, beneficiary)
+	bc := buildBlockchain(chainRepository, utxoRepository, beneficiary)
 
 	handler := interrupt.NewHandler()
 	n := buildNode(handler, bc)
@@ -41,16 +43,26 @@ var showNodeSummaryCommand = func(cmd *cobra.Command, args []string) {
 	handler.WaitForInterrupt()
 }
 
-func buildRepository() entity.ChainRepository {
+func buildChainRepository() entity.ChainRepository {
 	config := nodeConfig()
-	repository := boltdb.ChainBuilder(config.nodeName()).
+
+	return boltdb.ChainBuilder(config.nodeName()).
 		WithPath(config.dataDirectory()).
 		WithCache().
 		WithMetrics().
 		WithLogger().
 		Build()
+}
 
-	return repository
+func buildUtxoRepository() utxo.Repository {
+	config := nodeConfig()
+
+	return boltdb.UtxoBuilder(config.nodeName()).
+		WithPath(config.dataDirectory()).
+		WithCache().
+		WithMetrics().
+		WithLogger().
+		Build()
 }
 
 func buildWallet() wallet.Wallet {
@@ -77,8 +89,8 @@ func getBeneficiary(nodeWallet wallet.Wallet) *identity.Identity {
 	return beneficiary
 }
 
-func buildBlockchain(repository entity.ChainRepository, beneficiary *identity.Address) blockchain.Blockchain {
-	bc, err := blockchain.Open(repository, proofofwork.NewDefaultMiner(beneficiary))
+func buildBlockchain(chainRepository entity.ChainRepository, utxoRepository utxo.Repository, beneficiary *identity.Address) blockchain.Blockchain {
+	bc, err := blockchain.Open(chainRepository, utxoRepository, proofofwork.NewDefaultMiner(beneficiary))
 	if err != nil {
 		log.WithError(err).Panic("failed to open blockchain")
 	}

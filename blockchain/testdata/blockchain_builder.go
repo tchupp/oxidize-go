@@ -6,6 +6,7 @@ import (
 	"github.com/tclchiam/oxidize-go/blockchain"
 	"github.com/tclchiam/oxidize-go/blockchain/engine/mining/proofofwork"
 	"github.com/tclchiam/oxidize-go/blockchain/entity"
+	"github.com/tclchiam/oxidize-go/blockchain/utxo"
 	"github.com/tclchiam/oxidize-go/identity"
 	"github.com/tclchiam/oxidize-go/storage/memdb"
 )
@@ -13,8 +14,9 @@ import (
 type BlockchainBuilder struct {
 	t *testing.T
 
-	beneficiary *identity.Identity
-	repository  entity.ChainRepository
+	beneficiary     *identity.Identity
+	chainRepository entity.ChainRepository
+	utxoRepository  utxo.Repository
 }
 
 func NewBlockchainBuilder(t *testing.T) *BlockchainBuilder {
@@ -26,8 +28,13 @@ func (b *BlockchainBuilder) WithBeneficiary(beneficiary *identity.Identity) *Blo
 	return b
 }
 
-func (b *BlockchainBuilder) WithRepository(repository entity.ChainRepository) *BlockchainBuilder {
-	b.repository = repository
+func (b *BlockchainBuilder) WithChainRepository(repository entity.ChainRepository) *BlockchainBuilder {
+	b.chainRepository = repository
+	return b
+}
+
+func (b *BlockchainBuilder) WithUtxoRepository(repository utxo.Repository) *BlockchainBuilder {
+	b.utxoRepository = repository
 	return b
 }
 
@@ -35,11 +42,14 @@ func (b *BlockchainBuilder) Build() *TestBlockchain {
 	if b.beneficiary == nil {
 		b.beneficiary = identity.RandomIdentity()
 	}
-	if b.repository == nil {
-		b.repository = memdb.NewChainRepository()
+	if b.chainRepository == nil {
+		b.chainRepository = memdb.NewChainRepository()
+	}
+	if b.utxoRepository == nil {
+		b.utxoRepository = memdb.NewUtxoRepository()
 	}
 
-	bc, err := blockchain.Open(b.repository, proofofwork.NewDefaultMiner(b.beneficiary.Address()))
+	bc, err := blockchain.Open(b.chainRepository, b.utxoRepository, proofofwork.NewDefaultMiner(b.beneficiary.Address()))
 	if err != nil {
 		b.t.Fatalf("error opening blockchain: %s", err)
 	}
