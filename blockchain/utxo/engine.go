@@ -1,6 +1,8 @@
 package utxo
 
 import (
+	"fmt"
+
 	"github.com/tclchiam/oxidize-go/blockchain/entity"
 	"github.com/tclchiam/oxidize-go/identity"
 )
@@ -8,6 +10,14 @@ import (
 type BlockIndex struct {
 	hash  *entity.Hash
 	index uint64
+}
+
+func NewBlockIndex(hash *entity.Hash, index uint64) *BlockIndex {
+	return &BlockIndex{hash: hash, index: index}
+}
+
+func (i *BlockIndex) String() string {
+	return fmt.Sprintf("utxo.BlockIndex{hash: %s, index: %d}", i.hash, i.index)
 }
 
 func (i *BlockIndex) Hash() *entity.Hash {
@@ -22,6 +32,23 @@ func (i *BlockIndex) Index() uint64 {
 		return 0
 	}
 	return i.index
+}
+
+func (i *BlockIndex) IsEqual(other *BlockIndex) bool {
+	if i == nil && other == nil {
+		return true
+	}
+	if i == nil || other == nil {
+		return false
+	}
+
+	if i.index != other.index {
+		return false
+	}
+	if !i.Hash().IsEqual(other.Hash()) {
+		return false
+	}
+	return true
 }
 
 type Engine interface {

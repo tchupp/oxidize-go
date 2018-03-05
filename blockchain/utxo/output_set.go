@@ -3,36 +3,47 @@ package utxo
 import "github.com/tclchiam/oxidize-go/blockchain/entity"
 
 type OutputSet struct {
-	set map[*entity.Hash][]*entity.Output
+	set map[string]entity.Outputs
 }
 
 func NewOutputSet() *OutputSet {
 	return &OutputSet{
-		set: make(map[*entity.Hash][]*entity.Output, 0),
+		set: make(map[string]entity.Outputs, 0),
 	}
 }
 
 func (s *OutputSet) Add(txId *entity.Hash, output *entity.Output) *OutputSet {
 	newSet := copySet(s)
-	newSet[txId] = append(newSet[txId], output)
+	newSet[txId.String()] = newSet[txId.String()].Add(output)
+	return &OutputSet{newSet}
+}
+
+func (s *OutputSet) AddMany(txId *entity.Hash, outputs []*entity.Output) *OutputSet {
+	newSet := copySet(s)
+	for _, output := range outputs {
+		newSet[txId.String()] = newSet[txId.String()].Add(output)
+	}
 	return &OutputSet{newSet}
 }
 
 func (s *OutputSet) Remove(txId *entity.Hash, toRemove *entity.Output) *OutputSet {
 	newSet := copySet(s)
-	if index, ok := indexOf(newSet[txId], toRemove); ok {
-		newSet[txId] = remove(newSet, txId, index)
+	if index, ok := indexOf(newSet[txId.String()], toRemove); ok {
+		newSet[txId.String()] = remove(newSet, txId, index)
+	}
+	if 0 == len(newSet[txId.String()]) {
+		delete(newSet, txId.String())
 	}
 	return &OutputSet{newSet}
 }
 
 func (s *OutputSet) FilterByOutput(predicate func(output *entity.Output) bool) *OutputSet {
-	newSet := make(map[*entity.Hash][]*entity.Output, len(s.set))
+	newSet := make(map[string]entity.Outputs, len(s.set))
 
 	for txId, outputs := range s.set {
 		for _, output := range outputs {
 			if predicate(output) {
-				newSet[txId] = append(newSet[txId], output)
+				newSet[txId] = newSet[txId].Add(output)
 			}
 		}
 	}
@@ -42,7 +53,7 @@ func (s *OutputSet) FilterByOutput(predicate func(output *entity.Output) bool) *
 func (s *OutputSet) ForEach(consumer func(*entity.Hash, *entity.Output)) {
 	for txId, outputs := range s.set {
 		for _, output := range outputs {
-			consumer(txId, output)
+			consumer(entity.NewHashOrPanic(txId), output)
 		}
 	}
 }
@@ -59,16 +70,16 @@ func (s *OutputSet) Copy() *OutputSet {
 	return &OutputSet{copySet(s)}
 }
 
-func copySet(s *OutputSet) map[*entity.Hash][]*entity.Output {
-	set := make(map[*entity.Hash][]*entity.Output, len(s.set))
+func copySet(s *OutputSet) map[string]entity.Outputs {
+	set := make(map[string]entity.Outputs, len(s.set))
 	for txId, outputs := range s.set {
 		set[txId] = outputs
 	}
 	return set
 }
 
-func remove(set map[*entity.Hash][]*entity.Output, txId *entity.Hash, index int) []*entity.Output {
-	outputs := set[txId]
+func remove(set map[string]entity.Outputs, txId *entity.Hash, index int) []*entity.Output {
+	outputs := set[txId.String()]
 
 	return append(outputs[:index], outputs[index+1:]...)
 }

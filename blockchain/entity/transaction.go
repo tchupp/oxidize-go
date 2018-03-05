@@ -20,7 +20,7 @@ type (
 	Transaction struct {
 		ID      *Hash
 		Inputs  []*SignedInput
-		Outputs []*Output
+		Outputs Outputs
 		Secret  []byte
 	}
 

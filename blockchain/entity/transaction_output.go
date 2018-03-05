@@ -13,8 +13,8 @@ type Output struct {
 	PublicKeyHash []byte
 }
 
-func NewOutput(value uint64, spender *identity.Address) *Output {
-	return &Output{Value: value, PublicKeyHash: spender.PublicKeyHash()}
+func NewOutput(value uint64, receiver *identity.Address) *Output {
+	return &Output{Value: value, PublicKeyHash: receiver.PublicKeyHash()}
 }
 
 func (output *Output) String() string {
@@ -52,74 +52,50 @@ func (output *Output) IsEqual(other *Output) bool {
 	return true
 }
 
-type Outputs <-chan *Output
-
-func EmptyOutputs() Outputs {
-	c := make(chan *Output, 0)
-	defer close(c)
-	return Outputs(c)
-}
-
-func NewOutputs(outputs []*Output) Outputs {
-	c := make(chan *Output, len(outputs))
-	defer close(c)
-	for _, output := range outputs {
-		c <- output
-	}
-	return Outputs(c)
-}
+type Outputs []*Output
 
 func (outputs Outputs) Filter(predicate func(output *Output) bool) Outputs {
-	c := make(chan *Output)
+	var c []*Output
 
-	go func() {
-		for output := range outputs {
-			if predicate(output) {
-				c <- output
-			}
+	for _, output := range outputs {
+		if predicate(output) {
+			c = append(c, output)
 		}
-		close(c)
-	}()
-	return Outputs(c)
-}
-
-func (outputs Outputs) Reduce(res interface{}, apply func(res interface{}, output *Output) interface{}) interface{} {
-	for output := range outputs {
-		res = apply(res, output)
 	}
-	return res
+	return Outputs(c)
 }
 
 func (outputs Outputs) Add(output *Output) Outputs {
-	c := make(chan *Output, len(outputs)+1)
-	defer close(c)
-
-	for i := range outputs {
-		c <- i
-	}
-	c <- output
-	return Outputs(c)
+	return append(outputs, output)
 }
 
 func (outputs Outputs) Append(plus Outputs) Outputs {
-	c := make(chan *Output, len(outputs)+len(plus))
-
-	go func() {
-		for output := range outputs {
-			c <- output
-		}
-		for output := range plus {
-			c <- output
-		}
-		close(c)
-	}()
-	return Outputs(c)
+	return append(outputs, plus...)
 }
 
-func (outputs Outputs) ToSlice() []*Output {
-	slice := make([]*Output, 0)
-	for o := range outputs {
-		slice = append(slice, o)
+func (outputs Outputs) Contains(output *Output) bool {
+	for _, o := range outputs {
+		if o.IsEqual(output) {
+			return true
+		}
 	}
-	return slice
+	return false
+}
+
+func (outputs Outputs) IndexOf(output *Output) int {
+	for i, o := range outputs {
+		if o.IsEqual(output) {
+			return i
+		}
+	}
+	return -1
+}
+
+func (outputs Outputs) Remove(output *Output) Outputs {
+	index := outputs.IndexOf(output)
+	if index == -1 {
+		return outputs
+	}
+
+	return append(outputs[:index], outputs[index+1:]...)
 }
