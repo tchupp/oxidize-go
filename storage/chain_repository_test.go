@@ -5,15 +5,13 @@ import (
 
 	"github.com/tclchiam/oxidize-go/blockchain/engine/mining/proofofwork"
 	"github.com/tclchiam/oxidize-go/blockchain/entity"
-	"github.com/tclchiam/oxidize-go/encoding"
 	"github.com/tclchiam/oxidize-go/identity"
 	"github.com/tclchiam/oxidize-go/storage/boltdb"
 	"github.com/tclchiam/oxidize-go/storage/memdb"
 )
 
 var (
-	blockEncoder = encoding.BlockProtoEncoder()
-	miner        = proofofwork.NewDefaultMiner(identity.RandomIdentity().Address())
+	miner = proofofwork.NewDefaultMiner(identity.RandomIdentity().Address())
 
 	block1 = miner.MineBlock(&entity.GenesisParentHeader, entity.Transactions{})
 	block2 = miner.MineBlock(block1.Header(), entity.Transactions{})
@@ -44,7 +42,7 @@ func TestRepository_ReturnsNilIfBlockDoesNotExist(t *testing.T) {
 		suite(repository, t)
 	})
 	t.Run("boltdb", func(t *testing.T) {
-		repository := boltdb.Builder("ReturnsNilIfBlockDoesNotExist", blockEncoder).
+		repository := boltdb.ChainBuilder("ReturnsNilIfBlockDoesNotExist").
 			WithCache().
 			WithMetrics().
 			WithLogger().
@@ -86,7 +84,7 @@ func TestRepository_CanReadSavedBlocks(t *testing.T) {
 		suite(repository, t)
 	})
 	t.Run("boltdb", func(t *testing.T) {
-		repository := boltdb.Builder("CanReadSavedBlocks", blockEncoder).
+		repository := boltdb.ChainBuilder("CanReadSavedBlocks").
 			WithCache().
 			WithMetrics().
 			WithLogger().
@@ -123,7 +121,7 @@ func TestRepository_ReturnsNilIfHeaderDoesNotExist(t *testing.T) {
 		suite(repository, t)
 	})
 	t.Run("boltdb", func(t *testing.T) {
-		repository := boltdb.Builder("ReturnsNilIfHeaderDoesNotExist", blockEncoder).
+		repository := boltdb.ChainBuilder("ReturnsNilIfHeaderDoesNotExist").
 			WithCache().
 			WithMetrics().
 			WithLogger().
@@ -167,7 +165,7 @@ func TestRepository_CanReadSavedHeaders(t *testing.T) {
 		suite(repository, t)
 	})
 	t.Run("boltdb", func(t *testing.T) {
-		repository := boltdb.Builder("CanReadSavedHeaders", blockEncoder).
+		repository := boltdb.ChainBuilder("CanReadSavedHeaders").
 			WithCache().
 			WithMetrics().
 			WithLogger().
@@ -211,7 +209,7 @@ func TestRepository_SavingBlocksAlsoSavesHeader(t *testing.T) {
 		suite(repository, t)
 	})
 	t.Run("boltdb", func(t *testing.T) {
-		repository := boltdb.Builder("SavingBlocksAlsoSavesHeader", blockEncoder).
+		repository := boltdb.ChainBuilder("SavingBlocksAlsoSavesHeader").
 			WithCache().
 			WithMetrics().
 			WithLogger().
@@ -251,7 +249,7 @@ func TestRepository_BestBlockReturnsHighestBlock(t *testing.T) {
 		suite(repository, t)
 	})
 	t.Run("boltdb", func(t *testing.T) {
-		repository := boltdb.Builder("BestBlockReturnsHighestBlock", blockEncoder).
+		repository := boltdb.ChainBuilder("BestBlockReturnsHighestBlock").
 			WithCache().
 			WithMetrics().
 			WithLogger().
@@ -291,7 +289,7 @@ func TestRepository_BestHeaderReturnsHighestIndexHeader(t *testing.T) {
 		suite(repository, t)
 	})
 	t.Run("boltdb", func(t *testing.T) {
-		repository := boltdb.Builder("BestHeaderReturnsHighestIndexHeader", blockEncoder).
+		repository := boltdb.ChainBuilder("BestHeaderReturnsHighestIndexHeader").
 			WithCache().
 			WithMetrics().
 			WithLogger().
@@ -354,7 +352,7 @@ func TestRepository_BestHeaderCanBeHigherThanBestBlock(t *testing.T) {
 		suite(repository, t)
 	})
 	t.Run("boltdb", func(t *testing.T) {
-		repository := boltdb.Builder("BestHeaderCanBeHigherThanBestBlock", blockEncoder).
+		repository := boltdb.ChainBuilder("BestHeaderCanBeHigherThanBestBlock").
 			WithCache().
 			WithMetrics().
 			WithLogger().

@@ -7,7 +7,6 @@ import (
 
 	"github.com/tclchiam/oxidize-go/account"
 	"github.com/tclchiam/oxidize-go/account/testdata"
-	"github.com/tclchiam/oxidize-go/encoding"
 	"github.com/tclchiam/oxidize-go/identity"
 	"github.com/tclchiam/oxidize-go/storage/boltdb"
 )
@@ -129,7 +128,7 @@ func verifyBalance(t *testing.T, engine account.Engine, spender *identity.Identi
 }
 
 func setupAccountEngine(t *testing.T, name string, owner *identity.Identity) account.Engine {
-	repository := boltdb.Builder(name, encoding.BlockProtoEncoder()).
+	repository := boltdb.ChainBuilder(name).
 		WithCache().
 		WithLogger().
 		Build()

@@ -88,3 +88,7 @@ func (r *utxoMemRepository) SaveBlockIndex(blockIndex *utxo.BlockIndex) error {
 	r.blockIndex = blockIndex
 	return nil
 }
+
+func (r *utxoMemRepository) Close() error {
+	return nil
+}

@@ -17,4 +17,6 @@ type Repository interface {
 
 	BlockIndex() (*BlockIndex, error)
 	SaveBlockIndex(*BlockIndex) error
+
+	Close() error
 }

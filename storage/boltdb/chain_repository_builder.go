@@ -4,10 +4,11 @@ import (
 	"log"
 
 	"github.com/tclchiam/oxidize-go/blockchain/entity"
+	"github.com/tclchiam/oxidize-go/encoding"
 	"github.com/tclchiam/oxidize-go/storage"
 )
 
-type builder struct {
+type chainRepoBuilder struct {
 	path         string
 	name         string
 	blockEncoder entity.BlockEncoder
@@ -16,12 +17,23 @@ type builder struct {
 	withMetrics  bool
 }
 
-func Builder(name string, blockEncoder entity.BlockEncoder) storage.Builder {
-	return &builder{name: name, blockEncoder: blockEncoder, path: "./"}
+func ChainBuilder(name string) storage.ChainRepositoryBuilder {
+	return &chainRepoBuilder{name: name, blockEncoder: encoding.BlockProtoEncoder(), path: "./"}
 }
 
-func (b *builder) WithPath(path string) storage.Builder {
-	return &builder{
+func (b *chainRepoBuilder) WithBlockEncoder(blockEncoder entity.BlockEncoder) storage.ChainRepositoryBuilder {
+	return &chainRepoBuilder{
+		path:         b.path,
+		name:         b.name,
+		blockEncoder: blockEncoder,
+		withCache:    true,
+		withLogger:   b.withLogger,
+		withMetrics:  b.withMetrics,
+	}
+}
+
+func (b *chainRepoBuilder) WithPath(path string) storage.ChainRepositoryBuilder {
+	return &chainRepoBuilder{
 		path:         path,
 		name:         b.name,
 		blockEncoder: b.blockEncoder,
@@ -31,8 +43,8 @@ func (b *builder) WithPath(path string) storage.Builder {
 	}
 }
 
-func (b *builder) WithCache() storage.Builder {
-	return &builder{
+func (b *chainRepoBuilder) WithCache() storage.ChainRepositoryBuilder {
+	return &chainRepoBuilder{
 		path:         b.path,
 		name:         b.name,
 		blockEncoder: b.blockEncoder,
@@ -42,8 +54,8 @@ func (b *builder) WithCache() storage.Builder {
 	}
 }
 
-func (b *builder) WithLogger() storage.Builder {
-	return &builder{
+func (b *chainRepoBuilder) WithLogger() storage.ChainRepositoryBuilder {
+	return &chainRepoBuilder{
 		path:         b.path,
 		name:         b.name,
 		blockEncoder: b.blockEncoder,
@@ -53,8 +65,8 @@ func (b *builder) WithLogger() storage.Builder {
 	}
 }
 
-func (b *builder) WithMetrics() storage.Builder {
-	return &builder{
+func (b *chainRepoBuilder) WithMetrics() storage.ChainRepositoryBuilder {
+	return &chainRepoBuilder{
 		path:         b.path,
 		name:         b.name,
 		blockEncoder: b.blockEncoder,
@@ -64,7 +76,7 @@ func (b *builder) WithMetrics() storage.Builder {
 	}
 }
 
-func (b *builder) Build() entity.ChainRepository {
+func (b *chainRepoBuilder) Build() entity.ChainRepository {
 	repository, err := NewChainRepository(b.path, b.name, b.blockEncoder)
 	if err != nil {
 		log.Panic(err)

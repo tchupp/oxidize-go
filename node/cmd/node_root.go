@@ -11,7 +11,6 @@ import (
 	"github.com/tclchiam/oxidize-go/blockchain/engine/mining/proofofwork"
 	"github.com/tclchiam/oxidize-go/blockchain/entity"
 	"github.com/tclchiam/oxidize-go/cmd/interrupt"
-	"github.com/tclchiam/oxidize-go/encoding"
 	"github.com/tclchiam/oxidize-go/identity"
 	"github.com/tclchiam/oxidize-go/node"
 	"github.com/tclchiam/oxidize-go/rpc"
@@ -44,7 +43,7 @@ var showNodeSummaryCommand = func(cmd *cobra.Command, args []string) {
 
 func buildRepository() entity.ChainRepository {
 	config := nodeConfig()
-	repository := boltdb.Builder(config.nodeName(), encoding.BlockProtoEncoder()).
+	repository := boltdb.ChainBuilder(config.nodeName()).
 		WithPath(config.dataDirectory()).
 		WithCache().
 		WithMetrics().

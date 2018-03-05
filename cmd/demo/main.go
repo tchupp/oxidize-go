@@ -10,7 +10,6 @@ import (
 	"github.com/tclchiam/oxidize-go/blockchain/engine/iter"
 	"github.com/tclchiam/oxidize-go/blockchain/engine/mining/proofofwork"
 	"github.com/tclchiam/oxidize-go/blockchain/entity"
-	"github.com/tclchiam/oxidize-go/encoding"
 	"github.com/tclchiam/oxidize-go/identity"
 	"github.com/tclchiam/oxidize-go/storage/boltdb"
 )
@@ -24,7 +23,7 @@ func main() {
 
 	miner := proofofwork.NewDefaultMiner(owner.Address())
 
-	repository := boltdb.Builder(blockchainName, encoding.BlockProtoEncoder()).
+	repository := boltdb.ChainBuilder(blockchainName).
 		WithCache().
 		WithMetrics().
 		WithLogger().
