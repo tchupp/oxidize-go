@@ -1,4 +1,4 @@
-## Storage design
+## Block storage design
 
 This article documents the design of our persistence system for storing Blocks in a Blockchain.
 
@@ -28,6 +28,7 @@ type BlockHeader struct {
 	TransactionsHash *Hash
 	Nonce            uint64
 	Hash             *Hash
+	Difficulty       uint64
 }
 
 type Block struct {
@@ -42,22 +43,18 @@ As far as the outside world cares, there are two things to read out of the datab
 Blocks, and Headers.  
 
 ```go
-type BlockRepository interface {
-	Close() error
-	BestBlock() (*Block, error)
-
+type ChainReader interface {
+	BestBlock() (head *Block, err error)
 	BlockByHash(hash *Hash) (*Block, error)
 	BlockByIndex(index uint64) (*Block, error)
 
-	SaveBlock(*Block) error
-}
-
-type HeaderRepository interface {
-	Close() error
-	BestHeader() (*BlockHeader, error)
-
+	BestHeader() (head *BlockHeader, err error)
 	HeaderByHash(hash *Hash) (*BlockHeader, error)
 	HeaderByIndex(index uint64) (*BlockHeader, error)
+}
+
+type ChainWriter interface {
+	SaveBlock(*Block) error
 
 	SaveHeader(*BlockHeader) error
 }
@@ -66,11 +63,11 @@ type HeaderRepository interface {
 Contract:  
  - Functions should only return error if there was an issue reading or writing
  - Read functions will return nil if the entity isn't found
- - Write functions are destructive, and will override if an entity exists (luckily, this should happen if entities are stored by hash)
+ - Write functions are destructive, and will override if an entity exists (luckily, this shouldn't happen if entities are stored by hash)
 
 #### Use cases
 
-Here we define common business problems we see while using a blockchain system.  
+Lets define some common business problems we see while using a blockchain system.  
 The repository functions are defined to help simplify the interactions with our persistence strategy.
 
 ##### Saving blocks/headers
