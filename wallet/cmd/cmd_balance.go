@@ -32,6 +32,6 @@ var runReadBalanceCommand = func(cmd *cobra.Command, args []string) {
 
 	color.White("Account: \n")
 	for _, account := range accounts {
-		color.Cyan("%s: %d\n", account.Address(), account.Spendable)
+		color.Cyan("%s: %d\n", account.Address(), account.Spendable())
 	}
 }

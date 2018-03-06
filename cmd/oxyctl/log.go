@@ -3,7 +3,7 @@ package main
 import (
 	"github.com/sirupsen/logrus"
 
-	account "github.com/tclchiam/oxidize-go/account"
+	"github.com/tclchiam/oxidize-go/account"
 	"github.com/tclchiam/oxidize-go/cmd/interrupt"
 	"github.com/tclchiam/oxidize-go/logger"
 	"github.com/tclchiam/oxidize-go/node"

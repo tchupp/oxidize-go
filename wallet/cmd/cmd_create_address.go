@@ -31,6 +31,6 @@ var runCreateAddressCommand = func(cmd *cobra.Command, args []string) {
 		return
 	}
 
-	fmt.Print("Saved new address: ", newIdentity)
+	fmt.Print("Saved new address: ")
 	color.White("%s\n", newIdentity)
 }
