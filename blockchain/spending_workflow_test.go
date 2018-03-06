@@ -20,8 +20,8 @@ func TestBlockchain_Workflow(t *testing.T) {
 
 	t.Run("Sending: expense < balance", func(t *testing.T) {
 		const name = "test1"
-		engine := setupAccountEngine(t, name, owner)
-		defer boltdb.DeleteBlockchain(name)
+		engine, cleanup := setupAccountEngine(t, name, owner)
+		defer cleanup()
 
 		err := engine.Send(owner, actor1.Address(), 3)
 		if err != nil {
@@ -34,8 +34,8 @@ func TestBlockchain_Workflow(t *testing.T) {
 
 	t.Run("Sending: expense == balance", func(t *testing.T) {
 		const name = "test2"
-		engine := setupAccountEngine(t, name, owner)
-		defer boltdb.DeleteBlockchain(name)
+		engine, cleanup := setupAccountEngine(t, name, owner)
+		defer cleanup()
 
 		err := engine.Send(owner, actor1.Address(), 10)
 		if err != nil {
@@ -48,8 +48,8 @@ func TestBlockchain_Workflow(t *testing.T) {
 
 	t.Run("Sending: expense > balance", func(t *testing.T) {
 		const name = "test3"
-		engine := setupAccountEngine(t, name, owner)
-		defer boltdb.DeleteBlockchain(name)
+		engine, cleanup := setupAccountEngine(t, name, owner)
+		defer cleanup()
 
 		err := engine.Send(owner, actor1.Address(), 13)
 		if err == nil {
@@ -67,8 +67,8 @@ func TestBlockchain_Workflow(t *testing.T) {
 
 	t.Run("Sending: many", func(t *testing.T) {
 		const name = "test4"
-		engine := setupAccountEngine(t, name, owner)
-		defer boltdb.DeleteBlockchain(name)
+		engine, cleanup := setupAccountEngine(t, name, owner)
+		defer cleanup()
 
 		err := engine.Send(owner, actor1.Address(), 1)
 		if err != nil {
@@ -127,15 +127,21 @@ func verifyBalance(t *testing.T, engine account.Engine, spender *identity.Identi
 	}
 }
 
-func setupAccountEngine(t *testing.T, name string, owner *identity.Identity) account.Engine {
+func setupAccountEngine(t *testing.T, name string, owner *identity.Identity) (account.Engine, func()) {
 	repository := boltdb.ChainBuilder(name).
 		WithCache().
 		WithLogger().
+		WithMetrics().
 		Build()
 
-	return testdata.NewAccountEngineBuilder(t).
+	engine := testdata.NewAccountEngineBuilder(t).
 		WithRepository(repository).
 		WithBeneficiary(owner).
 		Build().
 		AddBalance(owner.Address(), 0)
+
+	cleanup := func() {
+		boltdb.DeleteBlockchain(name)
+	}
+	return engine, cleanup
 }

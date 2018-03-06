@@ -24,7 +24,7 @@ var runViewTransactionsCommand = func(cmd *cobra.Command, args []string) {
 		return
 	}
 
-	accounts, err := wallet.Account()
+	accounts, err := wallet.Accounts()
 	if err != nil {
 		color.Red("error reading balance: %s\n", err)
 		return

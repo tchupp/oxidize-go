@@ -17,7 +17,7 @@ type UnspentOutput struct {
 type Wallet interface {
 	Identities() (identity.Identities, error)
 	NewIdentity() (*identity.Identity, error)
-	Account() ([]*account.Account, error)
+	Accounts() ([]*account.Account, error)
 	Send(*identity.Address, *identity.Address, uint64) error
 }
 
@@ -40,13 +40,13 @@ func (w *wallet) NewIdentity() (*identity.Identity, error) {
 	return newIdentity, nil
 }
 
-func (w *wallet) Account() ([]*account.Account, error) {
+func (w *wallet) Accounts() ([]*account.Account, error) {
 	addresses, err := addresses(w.Identities())
 	if err != nil {
 		return nil, err
 	}
 
-	return w.WalletClient.Account(addresses)
+	return w.WalletClient.Accounts(addresses)
 }
 
 func (w *wallet) Send(receiver, payback *identity.Address, amount uint64) error {

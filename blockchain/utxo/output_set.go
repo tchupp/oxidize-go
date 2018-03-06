@@ -20,7 +20,9 @@ func (s *OutputSet) Add(txId *entity.Hash, output *entity.Output) *OutputSet {
 
 func (s *OutputSet) AddMany(txId *entity.Hash, outputs []*entity.Output) *OutputSet {
 	newSet := copySet(s)
-	newSet[txId.String()] = newSet[txId.String()].Append(outputs)
+	if len(outputs) > 0 {
+		newSet[txId.String()] = newSet[txId.String()].Append(outputs)
+	}
 	return &OutputSet{newSet}
 }
 

@@ -24,7 +24,7 @@ func (o *UnspentOutputRef) String() string {
 }
 
 type WalletClient interface {
-	Account([]*identity.Address) ([]*account.Account, error)
+	Accounts([]*identity.Address) ([]*account.Account, error)
 	UnspentOutputs([]*identity.Address) ([]*UnspentOutputRef, error)
 	ProposeTransaction(*entity.Transaction) error
 }
@@ -39,7 +39,7 @@ func NewWalletClient(conn *grpc.ClientConn) WalletClient {
 	return &walletClient{client: client}
 }
 
-func (c *walletClient) Account(addresses []*identity.Address) ([]*account.Account, error) {
+func (c *walletClient) Accounts(addresses []*identity.Address) ([]*account.Account, error) {
 	var addrs []string
 	for _, addr := range addresses {
 		addrs = append(addrs, addr.Serialize())
