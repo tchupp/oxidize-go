@@ -167,14 +167,26 @@ func Test_engine_Send(t *testing.T) {
 	receiver := identity.RandomIdentity().Address()
 
 	type args struct {
-		spender  *identity.Identity
-		receiver *identity.Address
-		expense  uint64
+		expense uint64
 	}
 	type testState struct {
 		spenderBalance  uint64
 		receiverBalance uint64
 	}
+
+	checkBalance := func(t *testing.T, engine Engine, testState testState) {
+		if account, err := engine.Account(spender.Address()); err != nil {
+			if account.Spendable() != testState.spenderBalance {
+				t.Errorf("spender does not have expected before balance. want - %d, got - %d", testState.spenderBalance, account.Spendable())
+			}
+		}
+		if account, err := engine.Account(receiver); err != nil {
+			if account.Spendable() != testState.receiverBalance {
+				t.Errorf("receiver does not have expected before balance. want - %d, got - %d", testState.receiverBalance, account.Spendable())
+			}
+		}
+	}
+
 	tests := []struct {
 		name    string
 		bc      blockchain.Blockchain
@@ -184,68 +196,70 @@ func Test_engine_Send(t *testing.T) {
 		after   testState
 	}{
 		{
-			name:   "sending 0",
-			bc:     testdata.NewBlockchainBuilder(t).Build(),
-			args:   args{spender: spender, receiver: receiver, expense: 0},
+			name: "sending 0",
+			bc:   testdata.NewBlockchainBuilder(t).Build(),
+			args: args{
+				expense: 0,
+			},
 			before: testState{spenderBalance: 0, receiverBalance: 0},
 			after:  testState{spenderBalance: 0, receiverBalance: 0},
 		},
 		{
 			name:    "over spending",
 			bc:      testdata.NewBlockchainBuilder(t).Build(),
-			args:    args{spender: spender, receiver: receiver, expense: 10},
+			args:    args{expense: 10},
 			wantErr: true,
-			before:  testState{spenderBalance: 0, receiverBalance: 0},
-			after:   testState{spenderBalance: 0, receiverBalance: 0},
+			before: testState{
+				spenderBalance:  0,
+				receiverBalance: 0,
+			},
+			after: testState{
+				spenderBalance:  0,
+				receiverBalance: 0,
+			},
 		},
 		{
 			name: "under spending",
 			bc: testdata.NewBlockchainBuilder(t).
 				Build().
 				AddBalance(spender.Address(), 20),
-			args:   args{spender: spender, receiver: receiver, expense: 10},
-			before: testState{spenderBalance: 20, receiverBalance: 0},
-			after:  testState{spenderBalance: 10, receiverBalance: 10},
+			args: args{expense: 10},
+			before: testState{
+				spenderBalance:  20,
+				receiverBalance: 0,
+			},
+			after: testState{
+				spenderBalance:  10,
+				receiverBalance: 10,
+			},
 		},
 		{
 			name: "exact spending",
 			bc: testdata.NewBlockchainBuilder(t).
 				Build().
 				AddBalance(spender.Address(), 10),
-			args:   args{spender: spender, receiver: receiver, expense: 10},
-			before: testState{spenderBalance: 10, receiverBalance: 0},
-			after:  testState{spenderBalance: 0, receiverBalance: 10},
+			args: args{expense: 10},
+			before: testState{
+				spenderBalance:  10,
+				receiverBalance: 0,
+			},
+			after: testState{
+				spenderBalance:  0,
+				receiverBalance: 10,
+			},
 		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			engine := NewEngine(tt.bc)
 
-			if account, err := engine.Account(tt.args.spender.Address()); err != nil {
-				if account.Spendable() != tt.before.spenderBalance {
-					t.Errorf("spender does not have expected before balance. want - %d, got - %d", tt.before.spenderBalance, account.Spendable())
-				}
-			}
-			if account, err := engine.Account(tt.args.receiver); err != nil {
-				if account.Spendable() != tt.before.receiverBalance {
-					t.Errorf("receiver does not have expected before balance. want - %d, got - %d", tt.before.receiverBalance, account.Spendable())
-				}
-			}
+			checkBalance(t, engine, tt.before)
 
-			if err := engine.Send(tt.args.spender, tt.args.receiver, tt.args.expense); (err != nil) != tt.wantErr {
+			if err := engine.Send(spender, receiver, tt.args.expense); (err != nil) != tt.wantErr {
 				t.Errorf("engine.Send() error = %v, wantErr %v", err, tt.wantErr)
 			}
 
-			if account, err := engine.Account(tt.args.spender.Address()); err != nil {
-				if account.Spendable() != tt.after.spenderBalance {
-					t.Errorf("spender does not have expected after balance. want - %d, got - %d", tt.after.spenderBalance, account.Spendable())
-				}
-			}
-			if account, err := engine.Account(tt.args.receiver); err != nil {
-				if account.Spendable() != tt.after.receiverBalance {
-					t.Errorf("receiver does not have expected after balance. want - %d, got - %d", tt.after.receiverBalance, account.Spendable())
-				}
-			}
+			checkBalance(t, engine, tt.after)
 
 			assert.NoError(t, engine.Close())
 		})

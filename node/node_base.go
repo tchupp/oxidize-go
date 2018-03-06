@@ -4,7 +4,9 @@ import (
 	"github.com/tclchiam/oxidize-go/account"
 	"github.com/tclchiam/oxidize-go/blockchain"
 	"github.com/tclchiam/oxidize-go/blockchain/blockrpc"
+	"github.com/tclchiam/oxidize-go/blockchain/utxo"
 	"github.com/tclchiam/oxidize-go/closer"
+	"github.com/tclchiam/oxidize-go/identity"
 	"github.com/tclchiam/oxidize-go/p2p"
 	"github.com/tclchiam/oxidize-go/rpc"
 	walletRpc "github.com/tclchiam/oxidize-go/wallet/rpc"
@@ -31,7 +33,7 @@ func newNode(bc blockchain.Blockchain, server *rpc.Server) *baseNode {
 
 	blockrpc.RegisterSyncServer(server, blockrpc.NewSyncServer(bc))
 	p2p.RegisterDiscoveryServer(server, p2p.NewDiscoveryServer(bc))
-	walletRpc.RegisterWalletServer(server, walletRpc.NewWalletServer(node.Engine))
+	walletRpc.RegisterWalletServer(server, walletRpc.NewWalletServer(node))
 
 	return node
 }
@@ -45,6 +47,10 @@ func (n *baseNode) AddPeer(address string) (*p2p.Peer, error) {
 	go startSyncHeadersFlow(peer, n.PeerManager, n)
 
 	return peer, nil
+}
+
+func (n *baseNode) SpendableOutputs(address *identity.Address) (*utxo.OutputSet, error) {
+	return n.Engine.SpendableOutputs(address)
 }
 
 func (n *baseNode) Close() error {

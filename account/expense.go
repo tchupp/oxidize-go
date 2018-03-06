@@ -18,7 +18,7 @@ func buildExpenseTransaction(
 ) (*entity.Transaction, error) {
 	balance := calculateBalance(spendableOutputs)
 	if balance < expense {
-		return nil, fmt.Errorf("account '%s' does not have enough to send '%d', due to balance '%d'", spender, expense, balance)
+		return nil, fmt.Errorf("account '%s' does not have enough to send '%d', with balance '%d'", spender, expense, balance)
 	}
 
 	finalizedOutputs := []*entity.Output{entity.NewOutput(expense, receiver)}

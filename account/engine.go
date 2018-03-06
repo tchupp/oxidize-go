@@ -5,6 +5,7 @@ import (
 
 	"github.com/tclchiam/oxidize-go/blockchain"
 	"github.com/tclchiam/oxidize-go/blockchain/entity"
+	"github.com/tclchiam/oxidize-go/blockchain/utxo"
 	"github.com/tclchiam/oxidize-go/closer"
 	"github.com/tclchiam/oxidize-go/identity"
 )
@@ -12,7 +13,9 @@ import (
 type Engine interface {
 	Account(address *identity.Address) (*Account, error)
 
+	SpendableOutputs(*identity.Address) (*utxo.OutputSet, error)
 	Send(spender *identity.Identity, receiver *identity.Address, expense uint64) error
+	ProposeTransaction(*entity.Transaction) error
 
 	Close() error
 }
@@ -44,6 +47,10 @@ func (e *engine) Account(address *identity.Address) (*Account, error) {
 	return account, nil
 }
 
+func (e *engine) SpendableOutputs(address *identity.Address) (*utxo.OutputSet, error) {
+	return e.bc.SpendableOutputs(address)
+}
+
 func (e *engine) Send(spender *identity.Identity, receiver *identity.Address, expense uint64) error {
 	spendableOutputs, err := e.bc.SpendableOutputs(spender.Address())
 	if err != nil {
@@ -56,6 +63,14 @@ func (e *engine) Send(spender *identity.Identity, receiver *identity.Address, ex
 	}
 
 	newBlock, err := e.bc.MineBlock(entity.Transactions{expenseTransaction})
+	if err != nil {
+		return err
+	}
+	return e.bc.SaveBlock(newBlock)
+}
+
+func (e *engine) ProposeTransaction(tx *entity.Transaction) error {
+	newBlock, err := e.bc.MineBlock(entity.Transactions{tx})
 	if err != nil {
 		return err
 	}

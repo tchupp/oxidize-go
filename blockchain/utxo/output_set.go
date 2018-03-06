@@ -20,8 +20,14 @@ func (s *OutputSet) Add(txId *entity.Hash, output *entity.Output) *OutputSet {
 
 func (s *OutputSet) AddMany(txId *entity.Hash, outputs []*entity.Output) *OutputSet {
 	newSet := copySet(s)
-	for _, output := range outputs {
-		newSet[txId.String()] = newSet[txId.String()].Add(output)
+	newSet[txId.String()] = newSet[txId.String()].Append(outputs)
+	return &OutputSet{newSet}
+}
+
+func (s *OutputSet) Plus(other *OutputSet) *OutputSet {
+	newSet := copySet(s)
+	for txId, outputs := range other.set {
+		newSet[txId] = newSet[txId].Append(outputs)
 	}
 	return &OutputSet{newSet}
 }
