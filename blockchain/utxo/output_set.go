@@ -26,14 +26,6 @@ func (s *OutputSet) AddMany(txId *entity.Hash, outputs []*entity.Output) *Output
 	return &OutputSet{newSet}
 }
 
-func (s *OutputSet) Plus(other *OutputSet) *OutputSet {
-	newSet := copySet(s)
-	for txId, outputs := range other.set {
-		newSet[txId] = newSet[txId].Append(outputs)
-	}
-	return &OutputSet{newSet}
-}
-
 func (s *OutputSet) Remove(txId *entity.Hash, toRemove *entity.Output) *OutputSet {
 	newSet := copySet(s)
 	if index, ok := indexOf(newSet[txId.String()], toRemove); ok {
@@ -62,14 +54,6 @@ func (s *OutputSet) ForEach(consumer func(*entity.Hash, *entity.Output)) {
 	for txId, outputs := range s.set {
 		for _, output := range outputs {
 			consumer(entity.NewHashOrPanic(txId), output)
-		}
-	}
-}
-
-func (s *OutputSet) ForEachOutput(consumer func(*entity.Output)) {
-	for _, outputs := range s.set {
-		for _, output := range outputs {
-			consumer(output)
 		}
 	}
 }

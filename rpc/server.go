@@ -34,6 +34,10 @@ func (s *Server) Register(sd *grpc.ServiceDesc, ss interface{}) {
 	s.server.RegisterService(sd, ss)
 }
 
+func (s *Server) Addr() net.Addr {
+	return s.listener.Addr()
+}
+
 func (s *Server) Serve() {
 	log.WithField("addr", s.listener.Addr()).Info("starting server")
 	go s.server.Serve(s.listener)

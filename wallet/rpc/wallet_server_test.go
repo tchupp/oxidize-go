@@ -7,6 +7,7 @@ import (
 	"google.golang.org/grpc"
 
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 	"github.com/tclchiam/oxidize-go/account"
 	"github.com/tclchiam/oxidize-go/account/testdata"
 	"github.com/tclchiam/oxidize-go/blockchain/engine/txsigning"
@@ -19,12 +20,8 @@ import (
 func TestWalletServer_Send(t *testing.T) {
 	verifyUnspentOutputs := func(t *testing.T, client WalletClient, id *identity.Identity, index uint32, balance uint64) *UnspentOutputRef {
 		unspentOutputs, err := client.UnspentOutputs([]*identity.Address{id.Address()})
-		if err != nil {
-			t.Fatalf("error getting unspent outputs: %s", err)
-		}
-		if len(unspentOutputs) < int(index+1) {
-			t.Fatalf("unexpected number of outputs. Got - %d, wanted - %d", len(unspentOutputs), index+1)
-		}
+		require.NoError(t, err, "error getting unspent outputs")
+		require.Len(t, unspentOutputs, int(index+1), "unexpected number of outputs")
 
 		unspentOutputRef := unspentOutputs[index]
 
@@ -40,12 +37,8 @@ func TestWalletServer_Send(t *testing.T) {
 	}
 	getAccounts := func(t *testing.T, client WalletClient, addresses []*identity.Address) map[string]*account.Account {
 		accounts, err := client.Accounts(addresses)
-		if err != nil {
-			t.Fatalf("error getting balance: %s", err)
-		}
-		if !assert.Len(t, accounts, len(addresses)) {
-			t.FailNow()
-		}
+		require.NoError(t, err, "error getting accounts")
+		require.Len(t, accounts, len(addresses))
 
 		accts := make(map[string]*account.Account, 0)
 		for _, acct := range accounts {
@@ -99,9 +92,7 @@ func buildExpenseTx(unspentOutputRef *UnspentOutputRef, outputs []*entity.Output
 
 func setup(t *testing.T, owner *identity.Identity) (*rpc.Server, WalletClient) {
 	lis, err := net.Listen("tcp", "127.0.0.1:0")
-	if err != nil {
-		t.Fatalf("starting listener: %s", err)
-	}
+	require.NoError(t, err, "starting listener")
 
 	engine := testdata.NewAccountEngineBuilder(t).
 		Build().
@@ -111,9 +102,7 @@ func setup(t *testing.T, owner *identity.Identity) (*rpc.Server, WalletClient) {
 	RegisterWalletServer(server, NewWalletServer(engine))
 
 	conn, err := grpc.Dial(lis.Addr().String(), grpc.WithInsecure())
-	if err != nil {
-		t.Fatalf("dialing server: %s", err)
-	}
+	require.NoError(t, err, "dialing server")
 
 	return server, NewWalletClient(conn)
 }
