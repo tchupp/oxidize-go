@@ -8,11 +8,25 @@ import (
 
 	"github.com/hashicorp/go-multierror"
 	"github.com/tclchiam/oxidize-go/account"
+	"github.com/tclchiam/oxidize-go/blockchain/entity"
+	"github.com/tclchiam/oxidize-go/encoding"
 	"github.com/tclchiam/oxidize-go/identity"
 )
 
+type UnspentOutputRef struct {
+	Address *identity.Address
+	TxId    *entity.Hash
+	Output  *entity.Output
+}
+
+func (o *UnspentOutputRef) String() string {
+	return fmt.Sprintf("rpc.UnspentOutputRef{Address: %s, TxId: %s, Output: %s}", o.Address, o.TxId, o.Output)
+}
+
 type WalletClient interface {
 	Account([]*identity.Address) ([]*account.Account, error)
+	UnspentOutputs([]*identity.Address) ([]*UnspentOutputRef, error)
+	ProposeTransaction(*entity.Transaction) error
 }
 
 type walletClient struct {
@@ -89,4 +103,49 @@ func mapTransactionsFromAccount(acc *Account) ([]*account.Transaction, *multierr
 		txs = append(txs, account.NewTransaction(tx.GetAmount(), spender, receiver))
 	}
 	return txs, result
+}
+
+func (c *walletClient) UnspentOutputs(addresses []*identity.Address) ([]*UnspentOutputRef, error) {
+	var addrs []string
+	for _, addr := range addresses {
+		addrs = append(addrs, addr.Serialize())
+	}
+
+	response, err := c.client.UnspentOutputs(context.Background(), &UnspentOutputsRequest{Addresses: addrs})
+	if err != nil {
+		return nil, err
+	}
+
+	return mapUnspentOutputsFromResponse(response)
+}
+
+func mapUnspentOutputsFromResponse(response *UnspentOutputsResponse) ([]*UnspentOutputRef, error) {
+	var outputs []*UnspentOutputRef
+	var result *multierror.Error
+	for _, unspentOutput := range response.Outputs {
+		address, err := identity.DeserializeAddress(unspentOutput.GetAddress())
+		if err != nil {
+			result = multierror.Append(result, err)
+			continue
+		}
+
+		txId, err := entity.NewHash(unspentOutput.GetTxHash())
+		if err != nil {
+			result = multierror.Append(result, err)
+			continue
+		}
+
+		outputs = append(outputs, &UnspentOutputRef{
+			Address: address,
+			TxId:    txId,
+			Output:  encoding.FromWireOutput(unspentOutput.GetOutput()),
+		})
+	}
+
+	return outputs, nil
+}
+
+func (c *walletClient) ProposeTransaction(tx *entity.Transaction) error {
+	_, err := c.client.ProposeTransaction(context.Background(), &ProposeTransactionRequest{Transaction: encoding.ToWireTransaction(tx)})
+	return err
 }

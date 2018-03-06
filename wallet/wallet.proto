@@ -3,16 +3,12 @@ syntax = "proto2";
 package rpc;
 option go_package = "rpc";
 
+import "encoding/entities.proto";
+
 service WalletService {
     rpc Account (AccountRequest) returns (AccountResponse);
-}
-
-message AccountRequest {
-    repeated string addresses = 1;
-}
-
-message AccountResponse {
-    repeated Account accounts = 1;
+    rpc UnspentOutputs (UnspentOutputsRequest) returns (UnspentOutputsResponse);
+    rpc ProposeTransaction (ProposeTransactionRequest) returns (ProposeTransactionResponse);
 }
 
 message Account {
@@ -25,4 +21,33 @@ message Transaction {
     required uint64 amount = 1;
     required string spender = 2;
     required string receiver = 3;
+}
+
+message WireUnspentOutput {
+    required string address = 1;
+    required bytes txHash = 2;
+    required entities.Output output = 3;
+}
+
+message AccountRequest {
+    repeated string addresses = 1;
+}
+
+message AccountResponse {
+    repeated Account accounts = 1;
+}
+
+message UnspentOutputsRequest {
+    repeated string addresses = 1;
+}
+
+message UnspentOutputsResponse {
+    repeated WireUnspentOutput outputs = 1;
+}
+
+message ProposeTransactionRequest {
+    required entities.Transaction transaction = 1;
+}
+
+message ProposeTransactionResponse {
 }

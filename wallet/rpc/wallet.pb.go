@@ -8,16 +8,22 @@ It is generated from these files:
 	wallet.proto
 
 It has these top-level messages:
-	AccountRequest
-	AccountResponse
 	Account
 	Transaction
+	WireUnspentOutput
+	AccountRequest
+	AccountResponse
+	UnspentOutputsRequest
+	UnspentOutputsResponse
+	ProposeTransactionRequest
+	ProposeTransactionResponse
 */
 package rpc
 
 import proto "github.com/golang/protobuf/proto"
 import fmt "fmt"
 import math "math"
+import entities "github.com/tclchiam/oxidize-go/encoding"
 
 import (
 	context "golang.org/x/net/context"
@@ -35,40 +41,6 @@ var _ = math.Inf
 // proto package needs to be updated.
 const _ = proto.ProtoPackageIsVersion2 // please upgrade the proto package
 
-type AccountRequest struct {
-	Addresses        []string `protobuf:"bytes,1,rep,name=addresses" json:"addresses,omitempty"`
-	XXX_unrecognized []byte   `json:"-"`
-}
-
-func (m *AccountRequest) Reset()                    { *m = AccountRequest{} }
-func (m *AccountRequest) String() string            { return proto.CompactTextString(m) }
-func (*AccountRequest) ProtoMessage()               {}
-func (*AccountRequest) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{0} }
-
-func (m *AccountRequest) GetAddresses() []string {
-	if m != nil {
-		return m.Addresses
-	}
-	return nil
-}
-
-type AccountResponse struct {
-	Accounts         []*Account `protobuf:"bytes,1,rep,name=accounts" json:"accounts,omitempty"`
-	XXX_unrecognized []byte     `json:"-"`
-}
-
-func (m *AccountResponse) Reset()                    { *m = AccountResponse{} }
-func (m *AccountResponse) String() string            { return proto.CompactTextString(m) }
-func (*AccountResponse) ProtoMessage()               {}
-func (*AccountResponse) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{1} }
-
-func (m *AccountResponse) GetAccounts() []*Account {
-	if m != nil {
-		return m.Accounts
-	}
-	return nil
-}
-
 type Account struct {
 	Address          *string        `protobuf:"bytes,1,req,name=address" json:"address,omitempty"`
 	Spendable        *uint64        `protobuf:"varint,3,req,name=spendable" json:"spendable,omitempty"`
@@ -79,7 +51,7 @@ type Account struct {
 func (m *Account) Reset()                    { *m = Account{} }
 func (m *Account) String() string            { return proto.CompactTextString(m) }
 func (*Account) ProtoMessage()               {}
-func (*Account) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{2} }
+func (*Account) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{0} }
 
 func (m *Account) GetAddress() string {
 	if m != nil && m.Address != nil {
@@ -112,7 +84,7 @@ type Transaction struct {
 func (m *Transaction) Reset()                    { *m = Transaction{} }
 func (m *Transaction) String() string            { return proto.CompactTextString(m) }
 func (*Transaction) ProtoMessage()               {}
-func (*Transaction) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{3} }
+func (*Transaction) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{1} }
 
 func (m *Transaction) GetAmount() uint64 {
 	if m != nil && m.Amount != nil {
@@ -135,11 +107,143 @@ func (m *Transaction) GetReceiver() string {
 	return ""
 }
 
+type WireUnspentOutput struct {
+	Address          *string          `protobuf:"bytes,1,req,name=address" json:"address,omitempty"`
+	TxHash           []byte           `protobuf:"bytes,2,req,name=txHash" json:"txHash,omitempty"`
+	Output           *entities.Output `protobuf:"bytes,3,req,name=output" json:"output,omitempty"`
+	XXX_unrecognized []byte           `json:"-"`
+}
+
+func (m *WireUnspentOutput) Reset()                    { *m = WireUnspentOutput{} }
+func (m *WireUnspentOutput) String() string            { return proto.CompactTextString(m) }
+func (*WireUnspentOutput) ProtoMessage()               {}
+func (*WireUnspentOutput) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{2} }
+
+func (m *WireUnspentOutput) GetAddress() string {
+	if m != nil && m.Address != nil {
+		return *m.Address
+	}
+	return ""
+}
+
+func (m *WireUnspentOutput) GetTxHash() []byte {
+	if m != nil {
+		return m.TxHash
+	}
+	return nil
+}
+
+func (m *WireUnspentOutput) GetOutput() *entities.Output {
+	if m != nil {
+		return m.Output
+	}
+	return nil
+}
+
+type AccountRequest struct {
+	Addresses        []string `protobuf:"bytes,1,rep,name=addresses" json:"addresses,omitempty"`
+	XXX_unrecognized []byte   `json:"-"`
+}
+
+func (m *AccountRequest) Reset()                    { *m = AccountRequest{} }
+func (m *AccountRequest) String() string            { return proto.CompactTextString(m) }
+func (*AccountRequest) ProtoMessage()               {}
+func (*AccountRequest) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{3} }
+
+func (m *AccountRequest) GetAddresses() []string {
+	if m != nil {
+		return m.Addresses
+	}
+	return nil
+}
+
+type AccountResponse struct {
+	Accounts         []*Account `protobuf:"bytes,1,rep,name=accounts" json:"accounts,omitempty"`
+	XXX_unrecognized []byte     `json:"-"`
+}
+
+func (m *AccountResponse) Reset()                    { *m = AccountResponse{} }
+func (m *AccountResponse) String() string            { return proto.CompactTextString(m) }
+func (*AccountResponse) ProtoMessage()               {}
+func (*AccountResponse) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{4} }
+
+func (m *AccountResponse) GetAccounts() []*Account {
+	if m != nil {
+		return m.Accounts
+	}
+	return nil
+}
+
+type UnspentOutputsRequest struct {
+	Addresses        []string `protobuf:"bytes,1,rep,name=addresses" json:"addresses,omitempty"`
+	XXX_unrecognized []byte   `json:"-"`
+}
+
+func (m *UnspentOutputsRequest) Reset()                    { *m = UnspentOutputsRequest{} }
+func (m *UnspentOutputsRequest) String() string            { return proto.CompactTextString(m) }
+func (*UnspentOutputsRequest) ProtoMessage()               {}
+func (*UnspentOutputsRequest) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{5} }
+
+func (m *UnspentOutputsRequest) GetAddresses() []string {
+	if m != nil {
+		return m.Addresses
+	}
+	return nil
+}
+
+type UnspentOutputsResponse struct {
+	Outputs          []*WireUnspentOutput `protobuf:"bytes,1,rep,name=outputs" json:"outputs,omitempty"`
+	XXX_unrecognized []byte               `json:"-"`
+}
+
+func (m *UnspentOutputsResponse) Reset()                    { *m = UnspentOutputsResponse{} }
+func (m *UnspentOutputsResponse) String() string            { return proto.CompactTextString(m) }
+func (*UnspentOutputsResponse) ProtoMessage()               {}
+func (*UnspentOutputsResponse) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{6} }
+
+func (m *UnspentOutputsResponse) GetOutputs() []*WireUnspentOutput {
+	if m != nil {
+		return m.Outputs
+	}
+	return nil
+}
+
+type ProposeTransactionRequest struct {
+	Transaction      *entities.Transaction `protobuf:"bytes,1,req,name=transaction" json:"transaction,omitempty"`
+	XXX_unrecognized []byte                `json:"-"`
+}
+
+func (m *ProposeTransactionRequest) Reset()                    { *m = ProposeTransactionRequest{} }
+func (m *ProposeTransactionRequest) String() string            { return proto.CompactTextString(m) }
+func (*ProposeTransactionRequest) ProtoMessage()               {}
+func (*ProposeTransactionRequest) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{7} }
+
+func (m *ProposeTransactionRequest) GetTransaction() *entities.Transaction {
+	if m != nil {
+		return m.Transaction
+	}
+	return nil
+}
+
+type ProposeTransactionResponse struct {
+	XXX_unrecognized []byte `json:"-"`
+}
+
+func (m *ProposeTransactionResponse) Reset()                    { *m = ProposeTransactionResponse{} }
+func (m *ProposeTransactionResponse) String() string            { return proto.CompactTextString(m) }
+func (*ProposeTransactionResponse) ProtoMessage()               {}
+func (*ProposeTransactionResponse) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{8} }
+
 func init() {
-	proto.RegisterType((*AccountRequest)(nil), "rpc.AccountRequest")
-	proto.RegisterType((*AccountResponse)(nil), "rpc.AccountResponse")
 	proto.RegisterType((*Account)(nil), "rpc.Account")
 	proto.RegisterType((*Transaction)(nil), "rpc.Transaction")
+	proto.RegisterType((*WireUnspentOutput)(nil), "rpc.WireUnspentOutput")
+	proto.RegisterType((*AccountRequest)(nil), "rpc.AccountRequest")
+	proto.RegisterType((*AccountResponse)(nil), "rpc.AccountResponse")
+	proto.RegisterType((*UnspentOutputsRequest)(nil), "rpc.UnspentOutputsRequest")
+	proto.RegisterType((*UnspentOutputsResponse)(nil), "rpc.UnspentOutputsResponse")
+	proto.RegisterType((*ProposeTransactionRequest)(nil), "rpc.ProposeTransactionRequest")
+	proto.RegisterType((*ProposeTransactionResponse)(nil), "rpc.ProposeTransactionResponse")
 }
 
 // Reference imports to suppress errors if they are not otherwise used.
@@ -154,6 +258,8 @@ const _ = grpc.SupportPackageIsVersion4
 
 type WalletServiceClient interface {
 	Account(ctx context.Context, in *AccountRequest, opts ...grpc.CallOption) (*AccountResponse, error)
+	UnspentOutputs(ctx context.Context, in *UnspentOutputsRequest, opts ...grpc.CallOption) (*UnspentOutputsResponse, error)
+	ProposeTransaction(ctx context.Context, in *ProposeTransactionRequest, opts ...grpc.CallOption) (*ProposeTransactionResponse, error)
 }
 
 type walletServiceClient struct {
@@ -173,10 +279,30 @@ func (c *walletServiceClient) Account(ctx context.Context, in *AccountRequest, o
 	return out, nil
 }
 
+func (c *walletServiceClient) UnspentOutputs(ctx context.Context, in *UnspentOutputsRequest, opts ...grpc.CallOption) (*UnspentOutputsResponse, error) {
+	out := new(UnspentOutputsResponse)
+	err := grpc.Invoke(ctx, "/rpc.WalletService/UnspentOutputs", in, out, c.cc, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *walletServiceClient) ProposeTransaction(ctx context.Context, in *ProposeTransactionRequest, opts ...grpc.CallOption) (*ProposeTransactionResponse, error) {
+	out := new(ProposeTransactionResponse)
+	err := grpc.Invoke(ctx, "/rpc.WalletService/ProposeTransaction", in, out, c.cc, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // Server API for WalletService service
 
 type WalletServiceServer interface {
 	Account(context.Context, *AccountRequest) (*AccountResponse, error)
+	UnspentOutputs(context.Context, *UnspentOutputsRequest) (*UnspentOutputsResponse, error)
+	ProposeTransaction(context.Context, *ProposeTransactionRequest) (*ProposeTransactionResponse, error)
 }
 
 func RegisterWalletServiceServer(s *grpc.Server, srv WalletServiceServer) {
@@ -201,6 +327,42 @@ func _WalletService_Account_Handler(srv interface{}, ctx context.Context, dec fu
 	return interceptor(ctx, in, info, handler)
 }
 
+func _WalletService_UnspentOutputs_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(UnspentOutputsRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(WalletServiceServer).UnspentOutputs(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/rpc.WalletService/UnspentOutputs",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(WalletServiceServer).UnspentOutputs(ctx, req.(*UnspentOutputsRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _WalletService_ProposeTransaction_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ProposeTransactionRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(WalletServiceServer).ProposeTransaction(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/rpc.WalletService/ProposeTransaction",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(WalletServiceServer).ProposeTransaction(ctx, req.(*ProposeTransactionRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 var _WalletService_serviceDesc = grpc.ServiceDesc{
 	ServiceName: "rpc.WalletService",
 	HandlerType: (*WalletServiceServer)(nil),
@@ -208,6 +370,14 @@ var _WalletService_serviceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "Account",
 			Handler:    _WalletService_Account_Handler,
+		},
+		{
+			MethodName: "UnspentOutputs",
+			Handler:    _WalletService_UnspentOutputs_Handler,
+		},
+		{
+			MethodName: "ProposeTransaction",
+			Handler:    _WalletService_ProposeTransaction_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
@@ -217,22 +387,32 @@ var _WalletService_serviceDesc = grpc.ServiceDesc{
 func init() { proto.RegisterFile("wallet.proto", fileDescriptor0) }
 
 var fileDescriptor0 = []byte{
-	// 257 bytes of a gzipped FileDescriptorProto
-	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0x54, 0x51, 0x3d, 0x4f, 0xc3, 0x30,
-	0x10, 0x55, 0x93, 0x96, 0x36, 0xd7, 0xf0, 0x21, 0x83, 0x90, 0x55, 0x31, 0x44, 0x99, 0x32, 0x65,
-	0xa8, 0xd8, 0x98, 0x40, 0xe2, 0x0f, 0x18, 0x24, 0x24, 0x98, 0x8c, 0x73, 0x43, 0xa4, 0x10, 0x1b,
-	0x9f, 0xdb, 0xfe, 0x7d, 0x64, 0x3b, 0x4d, 0xc8, 0xf8, 0x3e, 0xe4, 0xf7, 0xfc, 0x0e, 0xf2, 0x93,
-	0xec, 0x3a, 0x74, 0xb5, 0xb1, 0xda, 0x69, 0x96, 0x5a, 0xa3, 0xca, 0x1a, 0xae, 0x9e, 0x95, 0xd2,
-	0x87, 0xde, 0x09, 0xfc, 0x3d, 0x20, 0x39, 0xf6, 0x00, 0x99, 0x6c, 0x1a, 0x8b, 0x44, 0x48, 0x7c,
-	0x51, 0xa4, 0x55, 0x26, 0x26, 0xa2, 0x7c, 0x82, 0xeb, 0xd1, 0x4f, 0x46, 0xf7, 0x84, 0xac, 0x82,
-	0x8d, 0x8c, 0x54, 0xf4, 0x6f, 0xf7, 0x79, 0x6d, 0x8d, 0xaa, 0xcf, 0xbe, 0x51, 0x2d, 0x4f, 0xb0,
-	0x1e, 0x48, 0xc6, 0x61, 0x3d, 0x3c, 0xca, 0x17, 0x45, 0x52, 0x65, 0xe2, 0x0c, 0x7d, 0x3e, 0x19,
-	0xec, 0x1b, 0xf9, 0xdd, 0x21, 0x4f, 0x8b, 0xa4, 0x5a, 0x8a, 0x89, 0x60, 0x8f, 0x90, 0x3b, 0x2b,
-	0x7b, 0x92, 0xca, 0xb5, 0xba, 0x27, 0xbe, 0x0a, 0x81, 0x37, 0x21, 0xf0, 0x7d, 0x12, 0xc4, 0xcc,
-	0x55, 0x7e, 0xc1, 0xf6, 0x9f, 0xc8, 0xee, 0xe1, 0x42, 0xfe, 0xf8, 0x1a, 0x21, 0x7b, 0x29, 0x06,
-	0xe4, 0x4b, 0x85, 0x24, 0xb4, 0x3c, 0x89, 0xa5, 0x06, 0xc8, 0x76, 0xb0, 0xb1, 0xa8, 0xb0, 0x3d,
-	0xa2, 0x0d, 0x9d, 0x32, 0x31, 0xe2, 0xfd, 0x2b, 0x5c, 0x7e, 0x84, 0x5d, 0xdf, 0xd0, 0x1e, 0x5b,
-	0xe5, 0x3b, 0x8e, 0xdf, 0xbc, 0x9d, 0x2d, 0x11, 0x17, 0xde, 0xdd, 0xcd, 0xc9, 0x38, 0xe3, 0xcb,
-	0xea, 0xd3, 0x1f, 0xe4, 0x2f, 0x00, 0x00, 0xff, 0xff, 0xab, 0x40, 0x18, 0x9f, 0xa4, 0x01, 0x00,
-	0x00,
+	// 428 bytes of a gzipped FileDescriptorProto
+	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0x8c, 0x53, 0x4d, 0x6f, 0xd3, 0x40,
+	0x10, 0x55, 0x93, 0x36, 0x69, 0xc6, 0xa1, 0xc0, 0x42, 0x83, 0x31, 0x15, 0x44, 0x7b, 0xf2, 0x29,
+	0x20, 0x0b, 0xc4, 0x81, 0x13, 0x9c, 0x80, 0x0b, 0x68, 0x69, 0x55, 0x09, 0x4e, 0xcb, 0x7a, 0x04,
+	0x96, 0xc2, 0xae, 0xd9, 0x5d, 0xb7, 0xfc, 0x63, 0xfe, 0x06, 0xda, 0x0f, 0x7f, 0xd1, 0x04, 0x71,
+	0x9c, 0x79, 0x6f, 0xe6, 0xbd, 0x79, 0x5e, 0xc3, 0xf2, 0x9a, 0x6f, 0xb7, 0x68, 0x37, 0xb5, 0x56,
+	0x56, 0x91, 0xa9, 0xae, 0x45, 0xf6, 0x00, 0xa5, 0x50, 0x65, 0x25, 0xbf, 0x3d, 0x45, 0x69, 0x2b,
+	0x5b, 0xa1, 0x09, 0x28, 0xbd, 0x86, 0xf9, 0x6b, 0x21, 0x54, 0x23, 0x2d, 0x49, 0x61, 0xce, 0xcb,
+	0x52, 0xa3, 0x31, 0xe9, 0xc1, 0x7a, 0x92, 0x2f, 0x58, 0x5b, 0x92, 0x33, 0x58, 0x98, 0x1a, 0x65,
+	0xc9, 0xbf, 0x6e, 0x31, 0x9d, 0xae, 0x27, 0xf9, 0x21, 0xeb, 0x1b, 0xe4, 0x39, 0x2c, 0xad, 0xe6,
+	0xd2, 0x70, 0x61, 0x2b, 0x25, 0x4d, 0x7a, 0xb4, 0x9e, 0xe6, 0x49, 0x71, 0x67, 0xa3, 0x6b, 0xb1,
+	0x39, 0xef, 0x01, 0x36, 0x62, 0xd1, 0x2f, 0x90, 0x0c, 0x40, 0xb2, 0x82, 0x19, 0xff, 0xe1, 0x6c,
+	0x78, 0xed, 0x43, 0x16, 0x2b, 0x67, 0xca, 0x2b, 0xa1, 0x4e, 0x27, 0xc1, 0x54, 0x2c, 0x49, 0x06,
+	0xc7, 0x1a, 0x05, 0x56, 0x57, 0xa8, 0xbd, 0xa7, 0x05, 0xeb, 0x6a, 0xaa, 0xe0, 0xee, 0x65, 0xa5,
+	0xf1, 0x42, 0x3a, 0xb2, 0xfd, 0xd0, 0xd8, 0xba, 0xf9, 0xd7, 0x7d, 0x2b, 0x98, 0xd9, 0x5f, 0x6f,
+	0xb9, 0xf9, 0xee, 0x35, 0x96, 0x2c, 0x56, 0x24, 0x87, 0x99, 0xf2, 0xb3, 0x5e, 0xc0, 0xdd, 0xd4,
+	0xa5, 0x17, 0x76, 0xb2, 0x88, 0xd3, 0x0d, 0x9c, 0xc4, 0x18, 0x19, 0xfe, 0x6c, 0xd0, 0x58, 0x97,
+	0x59, 0x5c, 0x8f, 0x4e, 0x6f, 0x9a, 0x2f, 0x58, 0xdf, 0xa0, 0xaf, 0xe0, 0x76, 0xc7, 0x37, 0xb5,
+	0x92, 0x06, 0x49, 0x0e, 0xc7, 0x3c, 0xb4, 0x02, 0x3f, 0x29, 0x96, 0x3e, 0xc2, 0x96, 0xd7, 0xa1,
+	0xf4, 0x05, 0x9c, 0x8e, 0x2e, 0x33, 0xff, 0xa7, 0xf9, 0x1e, 0x56, 0x7f, 0x8f, 0x45, 0xe9, 0x67,
+	0x30, 0x0f, 0x77, 0xb4, 0xca, 0x2b, 0xaf, 0x7c, 0x23, 0x42, 0xd6, 0xd2, 0xe8, 0x39, 0x3c, 0xfc,
+	0xa8, 0x55, 0xad, 0x0c, 0x0e, 0xbf, 0x70, 0xb4, 0xf1, 0x12, 0x92, 0xc1, 0xa7, 0xf6, 0x61, 0x27,
+	0xc5, 0x69, 0x9f, 0xdd, 0x70, 0x64, 0xc8, 0xa4, 0x67, 0x90, 0xed, 0xda, 0x1a, 0x5c, 0x16, 0xbf,
+	0x0f, 0xe0, 0xd6, 0xa5, 0x7f, 0xd9, 0x9f, 0x50, 0x5f, 0x55, 0xc2, 0xbd, 0xbc, 0xee, 0xf1, 0xde,
+	0x1b, 0x65, 0x15, 0x8c, 0x64, 0xf7, 0xc7, 0xcd, 0x78, 0xed, 0x3b, 0x38, 0x19, 0xe7, 0x40, 0x32,
+	0xcf, 0xdb, 0x99, 0x69, 0xf6, 0x68, 0x27, 0x16, 0x57, 0x5d, 0x00, 0xb9, 0x69, 0x98, 0x3c, 0xf6,
+	0x23, 0x7b, 0xf3, 0xc9, 0x9e, 0xec, 0xc5, 0xc3, 0xda, 0x37, 0x47, 0x9f, 0xdd, 0x4f, 0xfb, 0x27,
+	0x00, 0x00, 0xff, 0xff, 0xe8, 0xec, 0xe6, 0x7d, 0xc8, 0x03, 0x00, 0x00,
 }
