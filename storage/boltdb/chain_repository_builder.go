@@ -86,7 +86,7 @@ func (b *chainRepoBuilder) Build() entity.ChainRepository {
 		repository = storage.WrapWithCache(repository)
 	}
 	if b.withLogger {
-		repository = storage.WrapWithLogger(repository)
+		repository = storage.WrapChainWithLogger(repository)
 	}
 	if b.withMetrics {
 		repository = storage.WrapWithMetrics(repository)

@@ -63,11 +63,12 @@ func TestWalletServer_Send(t *testing.T) {
 
 	accounts := getAccounts(t, client, addresses)
 	verifyBalance(t, addresses[0], 10, accounts[addresses[0].Serialize()])
-	verifyBalance(t, addresses[1], 0, accounts[addresses[1].Serialize()])
+	verifyBalance(t, addresses[1], 00, accounts[addresses[1].Serialize()])
 
 	unspentOutputRef := verifyUnspentOutputs(t, client, spender, 0, 10)
 
 	outputs := []*entity.Output{
+		entity.NewOutput(3, spender.Address()),
 		entity.NewOutput(7, receiver.Address()),
 	}
 	expenseTx := buildExpenseTx(unspentOutputRef, outputs, spender)

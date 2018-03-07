@@ -86,12 +86,12 @@ func (b *utxoRepoBuilder) Build() utxo.Repository {
 	/*if b.withCache {
 		repository = storage.WrapWithCache(repository)
 	}
-	if b.withLogger {
-		repository = storage.WrapWithLogger(repository)
-	}
 	if b.withMetrics {
 		repository = storage.WrapWithMetrics(repository)
 	}*/
+	if b.withLogger {
+		repository = storage.WrapUtxoWithLogger(repository)
+	}
 
 	return repository
 }

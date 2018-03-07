@@ -14,28 +14,24 @@ func NewAccountUpdater(repo *accountRepo) BlockProcessor {
 }
 
 func (updater *accountUpdater) Process(block *entity.Block) {
-	var accountTxs Transactions
+	var updates []Update
 	for _, tx := range block.Transactions() {
-		spenderAddress := findSpenderAddress(tx)
+		for _, input := range tx.Inputs {
+			output := input.OutputReference.Output
 
-		for _, out := range tx.Outputs {
-			accountTx := &Transaction{
-				amount:   out.Value,
-				spender:  spenderAddress,
-				receiver: identity.FromPublicKeyHash(out.PublicKeyHash),
-			}
-			accountTxs = accountTxs.Add(accountTx)
+			updates = append(updates, &spendUpdate{
+				address: identity.FromPublicKeyHash(output.PublicKeyHash),
+				amount:  output.Value,
+			})
+		}
+
+		for _, output := range tx.Outputs {
+			updates = append(updates, &receiveUpdate{
+				address: identity.FromPublicKeyHash(output.PublicKeyHash),
+				amount:  output.Value,
+			})
 		}
 	}
 
-	updater.repo.SaveTxs(accountTxs)
-}
-
-// We trust that every transaction with one or more inputs has one sender, rewards have no sender
-func findSpenderAddress(tx *entity.Transaction) *identity.Address {
-	var spenderAddress *identity.Address
-	if len(tx.Inputs) > 0 {
-		spenderAddress = identity.FromPublicKey(tx.Inputs[0].PublicKey)
-	}
-	return spenderAddress
+	updater.repo.ProcessUpdates(updates)
 }

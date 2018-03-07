@@ -15,25 +15,18 @@ func NewAccountRepository() *accountRepo {
 	return &accountRepo{accountStore: make(map[string]*Account)}
 }
 
-func (r *accountRepo) SaveTxs(txs Transactions) error {
+func (r *accountRepo) ProcessUpdates(updates []Update) error {
 	r.lock.Lock()
 	defer r.lock.Unlock()
 
-	for _, tx := range txs {
-		r.saveTx(tx.spender, tx)
-		r.saveTx(tx.receiver, tx)
+	for _, update := range updates {
+		account := r.account(update.Address())
+		updatedAccount := update.Apply(account)
+
+		r.accountStore[update.Address().Serialize()] = updatedAccount
 	}
 
 	return nil
-}
-
-func (r *accountRepo) saveTx(address *identity.Address, tx *Transaction) {
-	if address == nil {
-		return
-	}
-
-	updatedAccount := r.account(address).AddTransaction(tx)
-	r.accountStore[address.Serialize()] = updatedAccount
 }
 
 func (r *accountRepo) Account(address *identity.Address) (*Account, error) {

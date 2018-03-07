@@ -24,22 +24,6 @@ func (a *Account) Address() *identity.Address { return a.address }
 func (a *Account) Spendable() uint64          { return a.spendable }
 func (a *Account) Transactions() Transactions { return a.transactions }
 
-func (a *Account) AddTransaction(tx *Transaction) *Account {
-	spendable := a.spendable
-	if a.address.IsEqual(tx.spender) {
-		spendable -= tx.amount
-	}
-	if a.address.IsEqual(tx.receiver) {
-		spendable += tx.amount
-	}
-
-	return &Account{
-		address:      a.address,
-		spendable:    spendable,
-		transactions: a.transactions.Add(tx),
-	}
-}
-
 func (a *Account) IsEqual(other *Account) bool {
 	if a == nil && other == nil {
 		return true

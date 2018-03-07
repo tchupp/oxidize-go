@@ -1,11 +1,17 @@
 package wallet
 
 import (
+	"errors"
+
 	"github.com/hashicorp/go-multierror"
 	"github.com/tclchiam/oxidize-go/account"
 	"github.com/tclchiam/oxidize-go/blockchain/entity"
 	"github.com/tclchiam/oxidize-go/identity"
 	"github.com/tclchiam/oxidize-go/wallet/rpc"
+)
+
+var (
+	expenseTooLowError = errors.New("amount to send must be greater than 0")
 )
 
 type UnspentOutput struct {
@@ -18,7 +24,7 @@ type Wallet interface {
 	Identities() (identity.Identities, error)
 	NewIdentity() (*identity.Identity, error)
 	Accounts() ([]*account.Account, error)
-	Send(*identity.Address, *identity.Address, uint64) error
+	Send(*identity.Address, *identity.Address, int64) error
 }
 
 type wallet struct {
@@ -49,7 +55,11 @@ func (w *wallet) Accounts() ([]*account.Account, error) {
 	return w.WalletClient.Accounts(addresses)
 }
 
-func (w *wallet) Send(receiver, payback *identity.Address, amount uint64) error {
+func (w *wallet) Send(receiver, payback *identity.Address, amount int64) error {
+	if amount <= 0 {
+		return expenseTooLowError
+	}
+
 	addresses, err := addresses(w.Identities())
 	if err != nil {
 		return err
@@ -61,8 +71,11 @@ func (w *wallet) Send(receiver, payback *identity.Address, amount uint64) error 
 	}
 
 	unspentOutputs, err := mapToUnspentOutputs(w.KeyStore, outputs)
+	if err != nil {
+		return err
+	}
 
-	transaction, err := buildExpenseTransaction(unspentOutputs, receiver, payback, amount)
+	transaction, err := buildExpenseTransaction(unspentOutputs, receiver, payback, uint64(amount))
 	if err != nil {
 		return err
 	}

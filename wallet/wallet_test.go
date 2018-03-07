@@ -39,15 +39,18 @@ func TestWalletServer_Send(t *testing.T) {
 	keyStore := NewKeyStore(makeKeystoreDir())
 	defer os.RemoveAll(keyStore.path)
 
-	spender := identity.RandomIdentity()
+	spender1 := identity.RandomIdentity()
+	spender2 := identity.RandomIdentity()
 	receiver := identity.RandomIdentity()
-	require.NoError(t, keyStore.SaveIdentity(spender), "error saving spender id")
+
+	require.NoError(t, keyStore.SaveIdentity(spender1), "error saving spender1 id")
+	require.NoError(t, keyStore.SaveIdentity(spender2), "error saving spender2 id")
 	require.NoError(t, keyStore.SaveIdentity(receiver), "error saving receiver id")
 
-	addresses := []*identity.Address{spender.Address(), receiver.Address()}
+	addresses := []*identity.Address{spender1.Address(), spender2.Address(), receiver.Address()}
 
 	type args struct {
-		expense uint64
+		expense int64
 	}
 
 	tests := []struct {
@@ -59,17 +62,18 @@ func TestWalletServer_Send(t *testing.T) {
 		after   map[string]uint64
 	}{
 		{
-			name:   "sending 0",
-			engine: testdata.NewAccountEngineBuilder(t).Build(),
-			args: args{
-				expense: 0,
-			},
+			name:    "sending 0",
+			engine:  testdata.NewAccountEngineBuilder(t).Build(),
+			args:    args{expense: 0},
+			wantErr: true,
 			before: map[string]uint64{
-				spender.Address().Serialize():  0,
+				spender1.Address().Serialize(): 0,
+				spender2.Address().Serialize(): 0,
 				receiver.Address().Serialize(): 0,
 			},
 			after: map[string]uint64{
-				spender.Address().Serialize():  0,
+				spender1.Address().Serialize(): 0,
+				spender2.Address().Serialize(): 0,
 				receiver.Address().Serialize(): 0,
 			},
 		},
@@ -79,11 +83,13 @@ func TestWalletServer_Send(t *testing.T) {
 			args:    args{expense: 10},
 			wantErr: true,
 			before: map[string]uint64{
-				spender.Address().Serialize():  0,
+				spender1.Address().Serialize(): 0,
+				spender2.Address().Serialize(): 0,
 				receiver.Address().Serialize(): 0,
 			},
 			after: map[string]uint64{
-				spender.Address().Serialize():  0,
+				spender1.Address().Serialize(): 0,
+				spender2.Address().Serialize(): 0,
 				receiver.Address().Serialize(): 0,
 			},
 		},
@@ -91,30 +97,36 @@ func TestWalletServer_Send(t *testing.T) {
 			name: "under spending",
 			engine: testdata.NewAccountEngineBuilder(t).
 				Build().
-				AddBalance(spender.Address(), 20),
-			args: args{expense: 10},
+				AddBalance(spender1.Address(), 20).
+				AddBalance(spender2.Address(), 20),
+			args: args{expense: 30},
 			before: map[string]uint64{
-				spender.Address().Serialize():  20,
+				spender1.Address().Serialize(): 20,
+				spender2.Address().Serialize(): 20,
 				receiver.Address().Serialize(): 0,
 			},
 			after: map[string]uint64{
-				spender.Address().Serialize():  10,
-				receiver.Address().Serialize(): 10,
+				spender1.Address().Serialize(): 10,
+				spender2.Address().Serialize(): 0,
+				receiver.Address().Serialize(): 30,
 			},
 		},
 		{
 			name: "exact spending",
 			engine: testdata.NewAccountEngineBuilder(t).
 				Build().
-				AddBalance(spender.Address(), 10),
-			args: args{expense: 10},
+				AddBalance(spender1.Address(), 20).
+				AddBalance(spender2.Address(), 20),
+			args: args{expense: 40},
 			before: map[string]uint64{
-				spender.Address().Serialize():  10,
+				spender1.Address().Serialize(): 20,
+				spender2.Address().Serialize(): 20,
 				receiver.Address().Serialize(): 0,
 			},
 			after: map[string]uint64{
-				spender.Address().Serialize():  0,
-				receiver.Address().Serialize(): 10,
+				spender1.Address().Serialize(): 0,
+				spender2.Address().Serialize(): 0,
+				receiver.Address().Serialize(): 40,
 			},
 		},
 	}
@@ -130,14 +142,16 @@ func TestWalletServer_Send(t *testing.T) {
 			accounts := getAccounts(t, wallet, addresses)
 			verifyBalance(t, addresses[0], tt.before[addresses[0].Serialize()], accounts[addresses[0].Serialize()])
 			verifyBalance(t, addresses[1], tt.before[addresses[1].Serialize()], accounts[addresses[1].Serialize()])
+			verifyBalance(t, addresses[2], tt.before[addresses[2].Serialize()], accounts[addresses[2].Serialize()])
 
-			if err := wallet.Send(receiver.Address(), spender.Address(), tt.args.expense); (err != nil) != tt.wantErr {
+			if err := wallet.Send(receiver.Address(), spender1.Address(), tt.args.expense); (err != nil) != tt.wantErr {
 				t.Errorf("wallet.Send(%s) error = %v, wantErr %v", tt.name, err, tt.wantErr)
 			}
 
 			accounts = getAccounts(t, wallet, addresses)
 			verifyBalance(t, addresses[0], tt.after[addresses[0].Serialize()], accounts[addresses[0].Serialize()])
 			verifyBalance(t, addresses[1], tt.after[addresses[1].Serialize()], accounts[addresses[1].Serialize()])
+			verifyBalance(t, addresses[2], tt.after[addresses[2].Serialize()], accounts[addresses[2].Serialize()])
 		})
 	}
 }

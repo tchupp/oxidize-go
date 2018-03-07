@@ -94,7 +94,11 @@ func (r *utxoBoltRepository) SaveSpendableOutputs(txId *entity.Hash, outputs []*
 			}
 		}
 
-		transaction.Outputs = append(transaction.Outputs, outputs...)
+		for _, output := range outputs {
+			if !transaction.Outputs.Contains(output) {
+				transaction.Outputs = append(transaction.Outputs, output)
+			}
+		}
 		transactionBytes, err := r.txEncoder.EncodeTransaction(transaction)
 		if err != nil {
 			return err

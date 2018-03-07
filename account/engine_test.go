@@ -86,9 +86,7 @@ func Test_engine_Transactions(t *testing.T) {
 		got, err := engine.Account(spendingIdentity.Address())
 		require.NoError(t, err, "engine.Account()")
 
-		expectedTxs := Transactions{
-			{amount: 10, spender: nil, receiver: spendingIdentity.Address()},
-		}
+		expectedTxs := Transactions(nil)
 		if !reflect.DeepEqual(got.Transactions(), expectedTxs) {
 			t.Errorf("engine.Account() = %v, want %v", got.Transactions(), expectedTxs)
 		}
@@ -115,7 +113,7 @@ func Test_engine_Transactions(t *testing.T) {
 		got, err := engine.Account(receivingIdentity.Address())
 		require.NoError(t, err, "engine.Account()")
 
-		expectedTxs := Transactions{{amount: 10, spender: nil, receiver: receivingIdentity.Address()}}
+		expectedTxs := Transactions(nil)
 		if !reflect.DeepEqual(got.Transactions(), expectedTxs) {
 			t.Errorf("engine.Account() = %v, want %v", got.Transactions(), expectedTxs)
 		}
