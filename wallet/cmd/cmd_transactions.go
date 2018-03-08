@@ -1,6 +1,10 @@
 package cmd
 
 import (
+	"fmt"
+	"os"
+	"text/tabwriter"
+
 	"github.com/fatih/color"
 	"github.com/spf13/cobra"
 )
@@ -35,17 +39,9 @@ var runViewTransactionsCommand = func(cmd *cobra.Command, args []string) {
 		color.Cyan("%s\n", account.Address())
 
 		for i, tx := range account.Transactions() {
-			if tx.Spender().IsEqual(account.Address()) {
-				color.Red("%d| To: '%s',   Amount: %d\n", i, tx.Receiver(), tx.Amount())
-			}
-
-			if tx.Receiver().IsEqual(account.Address()) {
-				if tx.Spender() == nil {
-					color.Green("%d| Reward - Amount: %d\n", i, tx.Amount())
-				} else {
-					color.Green("%d| From: '%s' - Amount: %d\n", i, tx.Spender(), tx.Amount())
-				}
-			}
+			w := tabwriter.NewWriter(os.Stdout, 0, 0, 3, '.', tabwriter.AlignRight|tabwriter.Debug)
+			fmt.Fprintf(w, "%d\t%s\n", i, tx)
+			w.Flush()
 		}
 	}
 }

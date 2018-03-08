@@ -19,16 +19,27 @@ func (updater *accountUpdater) Process(block *entity.Block) {
 		for _, input := range tx.Inputs {
 			output := input.OutputReference.Output
 
+			address := identity.FromPublicKeyHash(output.PublicKeyHash)
 			updates = append(updates, &spendUpdate{
-				address: identity.FromPublicKeyHash(output.PublicKeyHash),
+				address: address,
 				amount:  output.Value,
+			})
+			updates = append(updates, &txUpdate{
+				address: address,
+				tx:      tx,
 			})
 		}
 
 		for _, output := range tx.Outputs {
+			address := identity.FromPublicKeyHash(output.PublicKeyHash)
+
 			updates = append(updates, &receiveUpdate{
-				address: identity.FromPublicKeyHash(output.PublicKeyHash),
+				address: address,
 				amount:  output.Value,
+			})
+			updates = append(updates, &txUpdate{
+				address: address,
+				tx:      tx,
 			})
 		}
 	}

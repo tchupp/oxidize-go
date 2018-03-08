@@ -75,13 +75,9 @@ func findAccounts(engine account.Engine, addresses []*identity.Address) ([]*acco
 func mapAccountsToResponse(accounts []*account.Account) []*Account {
 	var res []*Account
 	for _, acc := range accounts {
-		var txs []*Transaction
-		for _, tx := range acc.Transactions() {
-			txs = append(txs, &Transaction{
-				Amount:   proto.Uint64(tx.Amount()),
-				Spender:  proto.String(tx.Spender().Serialize()),
-				Receiver: proto.String(tx.Receiver().Serialize()),
-			})
+		var txs []*encoding.Transaction
+		for _, transaction := range acc.Transactions() {
+			txs = append(txs, encoding.ToWireTransaction(transaction))
 		}
 
 		res = append(res, &Account{

@@ -14,13 +14,7 @@ service WalletService {
 message Account {
     required string address = 1;
     required uint64 spendable = 3;
-    repeated Transaction transactions = 5;
-}
-
-message Transaction {
-    required uint64 amount = 1;
-    required string spender = 2;
-    required string receiver = 3;
+    repeated entities.Transaction transactions = 5;
 }
 
 message WireUnspentOutput {

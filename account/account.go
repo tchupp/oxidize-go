@@ -3,16 +3,17 @@ package account
 import (
 	"fmt"
 
+	"github.com/tclchiam/oxidize-go/blockchain/entity"
 	"github.com/tclchiam/oxidize-go/identity"
 )
 
 type Account struct {
 	address      *identity.Address
 	spendable    uint64
-	transactions Transactions
+	transactions entity.Transactions
 }
 
-func NewAccount(address *identity.Address, spendable uint64, transactions Transactions) *Account {
+func NewAccount(address *identity.Address, spendable uint64, transactions entity.Transactions) *Account {
 	return &Account{
 		address:      address,
 		spendable:    spendable,
@@ -20,9 +21,9 @@ func NewAccount(address *identity.Address, spendable uint64, transactions Transa
 	}
 }
 
-func (a *Account) Address() *identity.Address { return a.address }
-func (a *Account) Spendable() uint64          { return a.spendable }
-func (a *Account) Transactions() Transactions { return a.transactions }
+func (a *Account) Address() *identity.Address        { return a.address }
+func (a *Account) Spendable() uint64                 { return a.spendable }
+func (a *Account) Transactions() entity.Transactions { return a.transactions }
 
 func (a *Account) IsEqual(other *Account) bool {
 	if a == nil && other == nil {

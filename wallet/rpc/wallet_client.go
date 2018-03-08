@@ -83,24 +83,18 @@ func mapAccountsFromResponse(response *AccountResponse) ([]*account.Account, err
 	return accounts, result.ErrorOrNil()
 }
 
-func mapTransactionsFromAccount(acc *Account) ([]*account.Transaction, *multierror.Error) {
+func mapTransactionsFromAccount(acc *Account) (entity.Transactions, *multierror.Error) {
 	var result *multierror.Error
 
-	var txs []*account.Transaction
-	for _, tx := range acc.Transactions {
-		receiver, err := identity.DeserializeAddress(tx.GetReceiver())
+	var txs entity.Transactions
+	for _, wireTx := range acc.Transactions {
+		tx, err := encoding.FromWireTransaction(wireTx)
 		if err != nil {
-			result = multierror.Append(result, fmt.Errorf("deserializing receiver address '%s': %s", tx.GetReceiver(), err))
+			result = multierror.Append(result, fmt.Errorf("deserializing wire tx: %s", err))
 			continue
 		}
 
-		spender, err := identity.DeserializeAddress(tx.GetSpender())
-		if err != nil {
-			result = multierror.Append(result, fmt.Errorf("deserializing spender address '%s': %s", tx.GetSpender(), err))
-			continue
-		}
-
-		txs = append(txs, account.NewTransaction(tx.GetAmount(), spender, receiver))
+		txs = txs.Add(tx)
 	}
 	return txs, result
 }

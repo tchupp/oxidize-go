@@ -69,8 +69,8 @@ func Test_engine_Transactions(t *testing.T) {
 			t.Errorf("engine.Account() error = %v, wantErr %v", err, false)
 			return
 		}
-		if !reflect.DeepEqual(got.Transactions(), Transactions(nil)) {
-			t.Errorf("engine.Account() = %v, want %v", got.Transactions(), Transactions(nil))
+		if !reflect.DeepEqual(got.Transactions(), entity.Transactions(nil)) {
+			t.Errorf("engine.Account() = %v, want %v", got.Transactions(), entity.Transactions(nil))
 		}
 
 		assert.NoError(t, engine.Close())
@@ -86,10 +86,11 @@ func Test_engine_Transactions(t *testing.T) {
 		got, err := engine.Account(spendingIdentity.Address())
 		require.NoError(t, err, "engine.Account()")
 
-		expectedTxs := Transactions(nil)
-		if !reflect.DeepEqual(got.Transactions(), expectedTxs) {
-			t.Errorf("engine.Account() = %v, want %v", got.Transactions(), expectedTxs)
-		}
+		require.Len(t, got.Transactions(), 1)
+		require.Len(t, got.Transactions()[0].Outputs, 1)
+		assert.Equal(t, got.Transactions()[0].Outputs[0].Index, uint32(0))
+		assert.Equal(t, got.Transactions()[0].Outputs[0].Value, uint64(10))
+		assert.Equal(t, got.Transactions()[0].Outputs[0].PublicKeyHash, spendingIdentity.Address().PublicKeyHash())
 
 		assert.NoError(t, engine.Close())
 	})
@@ -113,10 +114,11 @@ func Test_engine_Transactions(t *testing.T) {
 		got, err := engine.Account(receivingIdentity.Address())
 		require.NoError(t, err, "engine.Account()")
 
-		expectedTxs := Transactions(nil)
-		if !reflect.DeepEqual(got.Transactions(), expectedTxs) {
-			t.Errorf("engine.Account() = %v, want %v", got.Transactions(), expectedTxs)
-		}
+		require.Len(t, got.Transactions(), 1)
+		require.Len(t, got.Transactions()[0].Outputs, 1)
+		assert.Equal(t, got.Transactions()[0].Outputs[0].Index, uint32(0))
+		assert.Equal(t, got.Transactions()[0].Outputs[0].Value, uint64(10))
+		assert.Equal(t, got.Transactions()[0].Outputs[0].PublicKeyHash, receivingIdentity.Address().PublicKeyHash())
 
 		assert.NoError(t, engine.Close())
 	})
