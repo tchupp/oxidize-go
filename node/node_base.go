@@ -8,7 +8,7 @@ import (
 	"github.com/tclchiam/oxidize-go/closer"
 	"github.com/tclchiam/oxidize-go/identity"
 	"github.com/tclchiam/oxidize-go/p2p"
-	"github.com/tclchiam/oxidize-go/server/http"
+	"github.com/tclchiam/oxidize-go/server/httpserver"
 	"github.com/tclchiam/oxidize-go/server/rpc"
 	walletRpc "github.com/tclchiam/oxidize-go/wallet/rpc"
 )
@@ -19,14 +19,14 @@ type baseNode struct {
 	account.Engine
 
 	rpcServer  *rpc.Server
-	httpServer *http.Server
+	httpServer *httpserver.Server
 }
 
-func NewNode(bc blockchain.Blockchain, rpcServer *rpc.Server, httpServer *http.Server) Node {
+func NewNode(bc blockchain.Blockchain, rpcServer *rpc.Server, httpServer *httpserver.Server) Node {
 	return newNode(bc, rpcServer, httpServer)
 }
 
-func newNode(bc blockchain.Blockchain, rpcServer *rpc.Server, httpServer *http.Server) *baseNode {
+func newNode(bc blockchain.Blockchain, rpcServer *rpc.Server, httpServer *httpserver.Server) *baseNode {
 	node := &baseNode{
 		Blockchain:  bc,
 		PeerManager: p2p.NewPeerManager(),

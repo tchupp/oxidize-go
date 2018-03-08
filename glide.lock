@@ -1,5 +1,5 @@
 hash: 0e21754f77b2d85c8e1203de1a3b37f06241c1a560ec447e9d90a429435ebf29
-updated: 2018-02-25T13:19:44.88425-05:00
+updated: 2018-03-08T09:17:06.746007-08:00
 imports:
 - name: github.com/boltdb/bolt
   version: 2f1ce7a837dcb8da3ec595b1dac9d0632f0f99e8
@@ -63,7 +63,7 @@ imports:
   subpackages:
   - base58
 - name: github.com/pelletier/go-toml
-  version: acdc4509485b587f5e675510c4f2c63e90ff68a8
+  version: 05bcc0fb0d3e60da4b8dd5bd7e0ea563eb4ca943
 - name: github.com/sirupsen/logrus
   version: 768a92a02685ee7535069fc1581341b41bab9b72
 - name: github.com/spf13/afero
@@ -139,7 +139,20 @@ imports:
 - name: gopkg.in/yaml.v2
   version: 7f97868eec74b32b0982dd158a51a446d1da7eb5
 testImports:
+- name: github.com/davecgh/go-spew
+  version: 346938d642f2ec3594ed81d874461961cd0faa76
+  subpackages:
+  - spew
 - name: github.com/google/go-cmp
   version: 8099a9787ce5dc5984ed879a3bda47dc730a8e97
   subpackages:
   - cmp
+- name: github.com/pmezard/go-difflib
+  version: 792786c7400a136282c1664665ae0a8db921c6c2
+  subpackages:
+  - difflib
+- name: github.com/stretchr/testify
+  version: b89eecf5ca5db6d3ba60b237ffe3df7bafb7662f
+  subpackages:
+  - assert
+  - require

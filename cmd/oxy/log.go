@@ -8,7 +8,7 @@ import (
 	"github.com/tclchiam/oxidize-go/logger"
 	"github.com/tclchiam/oxidize-go/node"
 	"github.com/tclchiam/oxidize-go/p2p"
-	"github.com/tclchiam/oxidize-go/server/http"
+	"github.com/tclchiam/oxidize-go/server/httpserver"
 	"github.com/tclchiam/oxidize-go/server/rpc"
 	"github.com/tclchiam/oxidize-go/storage"
 )
@@ -23,7 +23,7 @@ func init() {
 	storageLogger := logger.NewLogger(logrus.WarnLevel)
 
 	account.UseLogger(accountLogger)
-	http.UseLogger(httpLogger)
+	httpserver.UseLogger(httpLogger)
 	interrupt.UseLogger(interruptLogger)
 	node.UseLogger(nodeLogger)
 	p2p.UseLogger(p2pLogger)

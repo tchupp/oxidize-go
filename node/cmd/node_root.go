@@ -14,7 +14,7 @@ import (
 	"github.com/tclchiam/oxidize-go/cmd/interrupt"
 	"github.com/tclchiam/oxidize-go/identity"
 	"github.com/tclchiam/oxidize-go/node"
-	"github.com/tclchiam/oxidize-go/server/http"
+	"github.com/tclchiam/oxidize-go/server/httpserver"
 	"github.com/tclchiam/oxidize-go/server/rpc"
 	"github.com/tclchiam/oxidize-go/storage/boltdb"
 	"github.com/tclchiam/oxidize-go/wallet"
@@ -111,7 +111,7 @@ func buildNode(handler interrupt.Handler, bc blockchain.Blockchain) node.Node {
 		log.WithError(err).Panic("failed to listen")
 	}
 
-	n := node.WrapWithLogger(node.NewNode(bc, rpc.NewServer(rpcLis), http.NewServer(httpLis)))
+	n := node.WrapWithLogger(node.NewNode(bc, rpc.NewServer(rpcLis), httpserver.NewServer(httpLis)))
 	handler.AddInterruptCallback(func() { n.Close() })
 
 	return n
