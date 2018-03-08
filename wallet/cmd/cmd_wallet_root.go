@@ -46,9 +46,9 @@ func buildWallet() (wallet.Wallet, error) {
 	walletDataDir := config.dataDirectory()
 	keyStore := wallet.NewKeyStore(walletDataDir)
 
-	conn, err := grpc.Dial(config.nodeAddress(), grpc.WithInsecure())
+	conn, err := grpc.Dial(config.nodeRPCAddress(), grpc.WithInsecure())
 	if err != nil {
-		return nil, fmt.Errorf("node '%s' is not up", config.nodeAddress())
+		return nil, fmt.Errorf("node '%s' is not up", config.nodeRPCAddress())
 	}
 	client := rpc.NewWalletClient(conn)
 

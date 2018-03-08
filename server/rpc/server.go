@@ -39,12 +39,12 @@ func (s *Server) Addr() net.Addr {
 }
 
 func (s *Server) Serve() {
-	log.WithField("addr", s.listener.Addr()).Info("starting server")
+	log.WithField("addr", s.listener.Addr()).Info("starting rpc server")
 	go s.server.Serve(s.listener)
 }
 
 func (s *Server) Close() error {
-	log.WithField("addr", s.listener.Addr()).Info("shutting down server")
+	log.WithField("addr", s.listener.Addr()).Info("shutting down rpc server")
 	s.server.GracefulStop()
 	return nil
 }

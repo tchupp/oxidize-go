@@ -8,7 +8,7 @@ import (
 
 	"github.com/tclchiam/oxidize-go/blockchain/entity"
 	"github.com/tclchiam/oxidize-go/encoding"
-	"github.com/tclchiam/oxidize-go/rpc"
+	"github.com/tclchiam/oxidize-go/server/rpc"
 )
 
 type syncBackend interface {

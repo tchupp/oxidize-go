@@ -12,19 +12,20 @@ import (
 	"github.com/tclchiam/oxidize-go/blockchain/testdata"
 	"github.com/tclchiam/oxidize-go/encoding"
 	"github.com/tclchiam/oxidize-go/identity"
-	"github.com/tclchiam/oxidize-go/rpc"
+	"github.com/tclchiam/oxidize-go/server/http"
+	"github.com/tclchiam/oxidize-go/server/rpc"
 )
 
 func TestBaseNode_AddPeer(t *testing.T) {
 	remoteBc := testdata.NewBlockchainBuilder(t).Build()
 	lis := buildListener(t)
 
-	remoteNode := newNode(remoteBc, rpc.NewServer(lis))
+	remoteNode := newNode(remoteBc, rpc.NewServer(lis), http.NewServer(nil))
 	remoteNode.Serve()
 	defer remoteNode.Close()
 
 	localBc := testdata.NewBlockchainBuilder(t).Build()
-	localNode := newNode(localBc, rpc.NewServer(nil))
+	localNode := newNode(localBc, rpc.NewServer(nil), http.NewServer(nil))
 
 	verifyPeerCount(localNode, 0, t)
 
@@ -54,11 +55,11 @@ func TestBaseNode_AddPeer_PeerLoosesConnection(t *testing.T) {
 	remoteBc := testdata.NewBlockchainBuilder(t).Build()
 	lis := buildListener(t)
 
-	remoteNode := newNode(remoteBc, rpc.NewServer(lis))
+	remoteNode := newNode(remoteBc, rpc.NewServer(lis), http.NewServer(nil))
 	remoteNode.Serve()
 
 	localBc := testdata.NewBlockchainBuilder(t).Build()
-	localNode := newNode(localBc, rpc.NewServer(nil))
+	localNode := newNode(localBc, rpc.NewServer(nil), http.NewServer(nil))
 
 	verifyPeerCount(localNode, 0, t)
 
@@ -77,7 +78,7 @@ func TestBaseNode_AddPeer_PeerLoosesConnection(t *testing.T) {
 
 func TestBaseNode_AddPeer_TargetIsOffline(t *testing.T) {
 	localBc := testdata.NewBlockchainBuilder(t).Build()
-	localNode := newNode(localBc, rpc.NewServer(nil))
+	localNode := newNode(localBc, rpc.NewServer(nil), http.NewServer(nil))
 
 	verifyPeerCount(localNode, 0, t)
 
@@ -95,12 +96,12 @@ func TestBaseNode_AddPeer_SyncsHeadersWithNewPeer_WhenPeersVersionIsHigher(t *te
 	saveRandomBlocks(t, remoteBc, rand.Intn(12))
 	lis := buildListener(t)
 
-	remoteNode := newNode(remoteBc, rpc.NewServer(lis))
+	remoteNode := newNode(remoteBc, rpc.NewServer(lis), http.NewServer(nil))
 	remoteNode.Serve()
 	defer remoteNode.Close()
 
 	localBc := testdata.NewBlockchainBuilder(t).Build()
-	localNode := newNode(localBc, rpc.NewServer(nil))
+	localNode := newNode(localBc, rpc.NewServer(nil), http.NewServer(nil))
 
 	if _, err := localNode.AddPeer(lis.Addr().String()); err != nil {
 		t.Fatalf("unexpected error: %s", err)

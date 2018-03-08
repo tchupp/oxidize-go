@@ -6,7 +6,7 @@ import (
 )
 
 func init() {
-	viper.SetDefault("wallet.node.addr", "localhost:8080")
+	viper.SetDefault("wallet.node.rpc.addr", "localhost:8081")
 	viper.SetDefault("wallet.data.dir", "~/.oxy/wallet/data")
 }
 
@@ -24,6 +24,6 @@ func (c *config) dataDirectory() string {
 	return dataDir
 }
 
-func (*config) nodeAddress() string {
-	return viper.GetString("wallet.node.addr")
+func (*config) nodeRPCAddress() string {
+	return viper.GetString("wallet.node.rpc.addr")
 }

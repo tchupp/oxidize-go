@@ -11,7 +11,7 @@ import (
 	"github.com/tclchiam/oxidize-go/blockchain/entity"
 	"github.com/tclchiam/oxidize-go/encoding"
 	"github.com/tclchiam/oxidize-go/identity"
-	"github.com/tclchiam/oxidize-go/rpc"
+	"github.com/tclchiam/oxidize-go/server/rpc"
 )
 
 type walletServer struct {

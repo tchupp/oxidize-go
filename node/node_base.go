@@ -8,32 +8,36 @@ import (
 	"github.com/tclchiam/oxidize-go/closer"
 	"github.com/tclchiam/oxidize-go/identity"
 	"github.com/tclchiam/oxidize-go/p2p"
-	"github.com/tclchiam/oxidize-go/rpc"
+	"github.com/tclchiam/oxidize-go/server/http"
+	"github.com/tclchiam/oxidize-go/server/rpc"
 	walletRpc "github.com/tclchiam/oxidize-go/wallet/rpc"
 )
 
 type baseNode struct {
 	p2p.PeerManager
-	*rpc.Server
 	blockchain.Blockchain
 	account.Engine
+
+	rpcServer  *rpc.Server
+	httpServer *http.Server
 }
 
-func NewNode(bc blockchain.Blockchain, server *rpc.Server) Node {
-	return newNode(bc, server)
+func NewNode(bc blockchain.Blockchain, rpcServer *rpc.Server, httpServer *http.Server) Node {
+	return newNode(bc, rpcServer, httpServer)
 }
 
-func newNode(bc blockchain.Blockchain, server *rpc.Server) *baseNode {
+func newNode(bc blockchain.Blockchain, rpcServer *rpc.Server, httpServer *http.Server) *baseNode {
 	node := &baseNode{
 		Blockchain:  bc,
 		PeerManager: p2p.NewPeerManager(),
-		Server:      server,
 		Engine:      account.NewEngine(bc),
+		rpcServer:   rpcServer,
+		httpServer:  httpServer,
 	}
 
-	blockrpc.RegisterSyncServer(server, blockrpc.NewSyncServer(bc))
-	p2p.RegisterDiscoveryServer(server, p2p.NewDiscoveryServer(bc))
-	walletRpc.RegisterWalletServer(server, walletRpc.NewWalletServer(node))
+	blockrpc.RegisterSyncServer(rpcServer, blockrpc.NewSyncServer(bc))
+	p2p.RegisterDiscoveryServer(rpcServer, p2p.NewDiscoveryServer(bc))
+	walletRpc.RegisterWalletServer(rpcServer, walletRpc.NewWalletServer(node))
 
 	return node
 }
@@ -53,6 +57,24 @@ func (n *baseNode) SpendableOutputs(address *identity.Address) (*utxo.OutputSet,
 	return n.Engine.SpendableOutputs(address)
 }
 
+func (n *baseNode) Serve() {
+	if n.rpcServer != nil {
+		n.rpcServer.Serve()
+	}
+	if n.httpServer != nil {
+		n.httpServer.Serve()
+	}
+}
+
 func (n *baseNode) Close() error {
-	return closer.CloseMany(n.Blockchain, n.Engine, n.Server)
+	closers := []closer.Closer{n.Blockchain, n.Engine}
+
+	if n.rpcServer != nil {
+		closers = append(closers, n.rpcServer)
+	}
+	if n.httpServer != nil {
+		closers = append(closers, n.httpServer)
+	}
+
+	return closer.CloseMany(closers...)
 }

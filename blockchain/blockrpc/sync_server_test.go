@@ -14,7 +14,7 @@ import (
 	"github.com/tclchiam/oxidize-go/blockchain/testdata"
 	"github.com/tclchiam/oxidize-go/encoding"
 	"github.com/tclchiam/oxidize-go/identity"
-	"github.com/tclchiam/oxidize-go/rpc"
+	"github.com/tclchiam/oxidize-go/server/rpc"
 )
 
 func TestSyncServer_GetBestHeader(t *testing.T) {

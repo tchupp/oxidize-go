@@ -12,7 +12,7 @@ import (
 	"github.com/tclchiam/oxidize-go/account"
 	"github.com/tclchiam/oxidize-go/account/testdata"
 	"github.com/tclchiam/oxidize-go/identity"
-	"github.com/tclchiam/oxidize-go/rpc"
+	"github.com/tclchiam/oxidize-go/server/rpc"
 	walletrpc "github.com/tclchiam/oxidize-go/wallet/rpc"
 )
 
