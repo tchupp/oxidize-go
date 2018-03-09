@@ -106,12 +106,9 @@ func buildNode(handler interrupt.Handler, bc blockchain.Blockchain) node.Node {
 		log.WithError(err).Panic("failed to listen")
 	}
 
-	httpLis, err := net.Listen("tcp", fmt.Sprintf("localhost:%d", config.nodeHTTPPort()))
-	if err != nil {
-		log.WithError(err).Panic("failed to listen")
-	}
+	httpAddr := fmt.Sprintf("localhost:%d", config.nodeHTTPPort())
 
-	n := node.WrapWithLogger(node.NewNode(bc, rpc.NewServer(rpcLis), httpserver.NewServer(httpLis)))
+	n := node.WrapWithLogger(node.NewNode(bc, rpc.NewServer(rpcLis), httpserver.NewServer(httpAddr)))
 	handler.AddInterruptCallback(func() { n.Close() })
 
 	return n

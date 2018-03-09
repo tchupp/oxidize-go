@@ -20,12 +20,12 @@ func TestBaseNode_AddPeer(t *testing.T) {
 	remoteBc := testdata.NewBlockchainBuilder(t).Build()
 	lis := buildListener(t)
 
-	remoteNode := newNode(remoteBc, rpc.NewServer(lis), httpserver.NewServer(nil))
+	remoteNode := newNode(remoteBc, rpc.NewServer(lis), httpserver.NewServer(""))
 	remoteNode.Serve()
 	defer remoteNode.Close()
 
 	localBc := testdata.NewBlockchainBuilder(t).Build()
-	localNode := newNode(localBc, rpc.NewServer(nil), httpserver.NewServer(nil))
+	localNode := newNode(localBc, rpc.NewServer(nil), httpserver.NewServer(""))
 
 	verifyPeerCount(localNode, 0, t)
 
@@ -55,11 +55,11 @@ func TestBaseNode_AddPeer_PeerLoosesConnection(t *testing.T) {
 	remoteBc := testdata.NewBlockchainBuilder(t).Build()
 	lis := buildListener(t)
 
-	remoteNode := newNode(remoteBc, rpc.NewServer(lis), httpserver.NewServer(nil))
+	remoteNode := newNode(remoteBc, rpc.NewServer(lis), httpserver.NewServer(""))
 	remoteNode.Serve()
 
 	localBc := testdata.NewBlockchainBuilder(t).Build()
-	localNode := newNode(localBc, rpc.NewServer(nil), httpserver.NewServer(nil))
+	localNode := newNode(localBc, rpc.NewServer(nil), httpserver.NewServer(""))
 
 	verifyPeerCount(localNode, 0, t)
 
@@ -78,7 +78,7 @@ func TestBaseNode_AddPeer_PeerLoosesConnection(t *testing.T) {
 
 func TestBaseNode_AddPeer_TargetIsOffline(t *testing.T) {
 	localBc := testdata.NewBlockchainBuilder(t).Build()
-	localNode := newNode(localBc, rpc.NewServer(nil), httpserver.NewServer(nil))
+	localNode := newNode(localBc, rpc.NewServer(nil), httpserver.NewServer(""))
 
 	verifyPeerCount(localNode, 0, t)
 
@@ -96,12 +96,12 @@ func TestBaseNode_AddPeer_SyncsHeadersWithNewPeer_WhenPeersVersionIsHigher(t *te
 	saveRandomBlocks(t, remoteBc, rand.Intn(12))
 	lis := buildListener(t)
 
-	remoteNode := newNode(remoteBc, rpc.NewServer(lis), httpserver.NewServer(nil))
+	remoteNode := newNode(remoteBc, rpc.NewServer(lis), httpserver.NewServer(""))
 	remoteNode.Serve()
 	defer remoteNode.Close()
 
 	localBc := testdata.NewBlockchainBuilder(t).Build()
-	localNode := newNode(localBc, rpc.NewServer(nil), httpserver.NewServer(nil))
+	localNode := newNode(localBc, rpc.NewServer(nil), httpserver.NewServer(""))
 
 	if _, err := localNode.AddPeer(lis.Addr().String()); err != nil {
 		t.Fatalf("unexpected error: %s", err)

@@ -1,60 +1,35 @@
 package httpserver
 
 import (
-	"net"
-	"net/http"
-	"time"
+	"context"
+
+	"github.com/labstack/echo"
 )
 
-const readTimeoutSec = 10
-
 type Server struct {
-	server   *http.Server
-	mux      *http.ServeMux
-	listener net.Listener
+	addr string
+	*echo.Echo
 }
 
-func NewServer(listener net.Listener) *Server {
-	mux := http.NewServeMux()
-	server := &http.Server{Handler: mux, ReadTimeout: time.Second * readTimeoutSec}
-
+func NewServer(addr string) *Server {
 	return &Server{
-		server:   server,
-		mux:      mux,
-		listener: listener,
+		addr: addr,
+		Echo: echo.New(),
 	}
 }
 
-func (s *Server) Register(path string, handler http.Handler) {
-	s.mux.Handle(path, handler)
-}
-
-func (s *Server) RegisterMany(path string, handlers []http.Handler) {
-	for _, handler := range handlers {
-		s.mux.Handle(path, handler)
-	}
-}
-
-func (s *Server) Addr() net.Addr {
-	return s.listener.Addr()
+func (s *Server) Addr() string {
+	return s.addr
 }
 
 func (s *Server) Serve() {
-	if s.listener == nil {
-		return
-	}
-
-	log.WithField("addr", s.listener.Addr()).Info("starting rpc server")
+	log.WithField("addr", s.addr).Info("starting http server")
 	go func() {
-		log.Error(s.server.Serve(s.listener))
+		log.Error(s.Echo.Start(s.addr))
 	}()
 }
 
 func (s *Server) Close() error {
-	if s.listener == nil {
-		return nil
-	}
-
-	log.WithField("addr", s.listener.Addr()).Info("shutting down rpc server")
-	return s.server.Close()
+	log.WithField("addr", s.addr).Info("shutting down http server")
+	return s.Echo.Shutdown(context.Background())
 }

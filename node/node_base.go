@@ -3,6 +3,7 @@ package node
 import (
 	"github.com/tclchiam/oxidize-go/account"
 	"github.com/tclchiam/oxidize-go/blockchain"
+	"github.com/tclchiam/oxidize-go/blockchain/blockhttp"
 	"github.com/tclchiam/oxidize-go/blockchain/blockrpc"
 	"github.com/tclchiam/oxidize-go/blockchain/utxo"
 	"github.com/tclchiam/oxidize-go/closer"
@@ -39,6 +40,8 @@ func newNode(bc blockchain.Blockchain, rpcServer *rpc.Server, httpServer *httpse
 	p2p.RegisterDiscoveryServer(rpcServer, p2p.NewDiscoveryServer(bc))
 	walletRpc.RegisterWalletServer(rpcServer, walletRpc.NewWalletServer(node))
 
+	blockhttp.RegisterBlockServer(httpServer, bc)
+
 	return node
 }
 
@@ -58,23 +61,10 @@ func (n *baseNode) SpendableOutputs(address *identity.Address) (*utxo.OutputSet,
 }
 
 func (n *baseNode) Serve() {
-	if n.rpcServer != nil {
-		n.rpcServer.Serve()
-	}
-	if n.httpServer != nil {
-		n.httpServer.Serve()
-	}
+	n.rpcServer.Serve()
+	n.httpServer.Serve()
 }
 
 func (n *baseNode) Close() error {
-	closers := []closer.Closer{n.Blockchain, n.Engine}
-
-	if n.rpcServer != nil {
-		closers = append(closers, n.rpcServer)
-	}
-	if n.httpServer != nil {
-		closers = append(closers, n.httpServer)
-	}
-
-	return closer.CloseMany(closers...)
+	return closer.CloseMany(n.Blockchain, n.Engine, n.rpcServer, n.httpServer)
 }
