@@ -9,7 +9,6 @@ import (
 
 	"github.com/tclchiam/oxidize-go/blockchain/engine/mining"
 	"github.com/tclchiam/oxidize-go/blockchain/entity"
-	"github.com/tclchiam/oxidize-go/encoding"
 	"github.com/tclchiam/oxidize-go/identity"
 )
 
@@ -22,13 +21,12 @@ var (
 )
 
 type miner struct {
-	workerCount        uint
-	beneficiary        *identity.Address
-	transactionEncoder entity.TransactionEncoder
+	workerCount uint
+	beneficiary *identity.Address
 }
 
 func NewMiner(workerCount uint, beneficiary *identity.Address) mining.Miner {
-	return &miner{workerCount: workerCount, beneficiary: beneficiary, transactionEncoder: encoding.TransactionProtoEncoder()}
+	return &miner{workerCount: workerCount, beneficiary: beneficiary}
 }
 
 func NewDefaultMiner(beneficiary *identity.Address) mining.Miner {
@@ -36,7 +34,7 @@ func NewDefaultMiner(beneficiary *identity.Address) mining.Miner {
 }
 
 func (miner *miner) MineBlock(parent *entity.BlockHeader, transactions entity.Transactions) *entity.Block {
-	reward := entity.NewRewardTx(miner.beneficiary, miner.transactionEncoder)
+	reward := entity.NewRewardTx(miner.beneficiary)
 
 	return miner.mineBlock(parent, transactions.Add(reward), uint64(time.Now().Unix()))
 }

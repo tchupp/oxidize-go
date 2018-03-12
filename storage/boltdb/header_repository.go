@@ -6,6 +6,7 @@ import (
 
 	"github.com/boltdb/bolt"
 	"github.com/tclchiam/oxidize-go/blockchain/entity"
+	"github.com/tclchiam/oxidize-go/wire"
 )
 
 func bestHeaderHash(tx *bolt.Tx) (hash *entity.Hash, err error) {
@@ -23,13 +24,13 @@ func bestHeaderHash(tx *bolt.Tx) (hash *entity.Hash, err error) {
 	return entity.NewHash(rawHash)
 }
 
-func headerByHash(tx *bolt.Tx, encoder entity.BlockEncoder, hash *entity.Hash) (*entity.BlockHeader, error) {
+func headerByHash(tx *bolt.Tx, hash *entity.Hash) (*entity.BlockHeader, error) {
 	bucket, err := bucket(tx, headersBucketName)
 	if err != nil {
 		return nil, err
 	}
 
-	header, err := readHeader(bucket, hash, encoder)
+	header, err := readHeader(bucket, hash)
 	if err != nil {
 		return nil, err
 	}
@@ -37,13 +38,13 @@ func headerByHash(tx *bolt.Tx, encoder entity.BlockEncoder, hash *entity.Hash) (
 	return header, nil
 }
 
-func readHeader(bucket *bolt.Bucket, hash *entity.Hash, encoder entity.BlockEncoder) (*entity.BlockHeader, error) {
+func readHeader(bucket *bolt.Bucket, hash *entity.Hash) (*entity.BlockHeader, error) {
 	latestHeaderData := bucket.Get(hash.Slice())
 	if latestHeaderData == nil || len(latestHeaderData) == 0 {
 		return nil, nil
 	}
 
-	header, err := encoder.DecodeHeader(latestHeaderData)
+	header, err := wire.DecodeHeader(latestHeaderData)
 	if err != nil {
 		return nil, err
 	}
@@ -51,13 +52,13 @@ func readHeader(bucket *bolt.Bucket, hash *entity.Hash, encoder entity.BlockEnco
 	return header, err
 }
 
-func saveHeader(tx *bolt.Tx, encoder entity.BlockEncoder, header *entity.BlockHeader) error {
+func saveHeader(tx *bolt.Tx, header *entity.BlockHeader) error {
 	bucket, err := bucket(tx, headersBucketName)
 	if err != nil {
 		return err
 	}
 
-	headerData, err := encoder.EncodeHeader(header)
+	headerData, err := wire.EncodeHeader(header)
 	if err != nil {
 		return fmt.Errorf("serializing header: %s", err)
 	}

@@ -1,4 +1,4 @@
-package encoding
+package wire
 
 import (
 	"fmt"
@@ -7,15 +7,7 @@ import (
 	"github.com/tclchiam/oxidize-go/blockchain/entity"
 )
 
-type blockProtoEncoder struct{}
-
-var blockProtoEncoderInstance blockProtoEncoder
-
-func BlockProtoEncoder() entity.BlockEncoder {
-	return &blockProtoEncoderInstance
-}
-
-func (*blockProtoEncoder) EncodeBlock(block *entity.Block) ([]byte, error) {
+func EncodeBlock(block *entity.Block) ([]byte, error) {
 	message := ToWireBlock(block)
 
 	data, err := proto.Marshal(message)
@@ -26,7 +18,7 @@ func (*blockProtoEncoder) EncodeBlock(block *entity.Block) ([]byte, error) {
 	return data, nil
 }
 
-func (*blockProtoEncoder) DecodeBlock(input []byte) (*entity.Block, error) {
+func DecodeBlock(input []byte) (*entity.Block, error) {
 	message := &Block{}
 
 	err := proto.Unmarshal(input, message)
@@ -37,7 +29,7 @@ func (*blockProtoEncoder) DecodeBlock(input []byte) (*entity.Block, error) {
 	return FromWireBlock(message)
 }
 
-func (*blockProtoEncoder) EncodeHeader(header *entity.BlockHeader) ([]byte, error) {
+func EncodeHeader(header *entity.BlockHeader) ([]byte, error) {
 	message := ToWireBlockHeader(header)
 
 	data, err := proto.Marshal(message)
@@ -48,7 +40,7 @@ func (*blockProtoEncoder) EncodeHeader(header *entity.BlockHeader) ([]byte, erro
 	return data, nil
 }
 
-func (*blockProtoEncoder) DecodeHeader(input []byte) (*entity.BlockHeader, error) {
+func DecodeHeader(input []byte) (*entity.BlockHeader, error) {
 	message := &BlockHeader{}
 
 	err := proto.Unmarshal(input, message)

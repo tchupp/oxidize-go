@@ -4,21 +4,21 @@ import (
 	"testing"
 
 	"github.com/tclchiam/oxidize-go/blockchain/entity"
-	"github.com/tclchiam/oxidize-go/encoding"
 	"github.com/tclchiam/oxidize-go/identity"
+	"github.com/tclchiam/oxidize-go/wire"
 )
 
-func serializeSignatureTestData(input *entity.UnsignedInput, outputs []*entity.Output, encoder entity.TransactionEncoder) ([]byte, error) {
+func serializeSignatureTestData(input *entity.UnsignedInput, outputs []*entity.Output) ([]byte, error) {
 	var data []byte
 
-	bytes, err := encoder.EncodeUnsignedInput(input)
+	bytes, err := wire.EncodeUnsignedInput(input)
 	if err != nil {
 		return nil, err
 	}
 
 	data = append(data, bytes...)
 	for _, output := range outputs {
-		bytes, err := encoder.EncodeOutput(output)
+		bytes, err := wire.EncodeOutput(output)
 		if err != nil {
 			return nil, err
 		}
@@ -67,17 +67,17 @@ func TestGenerateInputSignature(t *testing.T) {
 		const testVerifyFailedStr = "GenerateSignature #%d %s was a bad signature"
 		const realVerifyResultMismatchStr = "VerifySignature #%d did not agree with test, got: %t, expected: %t"
 
-		signatureData, err := serializeSignatureTestData(testParams.input, testParams.outputs, encoding.TransactionProtoEncoder())
+		signatureData, err := serializeSignatureTestData(testParams.input, testParams.outputs)
 		if err != nil {
 			t.Error(err)
 			continue
 		}
 
-		signature := GenerateSignature(testParams.input, testParams.outputs, spender, encoding.TransactionProtoEncoder())
+		signature := GenerateSignature(testParams.input, testParams.outputs, spender)
 
 		signedInput := entity.NewSignedInput(testParams.input, signature)
 		testVerifyResult := spender.PublicKey().Verify(signatureData, signature)
-		actualVerifyResult := VerifySignature(signedInput, testParams.outputs, encoding.TransactionProtoEncoder())
+		actualVerifyResult := VerifySignature(signedInput, testParams.outputs)
 
 		if !testVerifyResult {
 			t.Errorf(testVerifyFailedStr, index, signature)

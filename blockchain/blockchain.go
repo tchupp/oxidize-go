@@ -2,6 +2,7 @@ package blockchain
 
 import (
 	"github.com/tclchiam/oxidize-go/blockchain/engine"
+	"github.com/tclchiam/oxidize-go/blockchain/engine/consensus"
 	"github.com/tclchiam/oxidize-go/blockchain/engine/mining"
 	"github.com/tclchiam/oxidize-go/blockchain/entity"
 	"github.com/tclchiam/oxidize-go/blockchain/utxo"
@@ -115,7 +116,15 @@ func (bc *blockchain) SaveBlock(block *entity.Block) error {
 }
 
 func (bc *blockchain) MineBlock(transactions entity.Transactions) (*entity.Block, error) {
-	return engine.MineBlock(transactions, bc.miner, bc.ChainRepository)
+	if err := consensus.VerifyTransaction(transactions); err != nil {
+		return nil, err
+	}
+
+	parent, err := bc.BestBlock()
+	if err != nil {
+		return nil, err
+	}
+	return bc.miner.MineBlock(parent.Header(), transactions), nil
 }
 
 func (bc *blockchain) Subscribe(channel chan<- Event) Subscription {

@@ -7,6 +7,7 @@ import (
 	"github.com/boltdb/bolt"
 	"github.com/tclchiam/oxidize-go/blockchain/entity"
 	"github.com/tclchiam/oxidize-go/blockchain/utxo"
+	"github.com/tclchiam/oxidize-go/wire"
 )
 
 const (
@@ -17,11 +18,10 @@ const (
 )
 
 type utxoBoltRepository struct {
-	txEncoder entity.TransactionEncoder
-	db        *bolt.DB
+	db *bolt.DB
 }
 
-func NewUtxoRepository(path, name string, txEncoder entity.TransactionEncoder) (utxo.Repository, error) {
+func NewUtxoRepository(path, name string) (utxo.Repository, error) {
 	db, err := openDB(path, fmt.Sprintf(utxoDbFile, name))
 	if err != nil {
 		return nil, err
@@ -35,8 +35,7 @@ func NewUtxoRepository(path, name string, txEncoder entity.TransactionEncoder) (
 	}
 
 	return &utxoBoltRepository{
-		txEncoder: txEncoder,
-		db:        db,
+		db: db,
 	}, nil
 }
 
@@ -58,14 +57,14 @@ func (r *utxoBoltRepository) SaveSpendableOutput(txId *entity.Hash, output *enti
 			Secret:  []byte{},
 		}
 		if transactionBytes := bucket.Get(txId.Slice()); len(transactionBytes) != 0 {
-			transaction, err = r.txEncoder.DecodeTransaction(transactionBytes)
+			transaction, err = wire.DecodeTransaction(transactionBytes)
 			if err != nil {
 				return err
 			}
 		}
 
 		transaction.Outputs = append(transaction.Outputs, output)
-		transactionBytes, err := r.txEncoder.EncodeTransaction(transaction)
+		transactionBytes, err := wire.EncodeTransaction(transaction)
 		if err != nil {
 			return err
 		}
@@ -88,7 +87,7 @@ func (r *utxoBoltRepository) SaveSpendableOutputs(txId *entity.Hash, outputs []*
 			Secret:  []byte{},
 		}
 		if transactionBytes := bucket.Get(txId.Slice()); len(transactionBytes) != 0 {
-			transaction, err = r.txEncoder.DecodeTransaction(transactionBytes)
+			transaction, err = wire.DecodeTransaction(transactionBytes)
 			if err != nil {
 				return err
 			}
@@ -99,7 +98,7 @@ func (r *utxoBoltRepository) SaveSpendableOutputs(txId *entity.Hash, outputs []*
 				transaction.Outputs = append(transaction.Outputs, output)
 			}
 		}
-		transactionBytes, err := r.txEncoder.EncodeTransaction(transaction)
+		transactionBytes, err := wire.EncodeTransaction(transaction)
 		if err != nil {
 			return err
 		}
@@ -120,13 +119,13 @@ func (r *utxoBoltRepository) RemoveSpendableOutput(txId *entity.Hash, output *en
 			return nil
 		}
 
-		transaction, err := r.txEncoder.DecodeTransaction(transactionBytes)
+		transaction, err := wire.DecodeTransaction(transactionBytes)
 		if err != nil {
 			return err
 		}
 
 		transaction.Outputs = transaction.Outputs.Remove(output)
-		transactionBytes, err = r.txEncoder.EncodeTransaction(transaction)
+		transactionBytes, err = wire.EncodeTransaction(transaction)
 		if err != nil {
 			return err
 		}
@@ -147,7 +146,7 @@ func (r *utxoBoltRepository) RemoveSpendableOutputs(txId *entity.Hash, outputs [
 			return nil
 		}
 
-		transaction, err := r.txEncoder.DecodeTransaction(transactionBytes)
+		transaction, err := wire.DecodeTransaction(transactionBytes)
 		if err != nil {
 			return err
 		}
@@ -155,7 +154,7 @@ func (r *utxoBoltRepository) RemoveSpendableOutputs(txId *entity.Hash, outputs [
 		for _, output := range outputs {
 			transaction.Outputs = transaction.Outputs.Remove(output)
 		}
-		transactionBytes, err = r.txEncoder.EncodeTransaction(transaction)
+		transactionBytes, err = wire.EncodeTransaction(transaction)
 		if err != nil {
 			return err
 		}
@@ -177,7 +176,7 @@ func (r *utxoBoltRepository) SpendableOutputs() (outputs *utxo.OutputSet, err er
 		}
 
 		return bucket.ForEach(func(k, v []byte) error {
-			transaction, err := r.txEncoder.DecodeTransaction(v)
+			transaction, err := wire.DecodeTransaction(v)
 			if err != nil {
 				return err
 			}

@@ -7,7 +7,6 @@ import (
 
 type ChainRepositoryBuilder interface {
 	WithPath(string) ChainRepositoryBuilder
-	WithBlockEncoder(entity.BlockEncoder) ChainRepositoryBuilder
 	WithCache() ChainRepositoryBuilder
 	WithLogger() ChainRepositoryBuilder
 	WithMetrics() ChainRepositoryBuilder
@@ -16,7 +15,6 @@ type ChainRepositoryBuilder interface {
 
 type UtxoRepositoryBuilder interface {
 	WithPath(string) UtxoRepositoryBuilder
-	WithTransactionEncoder(blockEncoder entity.TransactionEncoder) UtxoRepositoryBuilder
 	WithCache() UtxoRepositoryBuilder
 	WithLogger() UtxoRepositoryBuilder
 	WithMetrics() UtxoRepositoryBuilder

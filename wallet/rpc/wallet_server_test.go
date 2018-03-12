@@ -12,7 +12,6 @@ import (
 	"github.com/tclchiam/oxidize-go/account/testdata"
 	"github.com/tclchiam/oxidize-go/blockchain/engine/txsigning"
 	"github.com/tclchiam/oxidize-go/blockchain/entity"
-	"github.com/tclchiam/oxidize-go/encoding"
 	"github.com/tclchiam/oxidize-go/identity"
 	"github.com/tclchiam/oxidize-go/server/rpc"
 )
@@ -85,10 +84,10 @@ func TestWalletServer_Send(t *testing.T) {
 
 func buildExpenseTx(unspentOutputRef *UnspentOutputRef, outputs []*entity.Output, spender *identity.Identity) *entity.Transaction {
 	unsignedInput := entity.NewUnsignedInput(unspentOutputRef.TxId, unspentOutputRef.Output, spender.PublicKey())
-	signature := txsigning.GenerateSignature(unsignedInput, outputs, spender, encoding.TransactionProtoEncoder())
+	signature := txsigning.GenerateSignature(unsignedInput, outputs, spender)
 
 	signedInputs := []*entity.SignedInput{entity.NewSignedInput(unsignedInput, signature)}
-	return entity.NewTx(signedInputs, outputs, encoding.TransactionProtoEncoder())
+	return entity.NewTx(signedInputs, outputs)
 }
 
 func setup(t *testing.T, owner *identity.Identity) (*rpc.Server, WalletClient) {

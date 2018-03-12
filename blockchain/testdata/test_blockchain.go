@@ -5,7 +5,6 @@ import (
 
 	"github.com/tclchiam/oxidize-go/blockchain"
 	"github.com/tclchiam/oxidize-go/blockchain/entity"
-	"github.com/tclchiam/oxidize-go/encoding"
 	"github.com/tclchiam/oxidize-go/identity"
 )
 
@@ -16,7 +15,7 @@ type TestBlockchain struct {
 
 func (b *TestBlockchain) AddBalance(address *identity.Address, balance uint64) *TestBlockchain {
 	outputs := []*entity.Output{entity.NewOutput(balance, address)}
-	tx := entity.NewTx(nil, outputs, encoding.TransactionProtoEncoder())
+	tx := entity.NewTx(nil, outputs)
 
 	block, err := b.Blockchain.MineBlock(entity.Transactions{tx})
 	if err != nil {

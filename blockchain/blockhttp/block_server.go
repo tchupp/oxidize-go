@@ -7,8 +7,8 @@ import (
 	"github.com/labstack/echo"
 	"github.com/tclchiam/oxidize-go/blockchain"
 	"github.com/tclchiam/oxidize-go/blockchain/entity"
-	"github.com/tclchiam/oxidize-go/encoding"
 	"github.com/tclchiam/oxidize-go/server/httpserver"
+	"github.com/tclchiam/oxidize-go/wire"
 )
 
 type E map[string]interface{}
@@ -29,7 +29,7 @@ func HandleBlockByIndex(bc blockchain.Blockchain) echo.HandlerFunc {
 			return c.JSON(http.StatusNotFound, E{"message": "block with index not found: " + rawIndex})
 		}
 
-		wireBlock := encoding.ToWireBlock(block)
+		wireBlock := wire.ToWireBlock(block)
 		return c.JSON(http.StatusOK, wireBlock)
 	}
 }
@@ -49,7 +49,7 @@ func HandleBlockByHash(bc blockchain.Blockchain) echo.HandlerFunc {
 			return c.JSON(http.StatusNotFound, E{"message": "block with hash not found: " + c.Param("hash")})
 		}
 
-		wireBlock := encoding.ToWireBlock(block)
+		wireBlock := wire.ToWireBlock(block)
 		return c.JSON(http.StatusOK, wireBlock)
 	}
 }

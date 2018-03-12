@@ -5,7 +5,6 @@ import (
 
 	"github.com/tclchiam/oxidize-go/blockchain/engine/txsigning"
 	"github.com/tclchiam/oxidize-go/blockchain/entity"
-	"github.com/tclchiam/oxidize-go/encoding"
 	"github.com/tclchiam/oxidize-go/identity"
 )
 
@@ -32,8 +31,8 @@ func buildExpenseTransaction(
 	var signedInputs []*entity.SignedInput
 	for _, outputRef := range unspentOutputRefs {
 		unsignedInput := entity.NewUnsignedInput(outputRef.TxId, outputRef.Output, outputRef.Identity.PublicKey())
-		signature := txsigning.GenerateSignature(unsignedInput, finalizedOutputs, outputRef.Identity, encoding.TransactionProtoEncoder())
+		signature := txsigning.GenerateSignature(unsignedInput, finalizedOutputs, outputRef.Identity)
 		signedInputs = append(signedInputs, entity.NewSignedInput(unsignedInput, signature))
 	}
-	return entity.NewTx(signedInputs, finalizedOutputs, encoding.TransactionProtoEncoder()), nil
+	return entity.NewTx(signedInputs, finalizedOutputs), nil
 }

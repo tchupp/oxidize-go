@@ -7,8 +7,8 @@ import (
 	"google.golang.org/grpc/status"
 
 	"github.com/tclchiam/oxidize-go/blockchain/entity"
-	"github.com/tclchiam/oxidize-go/encoding"
 	"github.com/tclchiam/oxidize-go/server/rpc"
+	"github.com/tclchiam/oxidize-go/wire"
 )
 
 type syncBackend interface {
@@ -37,7 +37,7 @@ func (s *syncServer) GetBestHeader(ctx context.Context, req *GetBestHeaderReques
 	}
 
 	return &GetBestHeaderResponse{
-		Header: encoding.ToWireBlockHeader(header),
+		Header: wire.ToWireBlockHeader(header),
 	}, nil
 }
 
@@ -54,7 +54,7 @@ func (s *syncServer) GetHeaders(ctx context.Context, req *GetHeadersRequest) (*G
 
 	return &GetHeadersResponse{
 		HeaderCount: proto.Uint32(uint32(len(headers))),
-		Headers:     encoding.ToWireBlockHeaders(headers),
+		Headers:     wire.ToWireBlockHeaders(headers),
 	}, nil
 }
 
@@ -70,6 +70,6 @@ func (s *syncServer) GetBlock(ctx context.Context, req *GetBlockRequest) (*GetBl
 	}
 
 	return &GetBlockResponse{
-		Block: encoding.ToWireBlock(block),
+		Block: wire.ToWireBlock(block),
 	}, nil
 }

@@ -1,4 +1,4 @@
-package encoding
+package wire
 
 import (
 	"github.com/golang/protobuf/proto"

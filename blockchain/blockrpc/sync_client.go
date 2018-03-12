@@ -6,7 +6,7 @@ import (
 
 	"github.com/golang/protobuf/proto"
 	"github.com/tclchiam/oxidize-go/blockchain/entity"
-	"github.com/tclchiam/oxidize-go/encoding"
+	"github.com/tclchiam/oxidize-go/wire"
 )
 
 type SyncClient interface {
@@ -35,7 +35,7 @@ func (c *syncClient) GetBestHeader() (*entity.BlockHeader, error) {
 		return nil, err
 	}
 
-	header, err := encoding.FromWireBlockHeader(response.GetHeader())
+	header, err := wire.FromWireBlockHeader(response.GetHeader())
 	if err != nil {
 		return nil, err
 	}
@@ -54,7 +54,7 @@ func (c *syncClient) GetHeaders(latestHash *entity.Hash, latestIndex uint64) (en
 		return nil, err
 	}
 
-	headers, err := encoding.FromWireBlockHeaders(response.GetHeaders())
+	headers, err := wire.FromWireBlockHeaders(response.GetHeaders())
 	if err != nil {
 		return nil, err
 	}
@@ -73,7 +73,7 @@ func (c *syncClient) GetBlock(hash *entity.Hash, index uint64) (*entity.Block, e
 		return nil, err
 	}
 
-	block, err := encoding.FromWireBlock(response.GetBlock())
+	block, err := wire.FromWireBlock(response.GetBlock())
 	if err != nil {
 		return nil, err
 	}

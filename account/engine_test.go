@@ -9,7 +9,6 @@ import (
 	"github.com/tclchiam/oxidize-go/blockchain"
 	"github.com/tclchiam/oxidize-go/blockchain/entity"
 	"github.com/tclchiam/oxidize-go/blockchain/testdata"
-	"github.com/tclchiam/oxidize-go/encoding"
 	"github.com/tclchiam/oxidize-go/identity"
 )
 
@@ -103,7 +102,7 @@ func Test_engine_Transactions(t *testing.T) {
 			Build().
 			AddBalance(spendingIdentity.Address(), 10)
 
-		rewardTx := entity.NewRewardTx(receivingIdentity.Address(), encoding.TransactionProtoEncoder())
+		rewardTx := entity.NewRewardTx(receivingIdentity.Address())
 		block, err := bc.MineBlock(entity.Transactions{rewardTx})
 		require.NoError(t, err, "mining block")
 

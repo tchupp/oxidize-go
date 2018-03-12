@@ -8,8 +8,9 @@ import (
 	"strconv"
 	"strings"
 
-	log "github.com/sirupsen/logrus"
+	"bytes"
 
+	"github.com/tclchiam/oxidize-go/conv"
 	"github.com/tclchiam/oxidize-go/identity"
 )
 
@@ -56,18 +57,18 @@ func (tx *Transaction) String() string {
 	return strings.Join(lines, "\n")
 }
 
-func NewRewardTx(beneficiary *identity.Address, encoder TransactionEncoder) *Transaction {
+func NewRewardTx(beneficiary *identity.Address) *Transaction {
 	var inputs []*SignedInput
 	outputs := []*Output{NewOutput(subsidy, beneficiary)}
 
-	return NewTx(inputs, outputs, encoder)
+	return NewTx(inputs, outputs)
 }
 
-func NewTx(inputs []*SignedInput, outputs []*Output, encoder TransactionEncoder) *Transaction {
+func NewTx(inputs []*SignedInput, outputs []*Output) *Transaction {
 	secret := generateSecret()
 
 	return &Transaction{
-		ID:      calculateTransactionId(inputs, outputs, secret, encoder),
+		ID:      calculateTransactionId(inputs, outputs, secret),
 		Inputs:  inputs,
 		Outputs: outputs,
 		Secret:  secret,
@@ -80,24 +81,27 @@ func generateSecret() []byte {
 	return secret
 }
 
-func calculateTransactionId(inputs []*SignedInput, outputs []*Output, secret []byte, encoder TransactionEncoder) *Hash {
-	hash := Hash(sha256.Sum256(serializeTxData(inputs, outputs, secret, encoder)))
+func calculateTransactionId(inputs []*SignedInput, outputs []*Output, secret []byte) *Hash {
+	var rawTxContents [][]byte
+	for _, input := range inputs {
+		rawTxContents = append(rawTxContents, input.OutputReference.ID.Slice())
+		rawTxContents = append(rawTxContents, conv.U32ToBytes(input.OutputReference.Output.Index))
+		rawTxContents = append(rawTxContents, conv.U64ToBytes(input.OutputReference.Output.Value))
+		rawTxContents = append(rawTxContents, input.OutputReference.Output.PublicKeyHash)
+		rawTxContents = append(rawTxContents, input.PublicKey.Serialize())
+		rawTxContents = append(rawTxContents, input.Signature.Serialize())
+	}
+
+	for _, output := range outputs {
+		rawTxContents = append(rawTxContents, conv.U32ToBytes(output.Index))
+		rawTxContents = append(rawTxContents, conv.U64ToBytes(output.Value))
+		rawTxContents = append(rawTxContents, output.PublicKeyHash)
+	}
+
+	rawTxContents = append(rawTxContents, secret)
+
+	hash := Hash(sha256.Sum256(bytes.Join(rawTxContents, []byte(nil))))
 	return &hash
-}
-
-func serializeTxData(inputs []*SignedInput, outputs []*Output, secret []byte, encoder TransactionEncoder) []byte {
-	transaction := &Transaction{
-		ID:      &EmptyHash,
-		Inputs:  inputs,
-		Outputs: outputs,
-		Secret:  secret,
-	}
-
-	encoded, err := encoder.EncodeTransaction(transaction)
-	if err != nil {
-		log.Panic(err)
-	}
-	return encoded
 }
 
 func (txs Transactions) Len() int                            { return len(txs) }

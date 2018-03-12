@@ -6,14 +6,14 @@ main() {
   fi
 
   # blockchain
-  protoc -I_proto -I. --go_out=encoding blockchain_entities.proto
-  protoc -I_proto -I. --go_out=M_proto/blockchain_entities.proto=github.com/tclchiam/oxidize-go/encoding,plugins=grpc:blockchain/blockrpc blockchain_service.proto
+  protoc -I_proto -I. --go_out=wire blockchain_entities.proto
+  protoc -I_proto -I. --go_out=M_proto/blockchain_entities.proto=github.com/tclchiam/oxidize-go/wire,plugins=grpc:blockchain/blockrpc blockchain_service.proto
 
   # p2p
   protoc -I_proto -I. --go_out=plugins=grpc:p2p node_discovery_service.proto
 
   # wallet
-  protoc -I_proto -I. --go_out=M_proto/blockchain_entities.proto=github.com/tclchiam/oxidize-go/encoding,plugins=grpc:wallet/rpc wallet_service.proto
+  protoc -I_proto -I. --go_out=M_proto/blockchain_entities.proto=github.com/tclchiam/oxidize-go/wire,plugins=grpc:wallet/rpc wallet_service.proto
 }
 
 main

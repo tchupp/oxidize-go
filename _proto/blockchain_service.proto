@@ -1,7 +1,6 @@
 syntax = "proto2";
 
 package blockrpc;
-option go_package = "blockrpc";
 
 import "_proto/blockchain_entities.proto";
 

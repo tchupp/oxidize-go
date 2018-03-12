@@ -10,7 +10,6 @@ import (
 	"github.com/tclchiam/oxidize-go/blockchain/engine/mining/proofofwork"
 	"github.com/tclchiam/oxidize-go/blockchain/entity"
 	"github.com/tclchiam/oxidize-go/blockchain/testdata"
-	"github.com/tclchiam/oxidize-go/encoding"
 	"github.com/tclchiam/oxidize-go/identity"
 	"github.com/tclchiam/oxidize-go/server/httpserver"
 	"github.com/tclchiam/oxidize-go/server/rpc"
@@ -152,7 +151,7 @@ func saveRandomBlocks(t *testing.T, bc blockchain.Blockchain, num int) {
 			t.Fatal("error reading best header")
 		}
 
-		transactions := entity.Transactions{entity.NewRewardTx(beneficiary, encoding.TransactionProtoEncoder())}
+		transactions := entity.Transactions{entity.NewRewardTx(beneficiary)}
 		block := miner.MineBlock(head, transactions)
 		bc.SaveBlock(block)
 	}

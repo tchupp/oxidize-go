@@ -9,9 +9,9 @@ import (
 	"github.com/hashicorp/go-multierror"
 	"github.com/tclchiam/oxidize-go/account"
 	"github.com/tclchiam/oxidize-go/blockchain/entity"
-	"github.com/tclchiam/oxidize-go/encoding"
 	"github.com/tclchiam/oxidize-go/identity"
 	"github.com/tclchiam/oxidize-go/server/rpc"
+	"github.com/tclchiam/oxidize-go/wire"
 )
 
 type walletServer struct {
@@ -75,9 +75,9 @@ func findAccounts(engine account.Engine, addresses []*identity.Address) ([]*acco
 func mapAccountsToResponse(accounts []*account.Account) []*Account {
 	var res []*Account
 	for _, acc := range accounts {
-		var txs []*encoding.Transaction
+		var txs []*wire.Transaction
 		for _, transaction := range acc.Transactions() {
-			txs = append(txs, encoding.ToWireTransaction(transaction))
+			txs = append(txs, wire.ToWireTransaction(transaction))
 		}
 
 		res = append(res, &Account{
@@ -113,7 +113,7 @@ func mapOutputsToResponse(engine account.Engine, addresses []*identity.Address) 
 			res.Outputs = append(res.Outputs, &WireUnspentOutput{
 				Address: proto.String(address.Serialize()),
 				TxHash:  txId.Slice(),
-				Output:  encoding.ToWireOutput(output),
+				Output:  wire.ToWireOutput(output),
 			})
 		})
 	}
@@ -121,7 +121,7 @@ func mapOutputsToResponse(engine account.Engine, addresses []*identity.Address) 
 }
 
 func (s *walletServer) ProposeTransaction(ctx context.Context, req *ProposeTransactionRequest) (*ProposeTransactionResponse, error) {
-	transaction, err := encoding.FromWireTransaction(req.GetTransaction())
+	transaction, err := wire.FromWireTransaction(req.GetTransaction())
 	if err != nil {
 		return nil, status.Errorf(codes.InvalidArgument, "requested transaction was invalid: %s", err)
 	}

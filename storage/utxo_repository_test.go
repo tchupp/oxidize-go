@@ -7,7 +7,6 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/tclchiam/oxidize-go/blockchain/entity"
 	"github.com/tclchiam/oxidize-go/blockchain/utxo"
-	"github.com/tclchiam/oxidize-go/encoding"
 	"github.com/tclchiam/oxidize-go/identity"
 	"github.com/tclchiam/oxidize-go/storage/boltdb"
 	"github.com/tclchiam/oxidize-go/storage/memdb"
@@ -15,7 +14,7 @@ import (
 
 func TestRepository_BlockIndexCanBeReadBack(t *testing.T) {
 	suite := func(repository utxo.Repository, t *testing.T) {
-		tx := entity.NewRewardTx(identity.RandomIdentity().Address(), encoding.TransactionProtoEncoder())
+		tx := entity.NewRewardTx(identity.RandomIdentity().Address())
 		expectedIndex := utxo.NewBlockIndex(tx.ID, 7)
 		err := repository.SaveBlockIndex(expectedIndex)
 		if err != nil {
@@ -89,7 +88,7 @@ func TestRepository_SpendableOutputsCanBeEmpty(t *testing.T) {
 func TestRepository_CanRetrieveSpendableOutputs(t *testing.T) {
 	suite := func(repository utxo.Repository, t *testing.T) {
 		address := identity.RandomIdentity().Address()
-		tx := entity.NewRewardTx(address, encoding.TransactionProtoEncoder())
+		tx := entity.NewRewardTx(address)
 
 		err := repository.SaveSpendableOutputs(tx.ID, tx.Outputs)
 		if err != nil {
@@ -134,7 +133,7 @@ func TestRepository_CanRemoveSpendableOutputs(t *testing.T) {
 		address := identity.RandomIdentity().Address()
 		output := entity.NewOutput(13, address)
 
-		tx := entity.NewTx(nil, []*entity.Output{output}, encoding.TransactionProtoEncoder())
+		tx := entity.NewTx(nil, []*entity.Output{output})
 
 		err := repository.SaveSpendableOutput(tx.ID, output)
 		if err != nil {

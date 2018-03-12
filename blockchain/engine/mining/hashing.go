@@ -2,9 +2,9 @@ package mining
 
 import (
 	"bytes"
-	"encoding/binary"
 
 	"github.com/tclchiam/oxidize-go/blockchain/entity"
+	"github.com/tclchiam/oxidize-go/conv"
 )
 
 type BlockHashingInput struct {
@@ -19,9 +19,9 @@ func CalculateBlockHash(input *BlockHashingInput, nonce uint64) *entity.Hash {
 	rawBlockContents := [][]byte{
 		input.PreviousHash.Slice(),
 		input.TransactionsHash.Slice(),
-		intToHex(input.Timestamp),
-		intToHex(nonce),
-		intToHex(input.Difficulty),
+		conv.U64ToBytes(input.Timestamp),
+		conv.U64ToBytes(nonce),
+		conv.U64ToBytes(input.Difficulty),
 	}
 	rawBlockData := bytes.Join(rawBlockContents, []byte(nil))
 	hash := calculateHash(rawBlockData)
@@ -49,10 +49,4 @@ func CalculateTransactionsHash(transactions entity.Transactions) *entity.Hash {
 	rawTransactionData := bytes.Join(transactionHashes, []byte{})
 	hash := calculateHash(rawTransactionData)
 	return &hash
-}
-
-func intToHex(num uint64) []byte {
-	enc := make([]byte, 8)
-	binary.BigEndian.PutUint64(enc, num)
-	return enc
 }

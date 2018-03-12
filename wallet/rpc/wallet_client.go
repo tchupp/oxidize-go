@@ -9,8 +9,8 @@ import (
 	"github.com/hashicorp/go-multierror"
 	"github.com/tclchiam/oxidize-go/account"
 	"github.com/tclchiam/oxidize-go/blockchain/entity"
-	"github.com/tclchiam/oxidize-go/encoding"
 	"github.com/tclchiam/oxidize-go/identity"
+	"github.com/tclchiam/oxidize-go/wire"
 )
 
 type UnspentOutputRef struct {
@@ -88,7 +88,7 @@ func mapTransactionsFromAccount(acc *Account) (entity.Transactions, *multierror.
 
 	var txs entity.Transactions
 	for _, wireTx := range acc.Transactions {
-		tx, err := encoding.FromWireTransaction(wireTx)
+		tx, err := wire.FromWireTransaction(wireTx)
 		if err != nil {
 			result = multierror.Append(result, fmt.Errorf("deserializing wire tx: %s", err))
 			continue
@@ -132,7 +132,7 @@ func mapUnspentOutputsFromResponse(response *UnspentOutputsResponse) ([]*Unspent
 		outputs = append(outputs, &UnspentOutputRef{
 			Address: address,
 			TxId:    txId,
-			Output:  encoding.FromWireOutput(unspentOutput.GetOutput()),
+			Output:  wire.FromWireOutput(unspentOutput.GetOutput()),
 		})
 	}
 
@@ -140,6 +140,6 @@ func mapUnspentOutputsFromResponse(response *UnspentOutputsResponse) ([]*Unspent
 }
 
 func (c *walletClient) ProposeTransaction(tx *entity.Transaction) error {
-	_, err := c.client.ProposeTransaction(context.Background(), &ProposeTransactionRequest{Transaction: encoding.ToWireTransaction(tx)})
+	_, err := c.client.ProposeTransaction(context.Background(), &ProposeTransactionRequest{Transaction: wire.ToWireTransaction(tx)})
 	return err
 }

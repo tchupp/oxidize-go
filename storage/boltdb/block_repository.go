@@ -6,6 +6,7 @@ import (
 
 	"github.com/boltdb/bolt"
 	"github.com/tclchiam/oxidize-go/blockchain/entity"
+	"github.com/tclchiam/oxidize-go/wire"
 )
 
 func bestBlockHash(tx *bolt.Tx) (hash *entity.Hash, err error) {
@@ -26,13 +27,13 @@ func bestBlockHash(tx *bolt.Tx) (hash *entity.Hash, err error) {
 	return entity.NewHash(rawHash)
 }
 
-func blockByHash(tx *bolt.Tx, encoder entity.BlockEncoder, hash *entity.Hash) (*entity.Block, error) {
+func blockByHash(tx *bolt.Tx, hash *entity.Hash) (*entity.Block, error) {
 	bucket, err := bucket(tx, blocksBucketName)
 	if err != nil {
 		return nil, err
 	}
 
-	block, err := readBlock(bucket, hash, encoder)
+	block, err := readBlock(bucket, hash)
 	if err != nil {
 		return nil, err
 	}
@@ -40,13 +41,13 @@ func blockByHash(tx *bolt.Tx, encoder entity.BlockEncoder, hash *entity.Hash) (*
 	return block, nil
 }
 
-func readBlock(bucket *bolt.Bucket, hash *entity.Hash, encoder entity.BlockEncoder) (*entity.Block, error) {
+func readBlock(bucket *bolt.Bucket, hash *entity.Hash) (*entity.Block, error) {
 	latestBlockData := bucket.Get(hash.Slice())
 	if latestBlockData == nil || len(latestBlockData) == 0 {
 		return nil, nil
 	}
 
-	b, err := encoder.DecodeBlock(latestBlockData)
+	b, err := wire.DecodeBlock(latestBlockData)
 	if err != nil {
 		return nil, err
 	}
@@ -54,13 +55,13 @@ func readBlock(bucket *bolt.Bucket, hash *entity.Hash, encoder entity.BlockEncod
 	return b, err
 }
 
-func saveBlock(tx *bolt.Tx, block *entity.Block, encoder entity.BlockEncoder) error {
+func saveBlock(tx *bolt.Tx, block *entity.Block) error {
 	bucket, err := bucket(tx, blocksBucketName)
 	if err != nil {
 		return err
 	}
 
-	blockData, err := encoder.EncodeBlock(block)
+	blockData, err := wire.EncodeBlock(block)
 	if err != nil {
 		return fmt.Errorf("serializing block: %s", err)
 	}
@@ -75,7 +76,7 @@ func saveBlock(tx *bolt.Tx, block *entity.Block, encoder entity.BlockEncoder) er
 		return fmt.Errorf("writing block hash: %s", err)
 	}
 
-	return saveHeader(tx, encoder, block.Header())
+	return saveHeader(tx, block.Header())
 }
 
 func bestIndex(bucket *bolt.Bucket) (index []byte, err error) {

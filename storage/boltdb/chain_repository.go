@@ -20,12 +20,11 @@ const (
 )
 
 type chainBoltRepository struct {
-	name         string
-	blockEncoder entity.BlockEncoder
-	db           *bolt.DB
+	name string
+	db   *bolt.DB
 }
 
-func NewChainRepository(path, name string, blockEncoder entity.BlockEncoder) (entity.ChainRepository, error) {
+func NewChainRepository(path, name string) (entity.ChainRepository, error) {
 	db, err := openDB(path, fmt.Sprintf(chainDbFile, name))
 	if err != nil {
 		return nil, err
@@ -39,8 +38,7 @@ func NewChainRepository(path, name string, blockEncoder entity.BlockEncoder) (en
 	}
 
 	return &chainBoltRepository{
-		blockEncoder: blockEncoder,
-		db:           db,
+		db: db,
 	}, nil
 }
 
@@ -58,7 +56,7 @@ func (r *chainBoltRepository) BestBlock() (block *entity.Block, err error) {
 			return nil
 		}
 
-		block, err = blockByHash(tx, r.blockEncoder, bestHash)
+		block, err = blockByHash(tx, bestHash)
 		return err
 	})
 	return block, err
@@ -66,7 +64,7 @@ func (r *chainBoltRepository) BestBlock() (block *entity.Block, err error) {
 
 func (r *chainBoltRepository) BlockByHash(hash *entity.Hash) (block *entity.Block, err error) {
 	err = r.db.View(func(tx *bolt.Tx) error {
-		block, err = blockByHash(tx, r.blockEncoder, hash)
+		block, err = blockByHash(tx, hash)
 		return err
 	})
 	return block, err
@@ -82,7 +80,7 @@ func (r *chainBoltRepository) BlockByIndex(index uint64) (block *entity.Block, e
 			return nil
 		}
 
-		block, err = blockByHash(tx, r.blockEncoder, hash)
+		block, err = blockByHash(tx, hash)
 		return err
 	})
 	return block, err
@@ -90,7 +88,7 @@ func (r *chainBoltRepository) BlockByIndex(index uint64) (block *entity.Block, e
 
 func (r *chainBoltRepository) SaveBlock(block *entity.Block) error {
 	return r.db.Update(func(tx *bolt.Tx) error {
-		return saveBlock(tx, block, r.blockEncoder)
+		return saveBlock(tx, block)
 	})
 }
 
@@ -104,7 +102,7 @@ func (r *chainBoltRepository) BestHeader() (header *entity.BlockHeader, err erro
 			return nil
 		}
 
-		header, err = headerByHash(tx, r.blockEncoder, bestHash)
+		header, err = headerByHash(tx, bestHash)
 		return err
 	})
 	return header, err
@@ -112,7 +110,7 @@ func (r *chainBoltRepository) BestHeader() (header *entity.BlockHeader, err erro
 
 func (r *chainBoltRepository) HeaderByHash(hash *entity.Hash) (header *entity.BlockHeader, err error) {
 	err = r.db.View(func(tx *bolt.Tx) error {
-		header, err = headerByHash(tx, r.blockEncoder, hash)
+		header, err = headerByHash(tx, hash)
 		return err
 	})
 	return header, err
@@ -128,7 +126,7 @@ func (r *chainBoltRepository) HeaderByIndex(index uint64) (header *entity.BlockH
 			return nil
 		}
 
-		header, err = headerByHash(tx, r.blockEncoder, hash)
+		header, err = headerByHash(tx, hash)
 		return err
 	})
 	return header, err
@@ -136,7 +134,7 @@ func (r *chainBoltRepository) HeaderByIndex(index uint64) (header *entity.BlockH
 
 func (r *chainBoltRepository) SaveHeader(header *entity.BlockHeader) error {
 	return r.db.Update(func(tx *bolt.Tx) error {
-		return saveHeader(tx, r.blockEncoder, header)
+		return saveHeader(tx, header)
 	})
 }
 
