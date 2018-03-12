@@ -3,7 +3,7 @@ syntax = "proto2";
 package rpc;
 option go_package = "rpc";
 
-import "encoding/entities.proto";
+import "_proto/blockchain_entities.proto";
 
 service WalletService {
     rpc Account (AccountRequest) returns (AccountResponse);
@@ -14,13 +14,13 @@ service WalletService {
 message Account {
     required string address = 1;
     required uint64 spendable = 3;
-    repeated entities.Transaction transactions = 5;
+    repeated wire.Transaction transactions = 5;
 }
 
 message WireUnspentOutput {
     required string address = 1;
     required bytes txHash = 2;
-    required entities.Output output = 3;
+    required wire.Output output = 3;
 }
 
 message AccountRequest {
@@ -40,7 +40,7 @@ message UnspentOutputsResponse {
 }
 
 message ProposeTransactionRequest {
-    required entities.Transaction transaction = 1;
+    required wire.Transaction transaction = 1;
 }
 
 message ProposeTransactionResponse {

@@ -3,7 +3,7 @@ syntax = "proto2";
 package blockrpc;
 option go_package = "blockrpc";
 
-import "encoding/entities.proto";
+import "_proto/blockchain_entities.proto";
 
 service SyncService {
     rpc GetBestHeader (GetBestHeaderRequest) returns (GetBestHeaderResponse);
@@ -15,7 +15,7 @@ message GetBestHeaderRequest {
 }
 
 message GetBestHeaderResponse {
-    required entities.BlockHeader header = 1;
+    required wire.BlockHeader header = 1;
 }
 
 message GetHeadersRequest {
@@ -25,7 +25,7 @@ message GetHeadersRequest {
 
 message GetHeadersResponse {
     required uint32 headerCount = 1;
-    repeated entities.BlockHeader headers = 2;
+    repeated wire.BlockHeader headers = 2;
 }
 
 message GetBlockRequest {
@@ -34,5 +34,5 @@ message GetBlockRequest {
 }
 
 message GetBlockResponse {
-    required entities.Block block = 1;
+    required wire.Block block = 1;
 }

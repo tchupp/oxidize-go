@@ -1,6 +1,6 @@
 syntax = "proto2";
 
-package entities;
+package wire;
 option go_package = "encoding";
 
 message Block {

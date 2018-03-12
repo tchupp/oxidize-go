@@ -5,15 +5,15 @@ main() {
     fail "missing protoc binary (you need to install protoc and put it in \$PATH)"
   fi
 
-  # Entities
-  protoc --go_out=. encoding/entities.proto
+  # blockchain
+  protoc -I_proto -I. --go_out=encoding blockchain_entities.proto
+  protoc -I_proto -I. --go_out=M_proto/blockchain_entities.proto=github.com/tclchiam/oxidize-go/encoding,plugins=grpc:blockchain/blockrpc blockchain_service.proto
 
-  # gRPC
-  protoc --go_out=Mencoding/entities.proto=github.com/tclchiam/oxidize-go/encoding,plugins=grpc:. blockchain/blockrpc/sync.proto
-  protoc --go_out=plugins=grpc:. p2p/discovery.proto
+  # p2p
+  protoc -I_proto -I. --go_out=plugins=grpc:p2p node_discovery_service.proto
 
-  # Wallet
-  protoc -Iwallet -I. --go_out=Mencoding/entities.proto=github.com/tclchiam/oxidize-go/encoding,plugins=grpc:wallet/rpc wallet.proto
+  # wallet
+  protoc -I_proto -I. --go_out=M_proto/blockchain_entities.proto=github.com/tclchiam/oxidize-go/encoding,plugins=grpc:wallet/rpc wallet_service.proto
 }
 
 main
