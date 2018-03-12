@@ -2,6 +2,7 @@ package mining
 
 import (
 	"fmt"
+	"reflect"
 	"testing"
 
 	"github.com/tclchiam/oxidize-go/blockchain/entity"
@@ -66,4 +67,30 @@ func calculateBlockHashTestSuite(input *BlockHashingInput, nonce uint64, output 
 	}
 
 	return nil
+}
+
+func TestCalculateTransactionsHash(t *testing.T) {
+	type args struct {
+		transactions entity.Transactions
+	}
+	tests := []struct {
+		name string
+		args args
+		want *entity.Hash
+	}{
+		{
+			name: "empty transaction",
+			args: args{
+				transactions: entity.Transactions{},
+			},
+			want: entity.NewHashOrPanic("e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"),
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if got := CalculateTransactionsHash(tt.args.transactions); !reflect.DeepEqual(got, tt.want) {
+				t.Errorf("CalculateTransactionsHash() = %v, want %v", got, tt.want)
+			}
+		})
+	}
 }

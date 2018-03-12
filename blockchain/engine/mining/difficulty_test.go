@@ -80,7 +80,7 @@ func TestHasDifficulty(t *testing.T) {
 			want: true,
 		},
 		{
-			name: "has difficulty 8, not 6",
+			name: "has difficulty 4, not 6",
 			args: args{difficulty: 6, hash: entity.NewHashOrPanic("00009f7a8ee9eb482aad1bf310681da13cd0690bd631beefc959de8ac8440bc8")},
 			want: false,
 		},
