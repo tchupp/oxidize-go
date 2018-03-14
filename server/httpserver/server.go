@@ -3,33 +3,38 @@ package httpserver
 import (
 	"context"
 
+	"net"
+
 	"github.com/labstack/echo"
 )
 
 type Server struct {
-	addr string
+	lis net.Listener
 	*echo.Echo
 }
 
-func NewServer(addr string) *Server {
+func NewServer(lis net.Listener) *Server {
+	e := echo.New()
+	e.Listener = lis
+
 	return &Server{
-		addr: addr,
-		Echo: echo.New(),
+		lis:  lis,
+		Echo: e,
 	}
 }
 
 func (s *Server) Addr() string {
-	return s.addr
+	return s.lis.Addr().String()
 }
 
 func (s *Server) Serve() {
-	log.WithField("addr", s.addr).Info("starting http server")
+	log.WithField("addr", s.Addr()).Info("starting http server")
 	go func() {
-		log.Error(s.Echo.Start(s.addr))
+		log.Error(s.Echo.Start(s.Addr()))
 	}()
 }
 
 func (s *Server) Close() error {
-	log.WithField("addr", s.addr).Info("shutting down http server")
+	log.WithField("addr", s.Addr()).Info("shutting down http server")
 	return s.Echo.Shutdown(context.Background())
 }

@@ -5,8 +5,8 @@ import (
 
 	"github.com/tclchiam/oxidize-go/account"
 	"github.com/tclchiam/oxidize-go/cmd/interrupt"
-	"github.com/tclchiam/oxidize-go/logger"
 	"github.com/tclchiam/oxidize-go/node"
+	"github.com/tclchiam/oxidize-go/oxylogger"
 	"github.com/tclchiam/oxidize-go/p2p"
 	"github.com/tclchiam/oxidize-go/server/httpserver"
 	"github.com/tclchiam/oxidize-go/server/rpc"
@@ -14,13 +14,13 @@ import (
 )
 
 func init() {
-	accountLogger := logger.NewLogger(logrus.InfoLevel)
-	httpLogger := logger.NewLogger(logrus.InfoLevel)
-	interruptLogger := logger.NewLogger(logrus.InfoLevel)
-	nodeLogger := logger.NewLogger(logrus.WarnLevel)
-	p2pLogger := logger.NewLogger(logrus.WarnLevel)
-	rpcLogger := logger.NewLogger(logrus.WarnLevel)
-	storageLogger := logger.NewLogger(logrus.WarnLevel)
+	accountLogger := oxylogger.NewLogger(logrus.InfoLevel)
+	httpLogger := oxylogger.NewLogger(logrus.InfoLevel)
+	interruptLogger := oxylogger.NewLogger(logrus.InfoLevel)
+	nodeLogger := oxylogger.NewLogger(logrus.WarnLevel)
+	p2pLogger := oxylogger.NewLogger(logrus.WarnLevel)
+	rpcLogger := oxylogger.NewLogger(logrus.WarnLevel)
+	storageLogger := oxylogger.NewLogger(logrus.WarnLevel)
 
 	account.UseLogger(accountLogger)
 	httpserver.UseLogger(httpLogger)

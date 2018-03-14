@@ -3,11 +3,11 @@ package node
 import (
 	"github.com/sirupsen/logrus"
 
-	"github.com/tclchiam/oxidize-go/logger"
+	"github.com/tclchiam/oxidize-go/oxylogger"
 	"github.com/tclchiam/oxidize-go/p2p"
 )
 
-var log = logger.Disabled
+var log = oxylogger.Disabled
 
 func UseLogger(logger *logrus.Logger) {
 	log = logger

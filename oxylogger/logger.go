@@ -1,4 +1,4 @@
-package logger
+package oxylogger
 
 import (
 	"io/ioutil"

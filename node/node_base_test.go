@@ -2,7 +2,6 @@ package node
 
 import (
 	"math/rand"
-	"net"
 	"testing"
 	"time"
 
@@ -11,24 +10,19 @@ import (
 	"github.com/tclchiam/oxidize-go/blockchain/entity"
 	"github.com/tclchiam/oxidize-go/blockchain/testdata"
 	"github.com/tclchiam/oxidize-go/identity"
-	"github.com/tclchiam/oxidize-go/server/httpserver"
-	"github.com/tclchiam/oxidize-go/server/rpc"
 )
 
 func TestBaseNode_AddPeer(t *testing.T) {
 	remoteBc := testdata.NewBlockchainBuilder(t).Build()
-	lis := buildListener(t)
-
-	remoteNode := newNode(remoteBc, rpc.NewServer(lis), httpserver.NewServer(""))
-	remoteNode.Serve()
+	remoteNode := mustStartNode(t, remoteBc)
 	defer remoteNode.Close()
 
 	localBc := testdata.NewBlockchainBuilder(t).Build()
-	localNode := newNode(localBc, rpc.NewServer(nil), httpserver.NewServer(""))
+	localNode := mustStartNode(t, localBc)
 
 	verifyPeerCount(localNode, 0, t)
 
-	if _, err := localNode.AddPeer(lis.Addr().String()); err != nil {
+	if _, err := localNode.AddPeer(remoteNode.Addr()); err != nil {
 		t.Fatalf("unexpected error: %s", err)
 	}
 
@@ -37,8 +31,8 @@ func TestBaseNode_AddPeer(t *testing.T) {
 	time.Sleep(600 * time.Millisecond)
 
 	peer := localNode.ActivePeers()[0]
-	if peer.Address != lis.Addr().String() {
-		t.Errorf("incorrect peer address. got - %s, wanted - %s", peer.Address, lis.Addr())
+	if peer.Address != remoteNode.Addr() {
+		t.Errorf("incorrect peer address. got - %s, wanted - %s", peer.Address, remoteNode.Addr())
 	}
 
 	expectedHeader, err := remoteBc.BestHeader()
@@ -52,17 +46,14 @@ func TestBaseNode_AddPeer(t *testing.T) {
 
 func TestBaseNode_AddPeer_PeerLoosesConnection(t *testing.T) {
 	remoteBc := testdata.NewBlockchainBuilder(t).Build()
-	lis := buildListener(t)
-
-	remoteNode := newNode(remoteBc, rpc.NewServer(lis), httpserver.NewServer(""))
-	remoteNode.Serve()
+	remoteNode := mustStartNode(t, remoteBc)
 
 	localBc := testdata.NewBlockchainBuilder(t).Build()
-	localNode := newNode(localBc, rpc.NewServer(nil), httpserver.NewServer(""))
+	localNode := mustStartNode(t, localBc)
 
 	verifyPeerCount(localNode, 0, t)
 
-	if _, err := localNode.AddPeer(lis.Addr().String()); err != nil {
+	if _, err := localNode.AddPeer(remoteNode.Addr()); err != nil {
 		t.Fatalf("unexpected error: %s", err)
 	}
 
@@ -77,7 +68,7 @@ func TestBaseNode_AddPeer_PeerLoosesConnection(t *testing.T) {
 
 func TestBaseNode_AddPeer_TargetIsOffline(t *testing.T) {
 	localBc := testdata.NewBlockchainBuilder(t).Build()
-	localNode := newNode(localBc, rpc.NewServer(nil), httpserver.NewServer(""))
+	localNode := mustStartNode(t, localBc)
 
 	verifyPeerCount(localNode, 0, t)
 
@@ -93,16 +84,14 @@ func TestBaseNode_AddPeer_TargetIsOffline(t *testing.T) {
 func TestBaseNode_AddPeer_SyncsHeadersWithNewPeer_WhenPeersVersionIsHigher(t *testing.T) {
 	remoteBc := testdata.NewBlockchainBuilder(t).Build()
 	saveRandomBlocks(t, remoteBc, rand.Intn(12))
-	lis := buildListener(t)
 
-	remoteNode := newNode(remoteBc, rpc.NewServer(lis), httpserver.NewServer(""))
-	remoteNode.Serve()
+	remoteNode := mustStartNode(t, remoteBc)
 	defer remoteNode.Close()
 
 	localBc := testdata.NewBlockchainBuilder(t).Build()
-	localNode := newNode(localBc, rpc.NewServer(nil), httpserver.NewServer(""))
+	localNode := mustStartNode(t, localBc)
 
-	if _, err := localNode.AddPeer(lis.Addr().String()); err != nil {
+	if _, err := localNode.AddPeer(remoteNode.Addr()); err != nil {
 		t.Fatalf("unexpected error: %s", err)
 	}
 
@@ -133,12 +122,17 @@ func TestBaseNode_AddPeer_SyncsHeadersWithNewPeer_WhenPeersVersionIsHigher(t *te
 	}
 }
 
-func buildListener(t *testing.T) net.Listener {
-	lis, err := net.Listen("tcp", "127.0.0.1:0")
+func mustStartNode(t *testing.T, bc *testdata.TestBlockchain) Node {
+	node, err := NewNode(bc, Config{
+		HttpPort: 0,
+		RpcPort:  0,
+	})
 	if err != nil {
-		t.Fatalf("starting listener: %s", err)
+		t.Fatalf("failed to start node")
 	}
-	return lis
+	node.Serve()
+
+	return node
 }
 
 func saveRandomBlocks(t *testing.T, bc blockchain.Blockchain, num int) {
@@ -157,7 +151,7 @@ func saveRandomBlocks(t *testing.T, bc blockchain.Blockchain, num int) {
 	}
 }
 
-func verifyPeerCount(node *baseNode, peerCount int, t *testing.T) {
+func verifyPeerCount(node Node, peerCount int, t *testing.T) {
 	if len(node.ActivePeers()) != peerCount {
 		t.Fatalf("incorrect peer count. got - %d, wanted  - %d", len(node.ActivePeers()), peerCount)
 	}

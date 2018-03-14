@@ -1,6 +1,9 @@
 package node
 
 import (
+	"fmt"
+	"net"
+
 	"github.com/tclchiam/oxidize-go/account"
 	"github.com/tclchiam/oxidize-go/blockchain"
 	"github.com/tclchiam/oxidize-go/blockchain/blockhttp"
@@ -23,8 +26,17 @@ type baseNode struct {
 	httpServer *httpserver.Server
 }
 
-func NewNode(bc blockchain.Blockchain, rpcServer *rpc.Server, httpServer *httpserver.Server) Node {
-	return newNode(bc, rpcServer, httpServer)
+func NewNode(bc blockchain.Blockchain, config Config) (Node, error) {
+	httpLis, err := net.Listen("tcp", fmt.Sprintf("localhost:%d", config.HttpPort))
+	if err != nil {
+		return nil, err
+	}
+	rpcLis, err := net.Listen("tcp", fmt.Sprintf("localhost:%d", config.RpcPort))
+	if err != nil {
+		return nil, err
+	}
+
+	return newNode(bc, rpc.NewServer(rpcLis), httpserver.NewServer(httpLis)), nil
 }
 
 func newNode(bc blockchain.Blockchain, rpcServer *rpc.Server, httpServer *httpserver.Server) *baseNode {
@@ -43,6 +55,10 @@ func newNode(bc blockchain.Blockchain, rpcServer *rpc.Server, httpServer *httpse
 	blockhttp.RegisterBlockServer(httpServer, bc)
 
 	return node
+}
+
+func (n *baseNode) Addr() string {
+	return n.rpcServer.Addr().String()
 }
 
 func (n *baseNode) AddPeer(address string) (*p2p.Peer, error) {

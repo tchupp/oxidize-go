@@ -4,10 +4,10 @@ import (
 	"google.golang.org/grpc/grpclog"
 
 	"github.com/sirupsen/logrus"
-	"github.com/tclchiam/oxidize-go/logger"
+	"github.com/tclchiam/oxidize-go/oxylogger"
 )
 
-var log = logger.Disabled
+var log = oxylogger.Disabled
 var grpcLogger = logrus.NewEntry(log)
 
 func UseLogger(logger *logrus.Logger) {
