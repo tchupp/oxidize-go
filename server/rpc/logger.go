@@ -10,8 +10,16 @@ import (
 var log = oxylogger.Disabled
 var grpcLogger = logrus.NewEntry(log)
 
+type rpcLogger struct {
+	*logrus.Logger
+}
+
+func (rpcLogger) V(l int) bool {
+	return true
+}
+
 func UseLogger(logger *logrus.Logger) {
 	log = logger
 	grpcLogger = logrus.NewEntry(log)
-	grpclog.SetLogger(logger)
+	grpclog.SetLoggerV2(rpcLogger{Logger: logger})
 }
